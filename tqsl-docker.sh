@@ -1,5 +1,7 @@
 #!/bin/sh
 
+set -e
+
 container="tqsl-fun"
 
 docker build --tag tqsl .
