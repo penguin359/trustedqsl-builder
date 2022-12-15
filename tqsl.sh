@@ -66,6 +66,11 @@ if [ "$release" = "ubuntu:14.04" -o \
 else
 	lxc config device add "$container" gpg-agent proxy connect=unix:"$host_socket" listen=unix:"$container_socket" bind=container uid="$uid" gid="$gid" mode=0600
 fi
+echo "===> Detected sockets..."
+echo "host_socket=$host_socket"
+echo "container_socket=$container_socket"
+echo "x11_socket=$x11_socket"
+echo
 lxc file push build-tqsl.sh "$container""$home"/
 echo "===> Starting build script..."
 lxc exec "$container" -- sudo -u "$user" -i "./build-tqsl.sh"

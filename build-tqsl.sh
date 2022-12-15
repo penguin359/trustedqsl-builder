@@ -14,12 +14,21 @@ fi
 #branch="backport-kinetic"
 branch="backport-${VERSION_CODENAME}"
 
-export DISPLAY=":0"
+user="$(id -un)"
+
+if [ -z "$DISPLAY" ]; then
+	export DISPLAY=":0"
+fi
 export SSH_AUTH_SOCK="/tmp/ssh-agent.sock"
 export GPG_AGENT_INFO="$(gpgconf --list-dir | grep '^agent-socket:' | cut -d: -f2):0:1"
 if tty >/dev/null 2>&1; then
 	export GPG_TTY=$(tty)
 fi
+
+# Needed for Docker to fix permissions
+x11_socket="/tmp/.X11-unix/X$(echo "$DISPLAY" | cut -d: -f2 | cut -d. -f1)"
+sudo chown -R "$user" "$SSH_AUTH_SOCK" "${HOME}/.gnupg" "$x11_socket"
+sudo chmod -R u=rwX,go= "$SSH_AUTH_SOCK" "${HOME}/.gnupg" "$x11_socket"
 
 echo 'Acquire::http::Proxy "http://10.146.39.1:3142";' | sudo tee /etc/apt/apt.conf.d/00aptproxy
 
