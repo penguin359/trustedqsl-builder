@@ -2,24 +2,32 @@
 
 set -e
 
+tag=
+if [ $# -eq 1 ]; then
+	tag="$1"
+fi
+
 container="tqsl3"
-release="ubuntu:14.04"
-#release="ubuntu:16.04"
-#release="ubuntu:18.04"
-#release="ubuntu:20.04"
-#release="ubuntu:20.10"
-#release="ubuntu:21.04"
-#release="ubuntu:21.10"
-#release="ubuntu:22.04"
-#release="ubuntu:22.10"
-#release="ubuntu:23.04"
-#release="ubuntu:devel"
+if [ -z "$tag" ]; then
+	tag="14.04"
+	#tag="16.04"
+	#tag="18.04"
+	#tag="20.04"
+	#tag="20.10"
+	#tag="21.04"
+	#tag="21.10"
+	#tag="22.04"
+	#tag="22.10"
+	#tag="23.04"
+	#tag="devel"
+fi
+release="ubuntu:${tag}"
 
 user="ubuntu"
 
 lxc stop --force "$container" 2>/dev/null || true
 lxc delete "$container" 2>/dev/null || true
-echo "===> Creating new container..."
+echo "===> Creating new container for ${release}..."
 lxc launch "$release" "$container"
 #lxc start "$container"
 echo "===> Waiting for start-up..."
@@ -53,12 +61,13 @@ host_socket="$(gpgconf --list-dir agent-extra-socket)"
 container_socket="$(lxc exec "$container" -- sudo -u "$user" -i gpgconf --list-dir | grep '^agent-socket:' | cut -d: -f2)"
 x11_socket="/tmp/.X11-unix/X$(echo "$DISPLAY" | cut -d: -f2 | cut -d. -f1)"
 my_ip="$(ip -o route get 240.0.0.0 | sed -n 's:.* src \([^ ]\+\) .*:\1:p')"
-lxc exec "$container" -- sudo -u "$user" -i mkdir -m 700 -p "$(dirname "$container_socket")"
+lxc exec "$container" -- sudo -u "$user" -i mkdir -m 700 -p "$(dirname "$container_socket")" "$home"/.gnupg
 lxc config device remove "$container" gpg-agent 2>/dev/null || true
 lxc config device remove "$container" ssh-agent 2>/dev/null || true
 lxc config device remove "$container" x11 2>/dev/null || true
 lxc config device add "$container" ssh-agent proxy connect=unix:"$SSH_AUTH_SOCK" listen=unix:"/tmp/ssh-agent.sock" bind=container uid="$uid" gid="$gid" mode=0600
-lxc config device add "$container" x11 disk source="$x11_socket" path=/tmp/.X11-unix/X0
+#lxc config device add "$container" x11 disk source="$x11_socket" path=/tmp/.X11-unix/X0
+lxc config device add "$container" x11 proxy connect=unix:"$x11_socket" listen=unix:/tmp/.X11-unix/X0 bind=container uid="$uid" gid="$gid" mode=0600
 xauth extract - "$DISPLAY" | lxc exec "$container" -- sudo -u "$user" -i xauth merge -
 if [ "$release" = "ubuntu:14.04" -o \
      "$release" = "ubuntu:16.04" ]; then
@@ -71,7 +80,7 @@ echo "host_socket=$host_socket"
 echo "container_socket=$container_socket"
 echo "x11_socket=$x11_socket"
 echo
-lxc file push build-tqsl.sh "$container""$home"/
+lxc file push -r scripts/* "$container""$home"/
 echo "===> Starting build script..."
 lxc exec "$container" -- sudo -u "$user" -i "./build-tqsl.sh"
 #lxc stop "$container"

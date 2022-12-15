@@ -7,5 +7,5 @@ RUN useradd ubuntu -m -G sudo -s /bin/bash && \
     echo "ubuntu ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers.d/99-ubuntu-user
 USER ubuntu
 WORKDIR /home/ubuntu
-COPY build-tqsl.sh .
+COPY scripts/ .
 CMD ["./build-tqsl.sh"]
