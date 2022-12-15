@@ -18,7 +18,17 @@ docker container run -it --rm \
 	-v "${x11_socket}:/tmp/.X11-unix/X0" \
 	-v "${host_socket}:${container_socket}" \
 	--name "$container" tqsl
-
 	#-v "${HOME}/.gnupg:/home/ubuntu/.gnupg" \
 	#-v /tmp/.X11-unix:/tmp/.X11-unix \
 	#-e DISPLAY="$DISPLAY" \
+docker container run -it --rm \
+	-v "${x11_socket}:/tmp/.X11-unix/X0" \
+	--name "$container" tqsl ./build-tqsl-tarball.sh
+docker container run -it --rm \
+	-v "${x11_socket}:/tmp/.X11-unix/X0" \
+	--device /dev/fuse \
+	--cap-add SYS_ADMIN \
+	--security-opt apparmor:unconfined \
+	--name "$container" tqsl ./build-tqsl-appimage.sh
+
+echo "===> Done."

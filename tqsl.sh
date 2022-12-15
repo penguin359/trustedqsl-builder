@@ -83,6 +83,8 @@ echo
 lxc file push -r scripts/* "$container""$home"/
 echo "===> Starting build script..."
 lxc exec "$container" -- sudo -u "$user" -i "./build-tqsl.sh"
+lxc exec "$container" -- sudo -u "$user" -i "./build-tqsl-tarball.sh"
+lxc exec "$container" -- sudo -u "$user" -i "./build-tqsl-appimage.sh"
 #lxc stop "$container"
 #lxc delete "$container"
 echo "===> Done."
