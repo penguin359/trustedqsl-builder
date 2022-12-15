@@ -8,4 +8,4 @@ RUN useradd ubuntu -m -G sudo -s /bin/bash && \
 USER ubuntu
 WORKDIR /home/ubuntu
 COPY scripts/ .
-CMD ["./build-tqsl.sh"]
+CMD ["./build-tqsl-package.sh"]
