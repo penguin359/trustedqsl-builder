@@ -8,8 +8,9 @@ fi
 
 # Needed for Docker to fix permissions
 x11_socket="/tmp/.X11-unix/X$(echo "$DISPLAY" | cut -d: -f2 | cut -d. -f1)"
-sudo chown "$user" "$x11_socket"
-sudo chmod u=rw,go= "$x11_socket"
+sudo mkdir -p /output/appimage/
+sudo chown -R "$user" "$x11_socket" /output
+sudo chmod -R u=rwX,go= "$x11_socket" /output
 
 sudo apt update
 sudo DEBIAN_FRONTEND=noninteractive apt upgrade -qy
@@ -30,4 +31,6 @@ git config --global http.postBuffer 1048576000
 echo "===> Testing tqsl binary..."
 ./TQSL-x86_64.AppImage --version 2>&1 | grep --color 'TQSL Version 2\..*'
 #./TQSL-x86_64.AppImage --version 2>&1 | grep --color 'TQSL Version 2\..*' || true
+cp --preserve=timestamps ./TQSL-x86_64.AppImage /output/appimage/
+echo "Success!"
 cd

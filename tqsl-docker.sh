@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
 container="tqsl"
+base="$(dirname "$(readlink -f "$0")")"
 
 args=$(getopt --name "$0" --options 'hn:' --longoptions 'help,name:' --shell sh -- "$@")
 if [ $? -ne 0 ]; then
@@ -34,6 +35,8 @@ done
 
 set -e
 
+cd "$base"
+
 declare -a tags=($@)
 
 if [ "${#tags[@]}" -eq 0 ]; then
@@ -43,8 +46,12 @@ fi
 build() {
 	local tag="$1"
 	local release="ubuntu:${tag}"
+	local outputdir="${base}/output-docker"
 
 	sed -i -e 's/^FROM .*/FROM '"$release"'/' Dockerfile
+
+	rm -fr "$outputdir"/
+	mkdir -p "$outputdir"/
 
 	docker build --tag tqsl .
 
@@ -61,15 +68,18 @@ build() {
 		-v "${SSH_AUTH_SOCK}:/tmp/ssh-agent.sock" \
 		-v "${x11_socket}:/tmp/.X11-unix/X0" \
 		-v "${host_socket}:${container_socket}" \
+		-v "${outputdir}:/output" \
 		--name "$container" tqsl
 		#-v "${HOME}/.gnupg:/home/ubuntu/.gnupg" \
 		#-v /tmp/.X11-unix:/tmp/.X11-unix \
 		#-e DISPLAY="$DISPLAY" \
 	docker container run -it --rm \
 		-v "${x11_socket}:/tmp/.X11-unix/X0" \
+		-v "${outputdir}:/output" \
 		--name "$container" tqsl ./build-tqsl-tarball.sh
 	docker container run -it --rm \
 		-v "${x11_socket}:/tmp/.X11-unix/X0" \
+		-v "${outputdir}:/output" \
 		--device /dev/fuse \
 		--cap-add SYS_ADMIN \
 		--security-opt apparmor:unconfined \

@@ -27,8 +27,9 @@ fi
 
 # Needed for Docker to fix permissions
 x11_socket="/tmp/.X11-unix/X$(echo "$DISPLAY" | cut -d: -f2 | cut -d. -f1)"
-sudo chown -R "$user" "$SSH_AUTH_SOCK" "${HOME}/.gnupg" "$x11_socket"
-sudo chmod -R u=rwX,go= "$SSH_AUTH_SOCK" "${HOME}/.gnupg" "$x11_socket"
+sudo mkdir -p /output/deb/
+sudo chown -R "$user" "$SSH_AUTH_SOCK" "${HOME}/.gnupg" "$x11_socket" /output
+sudo chmod -R u=rwX,go= "$SSH_AUTH_SOCK" "${HOME}/.gnupg" "$x11_socket" /output
 
 echo 'Acquire::http::Proxy "http://10.146.39.1:3142";' | sudo tee /etc/apt/apt.conf.d/00aptproxy
 
@@ -146,4 +147,6 @@ tqsl --version 2>&1 | grep --color 'TQSL Version 2\..*'
 dscverify trustedqsl_*_source.changes
 dput -ol trustedqsl trustedqsl_*_source.changes
 dput --debug -l trustedqsl trustedqsl_*_source.changes
+cp --preserve=timestamps trustedqsl_* /output/deb/
 echo "Success!"
+cd
