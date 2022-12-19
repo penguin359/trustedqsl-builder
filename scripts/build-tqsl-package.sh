@@ -126,6 +126,11 @@ if [ "$branch" = "backport-trusty" -o \
      "$branch" = "backport-bionic" -o \
      "$branch" = "backport-focal" ]; then
 	lintian_opts=""
+elif [ "$branch" = "backport-groovy" -o \
+       "$branch" = "backport-hirsute" -o \
+       "$branch" = "backport-impish" ]; then
+	# Warnings are being produced due to Troff segfault
+	lintian_opts="--fail-on error"
 fi
 #dpkg-buildpackage -kfakeroot
 #gbp buildpackage --git-debian-branch="$branch" --git-tarball-dir=.. --lintian-opts $lintian_opts
