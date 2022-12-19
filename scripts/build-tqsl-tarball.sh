@@ -20,8 +20,8 @@ rm -fr ~/raw
 mkdir ~/raw
 cd ~/raw
 #git clone git://git.code.sf.net/p/trustedqsl/tqsl
-#git clone git://git.code.sf.net/u/penguin359/trustedqsl
-git clone ssh://penguin359@git.code.sf.net/u/penguin359/trustedqsl
+git clone git://git.code.sf.net/u/penguin359/trustedqsl
+#git clone ssh://penguin359@git.code.sf.net/u/penguin359/trustedqsl
 wget http://www.arrl.org/tqsl/tqsl-2.6.5.tar.gz
 rm -fr tqsl-2.6.5
 tar xvf tqsl-2.6.5.tar.gz
