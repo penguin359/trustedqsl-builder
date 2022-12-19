@@ -1,0 +1,50 @@
+debuild does not check lintian return status
+gbp buildpackage relies on debuild so has the same issue
+dpkg-buildpackage -F, --build=full, --build=source,binary, --build=source,any does not seem to build source package, just binary
+  Actually, it is created, but it's just the dsc and debian tarball, changes is for source-only
+devscripts reference has signing disabled for dpkg-buildpackage so a separate debsign is needed
+  but debuild has it's own call to debsign???
+
+debuild can't handle --no-lintian???
+
+
+TrustedQSL
+  Backport the lintian override changes to kinetic and older?
+  Create a lunar build?
+  Create official groovy, hirsute, and impish builds
+  Update focal build
+
+version changes:
+  wxgtk dep (kinetic, bionic, trusty)
+  debhelper[-compat] (groovy, bionic)
+  libdb/libldbm (impish)
+
+  lintian-overrides (kinetic, impish, focal)
+
+  standards-version
+
+  watch (groovy)
+  
+  missing-sources (bionic)
+
+
+
+g++ -ggdb getpassword.cpp wxutil.cpp test.cpp $(wx-config --cppflags --cxxflags --libs --optional-libs) -L../../tqsl-build/src -ltqsllib -Wall -Werror -o test && ./test
+
+      GetPasswordDialog dialog = new GetPasswordDialog(this, "Title",
+      "Message", nullptr, "");
+          dialog.ShowModal();
+
+
+cmake -B ~/raw/tqsl/build -S ~/raw/tqsl && cmake --build ~/raw/tqsl/build && ctest --test-dir ~/raw/tqsl/build/tests/ -V
+
+cmake -B ../tqsl-build -S . && cmake --build ../tqsl-build && ctest --test-dir ../tqsl-build/tests/ -V
+git -c user.name='Loren M. Lang' -c user.email='lorenl@north-winds.org' commit -av
+
+build error on warning
+error on doxygen
+error on valgrind failure
+force c++11?
+
+groff crashes
+elf error on build-id for jammy
