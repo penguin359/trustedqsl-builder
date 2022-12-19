@@ -7,7 +7,7 @@ if [ $# -eq 1 ]; then
 	tag="$1"
 fi
 
-container="tqsl3"
+container="tqsl"
 if [ -z "$tag" ]; then
 	tag="14.04"
 	#tag="16.04"
@@ -85,6 +85,6 @@ echo "===> Starting build script..."
 lxc exec "$container" -- sudo -u "$user" -i "./build-tqsl-package.sh"
 lxc exec "$container" -- sudo -u "$user" -i "./build-tqsl-tarball.sh"
 lxc exec "$container" -- sudo -u "$user" -i "./build-tqsl-appimage.sh"
-#lxc stop "$container"
-#lxc delete "$container"
+lxc stop "$container"
+lxc delete "$container"
 echo "===> Done."
