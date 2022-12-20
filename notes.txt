@@ -48,3 +48,6 @@ force c++11?
 
 groff crashes
 elf error on build-id for jammy
+trustedqsl-dbgsym: elf-error In program headers: Unable to find program
+interpreter name
+[usr/lib/debug/.build-id/15/5b46049286a8300c200e557ed023d1555a5b97.debug]

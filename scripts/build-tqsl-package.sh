@@ -8,13 +8,10 @@ if [ "$VERSION_ID" = "14.04" ]; then
 	VERSION_CODENAME="trusty"
 fi
 
-#branch="backport-focal"
-#branch="backport-impish"
-#branch="backport-jammy"
-#branch="backport-kinetic"
 branch="backport-${VERSION_CODENAME}"
 
 user="$(id -un)"
+group="$(id -gn)"
 
 if [ -z "$DISPLAY" ]; then
 	export DISPLAY=":0"
@@ -28,8 +25,9 @@ fi
 # Needed for Docker to fix permissions
 x11_socket="/tmp/.X11-unix/X$(echo "$DISPLAY" | cut -d: -f2 | cut -d. -f1)"
 sudo mkdir -p /output/deb/
-sudo chown -R "$user" "$SSH_AUTH_SOCK" "${HOME}/.gnupg" "$x11_socket" /output
-sudo chmod -R u=rwX,go= "$SSH_AUTH_SOCK" "${HOME}/.gnupg" "$x11_socket" /output
+sudo chown -R "${user}:${group}" "$SSH_AUTH_SOCK" "${HOME}/.gnupg" "$x11_socket" /output
+sudo chmod -R u=rwX,go= "$SSH_AUTH_SOCK" "${HOME}/.gnupg" "$x11_socket"
+sudo chmod -R u=rwX,go=rX /output
 
 echo 'Acquire::http::Proxy "http://10.146.39.1:3142";' | sudo tee /etc/apt/apt.conf.d/00aptproxy
 

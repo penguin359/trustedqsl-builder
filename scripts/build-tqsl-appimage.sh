@@ -2,6 +2,9 @@
 
 set -e
 
+user="$(id -un)"
+group="$(id -gn)"
+
 if [ -z "$DISPLAY" ]; then
 	export DISPLAY=":0"
 fi
@@ -9,8 +12,9 @@ fi
 # Needed for Docker to fix permissions
 x11_socket="/tmp/.X11-unix/X$(echo "$DISPLAY" | cut -d: -f2 | cut -d. -f1)"
 sudo mkdir -p /output/appimage/
-sudo chown -R "$user" "$x11_socket" /output
-sudo chmod -R u=rwX,go= "$x11_socket" /output
+sudo chown -R "${user}:${group}" "$x11_socket" /output
+sudo chmod -R u=rwX,go= "$x11_socket"
+sudo chmod -R u=rwX,go=rX /output
 
 sudo apt update
 sudo DEBIAN_FRONTEND=noninteractive apt upgrade -qy
