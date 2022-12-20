@@ -46,7 +46,7 @@ fi
 build() {
 	local tag="$1"
 	local release="ubuntu:${tag}"
-	local outputdir="${base}/output-docker"
+	local outputdir="${base}/output-docker/ubuntu${tag}"
 
 	sed -i -e 's/^FROM .*/FROM '"$release"'/' Dockerfile
 

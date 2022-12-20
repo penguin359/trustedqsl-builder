@@ -56,7 +56,7 @@ fi
 build() {
 	local tag="$1"
 	local release="ubuntu:${tag}"
-	local outputdir="${base}/output-lxc"
+	local outputdir="${base}/output-lxc/ubuntu${tag}"
 	local user="ubuntu"
 
 	lxc stop --force "$container" 2>/dev/null || true
