@@ -1,0 +1,13 @@
+*~
+*.swp
+/curl-*/
+/db-*/
+/expat-*/
+/openssl/
+/openssl-*/
+/wxMSW-*/
+/zlib-*/
+/tqsl/
+*.zip
+*.gz
+*.exe
