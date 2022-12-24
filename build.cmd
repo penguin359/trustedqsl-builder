@@ -12,7 +12,7 @@ REM Change to the correct drive
 %~d0
 cd %ROOT%
 
-IF NOT EXIST tqsl CALL download.bat
+CALL download.bat
 IF EXIST vcvars2008.bat CALL vcvars2008.bat
 
 @GOTO openssl
