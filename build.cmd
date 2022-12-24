@@ -42,6 +42,7 @@ perl Configure VC-WIN32 --prefix=%ROOT%openssl
 @IF ERRORLEVEL 1 GOTO error
 call ms\do_nasm
 @IF ERRORLEVEL 1 GOTO error
+REM Use ntdll.mak for DLL
 nmake -f ms\nt.mak
 @IF ERRORLEVEL 1 GOTO error
 nmake -f ms\nt.mak test
@@ -60,10 +61,8 @@ GOTO end_openssl
 @del /s/q wxMSW-2.8.12
 @rmdir /s/q wxMSW-2.8.12
 @7z x "wxMSW-2.8.12.zip" -aoa 
-cd wxMSW-2.8.12\include\wx\msw
-copy setup0.h setup.h
-@IF ERRORLEVEL 1 GOTO error
-cd ..\..\..\src\msw
+cd wxMSW-2.8.12\src\msw
+REM Comment out #include <pbt.h> in src\msw\window.cpp
 REM Hack on window.cpp, not needed?
 cd ..\..\build\msw
 nmake -f makefile.vc BUILD=release SHARED=0
@@ -79,6 +78,7 @@ GOTO end_wxwidgets
 @rmdir /s/q curl-7.39.0
 @7z x "curl-7.39.0.tar.gz" -so | 7z x -aoa -si -ttar
 cd curl-7.39.0\winbuild
+REM mode=dll for DLL
 nmake -f Makefile.vc mode=static ENABLE_WINSSL=yes ENABLE_IDN=no
 @IF ERRORLEVEL 1 GOTO error
 GOTO end_curl
@@ -129,6 +129,7 @@ GOTO end_bdb
 cd expat-2.1.0
 @7z x ../expat-vc2008.zip -aoa 
 cd Source
+REM Only expat_static is needed
 vcbuild expat.sln "Release|Win32"
 @IF ERRORLEVEL 1 GOTO error
 copy /y win32\bin\Release\libexpatMT.lib ..\Bin\libexpat.lib
