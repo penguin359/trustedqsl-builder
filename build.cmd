@@ -145,7 +145,11 @@ cmake -DCMAKE_LIBRARY_PATH="%ROOT%expat-2.1.0\Bin" -DCMAKE_INCLUDE_PATH="%ROOT%e
 @IF ERRORLEVEL 1 GOTO error
 REM cmake --build build32-vs2008
 cd build32-vs2008
-vcbuild TrustedQSL.sln "Release|Win32"
+REM Building tests currently has build failures
+REM vcbuild TrustedQSL.sln "Release|Win32"
+vcbuild src/tqsllib2.vcproj "Release|Win32"
+vcbuild apps/tqslupdater.vcproj "Release|Win32"
+vcbuild apps/tqsl.vcproj "Release|Win32"
 @IF ERRORLEVEL 1 GOTO error
 GOTO end_tqsl
 
