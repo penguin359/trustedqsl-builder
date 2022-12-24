@@ -16,3 +16,9 @@ $WebClient.DownloadFile("http://download.oracle.com/berkeley-db/db-6.0.20.NC.zip
 
 echo "Downloading Trusted QSL..."
 git clone https://git.code.sf.net/p/trustedqsl/tqsl tqsl
+cd tqsl
+git remote add penguin359 https://penguin359@git.code.sf.net/u/penguin359/trustedqsl
+git remote set-url --push penguin359 ssh://penguin359@git.code.sf.net/u/penguin359/trustedqsl
+git remote update penguin359
+git config remote.pushDefault penguin359
+git switch ansi-fix
