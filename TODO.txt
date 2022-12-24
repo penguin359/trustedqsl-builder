@@ -1,0 +1,17 @@
+Build in ANSI and Unicode
+Build 32-bit and 64-bit
+Build in VS 2008, 2012, and 2015
+Build with Static and DLLs
+Build with Static and DLL runtime
+
+Fix dependency on getaddrinfo()
+
+Figure out how to automatically convert DSW to Solution
+
+Figure out how to only build specific projects for BDB, Expat
+
+Verify debug builds use debug libs where application
+
+Make all subprojects build in dedicated build folder
+
+Simplify cmake command to be closer to original from build notes

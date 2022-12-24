@@ -1,0 +1,167 @@
+#choco install -not-silent ActivePerl 7zip nasm
+vcpkg.exe install --triplet x86-windows berkeleydb curl expat lmdb openssl wxwidgets zlib
+vcpkg.exe install --triplet x64-windows berkeleydb curl expat lmdb openssl wxwidgets zlib
+vcpkg.exe install --triplet x64-windows-static berkeleydb curl expat lmdb openssl wxwidgets zlib
+
+The package curl:x86-windows provides CMake targets:
+
+    find_package(CURL CONFIG REQUIRED)
+    target_link_libraries(main PRIVATE CURL::libcurl)
+
+The package expat:x86-windows provides CMake targets:
+
+    find_package(expat CONFIG REQUIRED)
+    target_link_libraries(main PRIVATE expat::expat)
+
+The package openssl is compatible with built-in CMake targets:
+
+    find_package(OpenSSL REQUIRED)
+    target_link_libraries(main PRIVATE OpenSSL::SSL OpenSSL::Crypto)
+
+The package wxwidgets provides CMake integration:
+
+    find_package(wxWidgets REQUIRED)
+    target_include_directories(main PRIVATE ${wxWidgets_INCLUDE_DIRS})
+    target_link_libraries(main PRIVATE ${wxWidgets_LIBRARIES})
+
+The package zlib is compatible with built-in CMake targets:
+
+    find_package(ZLIB REQUIRED)
+    target_link_libraries(main PRIVATE ZLIB::ZLIB)
+
+
+del /s/q build32 build64
+cmake -DCMAKE_TOOLCHAIN_FILE=C:/Users/loren/vcpkg/scripts/buildsystems/vcpkg.cmake -G "Visual Studio 16 2019" -A Win32 -S . -B "build32"
+cmake -DCMAKE_TOOLCHAIN_FILE=C:/Users/loren/vcpkg/scripts/buildsystems/vcpkg.cmake -G "Visual Studio 16 2019" -A x64 -S . -B "build64"
+cmake --build build32 --config Release
+cmake --build build64 --config Release
+
+
+mkdir build32 & pushd build32
+cmake -G "Visual Studio 15 2017" \path_to_source\
+popd
+mkdir build64 & pushd build64
+cmake -G "Visual Studio 15 2017 Win64" \path_to_source\
+popd
+
+
+
+Download "Visual Studio Express 2012 for Windows Desktop"
+https://my.visualstudio.com/Downloads?q=visual%20studio%202012%20express%20for%20windows%20desktop&wt.mc_id=o~msft~vscom~older-downloads
+You will need to log in with a valid Microsoft account, but the download is free.
+
+reg add HKEY_CURRENT_USER\Software\Microsoft\WDExpress\11.0\General /v SuppressUppercaseConversion /t REG_DWORD /d 1 /f
+
+https://www.openssl.org/source/openssl-1.0.1e.tar.gz
+https://github.com/wxWidgets/wxWidgets/releases/download/v2.8.12/wxMSW-2.8.12.zip
+https://curl.se/download/curl-7.87.0.tar.gz
+https://curl.se/download/curl-7.39.0.tar.gz
+https://sourceforge.net/projects/expat/files/expat_win32/2.5.0/expat-win32bin-2.5.0.zip/download
+https://www.zlib.net/fossils/zlib-1.2.8.tar.gz
+http://download.oracle.com/berkeley-db/db-6.0.20.NC.zip
+
+https://chocolatey.org/install#individual
+
+#choco install -not-silent ActivePerl
+choco install nasm 7zip StrawberryPerl cmake git tortoisegit trustedqsl
+choco install -not-silent git tortoisegit
+
+#https://state-tool.s3.amazonaws.com/remote-installer/windows-amd64/state-remote-installer.exe
+#state activate --default ActiveState-Projects/ActiveState-Perl-5.36.0
+
+
+"C:\Program Files (x86)\Microsoft Visual Studio 9.0\VC\vcvarsall.bat" x86
+
+"C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\bin\vcvars32.bat"
+set PATH=C:\Program Files\NASM;C:\Strawberry\perl\bin;C:\Program Files\CMake\bin;%PATH%
+set PATH=C:\Program Files (x86)\Microsoft SDKs\Windows\v7.1A\Bin;C:\Program Files (x86)\MSBuild\12.0\Bin;C:\Program Files (x86)\MSBuild\12.0\Bin;C:\Program Files (x86)\Microsoft Visual Studio 9.0\VC\bin;C:\Program Files (x86)\Microsoft Visual Studio 9.0\Common7\IDE;%PATH%
+
+DevEnvDir=C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\Common7\IDE\
+
+set INCLUDE=C:\Program Files (x86)\Microsoft Visual Studio 9.0\VC\include;C:\Program Files (x86)\Microsoft SDKs\Windows\v7.1A\Include
+set INCLUDE=C:\Program Files (x86)\Microsoft Visual Studio 9.0\VC\include;C:\Program Files (x86)\Windows Kits\8.0\Include\shared;C:\Program Files (x86)\Windows Kits\8.0\Include\um;C:\Program Files (x86)\Windows Kits\8.0\Include\winrt
+set INCLUDE=C:\Program Files (x86)\Microsoft Visual Studio 9.0\VC\include;C:\Program Files (x86)\Windows Kits\8.1\Include\shared;C:\Program Files (x86)\Windows Kits\8.1\Include\um;C:\Program Files (x86)\Windows Kits\8.1\Include\winrt
+set INCLUDE=C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Tools\MSVC\14.29.30133\include;C:\Program Files (x86)\Windows Kits\10\include\10.0.19041.0\ucrt;C:\Program Files (x86)\Windows Kits\10\include\10.0.19041.0\shared;C:\Program Files (x86)\Windows Kits\10\include\10.0.19041.0\um;C:\Program Files (x86)\Windows Kits\10\include\10.0.19041.0\winrt;C:\Program Files (x86)\Windows Kits\10\include\10.0.19041.0\cppwinrt
+
+C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Tools\MSVC\14.29.30133\ATLMFC\include
+C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Tools\MSVC\14.29.30133\include
+C:\Program Files (x86)\Windows Kits\NETFXSDK\4.8\include\um
+C:\Program Files (x86)\Windows Kits\10\include\10.0.19041.0\ucrt
+C:\Program Files (x86)\Windows Kits\10\include\10.0.19041.0\shared
+C:\Program Files (x86)\Windows Kits\10\include\10.0.19041.0\um
+C:\Program Files (x86)\Windows Kits\10\include\10.0.19041.0\winrt
+C:\Program Files (x86)\Windows Kits\10\include\10.0.19041.0\cppwinrt
+
+set LIB=C:\Program Files (x86)\Microsoft Visual Studio 9.0\VC\lib;C:\Program Files (x86)\Microsoft SDKs\Windows\v7.1A\Lib
+set LIB=C:\Program Files (x86)\Microsoft Visual Studio 9.0\VC\lib;C:\Program Files (x86)\Windows Kits\8.0\Lib\win8\um\x86
+set LIB=C:\Program Files (x86)\Microsoft Visual Studio 9.0\VC\lib;C:\Program Files (x86)\Windows Kits\8.1\Lib\win8\um\x86
+set LIB=C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Tools\MSVC\14.29.30133\lib\x86;C:\Program Files (x86)\Windows Kits\NETFXSDK\4.8\lib\um\x86;C:\Program Files (x86)\Windows Kits\10\lib\10.0.19041.0\ucrt\x86;C:\Program Files (x86)\Windows Kits\10\lib\10.0.19041.0\um\x86
+
+C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Tools\MSVC\14.29.30133\ATLMFC\lib\x86
+C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Tools\MSVC\14.29.30133\lib\x86
+C:\Program Files (x86)\Windows Kits\NETFXSDK\4.8\lib\um\x86
+C:\Program Files (x86)\Windows Kits\10\lib\10.0.19041.0\ucrt\x86
+C:\Program Files (x86)\Windows Kits\10\lib\10.0.19041.0\um\x86
+
+LIBPATH=C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Tools\MSVC\14.29.30133\ATLMFC\lib\x86;C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Tools\MSVC\14.29.30133\lib\x86;C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Tools\MSVC\14.29.30133\lib\x86\store\references;C:\Program Files (x86)\Windows Kits\10\UnionMetadata\10.0.19041.0;C:\Program Files (x86)\Windows Kits\10\References\10.0.19041.0;C:\Windows\Microsoft.NET\Framework\v4.0.30319
+
+nasm --version
+perl --version
+cmake --version
+cl
+nmake /?
+
+cd \tqsl-build\openssl-1.0.1e
+perl Configure VC-WIN32 --prefix=c:\tqsl-build\openssl
+ms\do_nasm
+nmake -f ms\nt.mak
+nmake -f ms\nt.mak test
+nmake -f ms\nt.mak install
+cd ..\openssl\lib
+mkdir VC
+move *.lib VC
+
+cd \tqsl-build\wxWidgets-2.8.12\include\wx\msw
+copy setup0.h setup.h
+cd ..\..\..\src\msw
+gvim window.cpp
+cd ..\..\build\msw
+nmake -f makefile.vc BUILD=release SHARED=0
+echo %ERRORLEVEL%
+
+cd \tqsl-build\curl-7.39.0\winbuild
+nmake -f Makefile.vc mode=static ENABLE_WINSSL=yes
+
+cd \tqsl-build\zlib-1.2.8
+#cmake -G "Visual Studio 11 2012" .
+cmake -G "Visual Studio 9 2008" .
+msbuild /p:Configuration=Debug ALL_BUILD.vcxproj
+msbuild /p:Configuration=Release ALL_BUILD.vcxproj
+
+BerkeleyDB
+  Use Static Release and Static Debug to build it.
+
+cd \tqsl-build
+git clone git://git.code.sf.net/p/trustedqsl/tqsl trustedqsl-tqsl
+cd trustedqsl-tqsl
+
+cmake . -DCMAKE_LIBRARY_PATH="C:\tqsl-build\expat-2.1.0\Bin" -DCMAKE_INCLUDE_PATH="C:\tqsl-build\expat-2.1.0\Source\lib" -DwxWidgets_ROOT_DIR="C:\tqsl-build\wxWidgets-2.8.12" -DBDB_INCLUDE_DIR="C:\tqsl-build\db-6.0.20.NC\build_windows" -DBDB_LIBRARY="C:\tqsl-build\db-6.0.20.NC\build_windows\Win32\Release\db.lib" -DOPENSSL_ROOT_DIR=C:\tqsl-build\openssl -DZLIB_LIBRARY_REL=C:\tqsl-build\zlib-1.2.8\Release -DZLIB_INCLUDE_DIR=C:\tqsl-build\zlib-1.2.8 -DCURL_LIBRARY=C:\tqsl-build\curl-7.39.0\builds\libcurl-vc-x86-release-static-ipv6-sspi-winssl\lib -DCURL_INCLUDE_DIR=C:\tqsl-build\curl-7.39.0\builds\libcurl-vc-x86-release-static-ipv6-sspi-winssl\include -DwxWidgets_ROOT_DIR=C:\tqsl-build\wxWidgets-2.8.12 -DwxWidgets_LIB_DIR=C:\tqsl-build\wxWidgets-2.8.12\lib\vc_lib -G "Visual Studio 11 2012"
+
+cmake . -DCMAKE_LIBRARY_PATH="C:\tqsl-build\expat-2.1.0\Bin" -DCMAKE_INCLUDE_PATH="C:\tqsl-build\expat-2.1.0\Source\lib" -DwxWidgets_ROOT_DIR="C:\tqsl-build\wxWidgets-2.8.12" -DBDB_INCLUDE_DIR="C:\tqsl-build\db-6.0.20.NC\build_windows" -DBDB_LIBRARY="C:\tqsl-build\db-6.0.20.NC\build_windows\Win32\Static_Release\db.lib" -DOPENSSL_ROOT_DIR=C:\tqsl-build\openssl -DCURL_LIBRARY=C:\tqsl-build\curl-7.39.0\builds\libcurl-vc-x86-release-static-ipv6-sspi-winssl\lib -DCURL_INCLUDE_DIR=C:\tqsl-build\curl-7.39.0\builds\libcurl-vc-x86-release-static-ipv6-sspi-winssl\include -DwxWidgets_ROOT_DIR=C:\tqsl-build\wxWidgets-2.8.12 -DwxWidgets_LIB_DIR=C:\tqsl-build\wxWidgets-2.8.12\lib\vc_lib -DZLIB_LIBRARY_REL=C:\tqsl-build\zlib-1.2.8\Release -DZLIB_INCLUDE_DIR=C:\tqsl-build\zlib-1.2.8 -G "Visual Studio 11 2012"
+
+cmake . -DCMAKE_LIBRARY_PATH="C:\tqsl-build\expat-2.1.0\Bin" -DCMAKE_INCLUDE_PATH="C:\tqsl-build\expat-2.1.0\Source\lib" -DwxWidgets_ROOT_DIR="C:\tqsl-build\wxWidgets-2.8.12" -DBDB_INCLUDE_DIR="C:\tqsl-build\db-6.0.20.NC\build_windows" -DBDB_LIBRARY="C:\tqsl-build\db-6.0.20.NC\build_windows\Win32\Release\db.lib" -DOPENSSL_ROOT_DIR=C:\tqsl-build\openssl -DCURL_LIBRARY=C:\tqsl-build\curl-7.39.0\builds\libcurl-vc-x86-release-static-ipv6-sspi-winssl\lib -DCURL_INCLUDE_DIR=C:\tqsl-build\curl-7.39.0\builds\libcurl-vc-x86-release-static-ipv6-sspi-winssl\include -DwxWidgets_ROOT_DIR=C:\tqsl-build\wxWidgets-2.8.12 -DwxWidgets_LIB_DIR=C:\tqsl-build\wxWidgets-2.8.12\lib\vc_lib -DZLIB_LIBRARY_REL=C:\tqsl-build\zlib-1.2.8\Release -DZLIB_INCLUDE_DIR=C:\tqsl-build\zlib-1.2.8 -G "Visual Studio 9 2008" -A Win32 -B build32-vs2008
+
+py -2 toolset-to-vc08.py
+
+# Manually need to add zlib.lib, why?
+C:\tqsl-build\zlib-1.2.8\Release\zlib.lib
+# Missing ws2_32.lib
+ws2_32.lib
+# define uint8_t in apps\tqsl.cpp, apps\tqslupdater.cpp
+#define uint8_t unsigned char
+# Manually add libcurl
+C:\tqsl-build\curl-7.39.0\builds\libcurl-vc-x86-release-static-ipv6-sspi-winssl\lib\libcurl_a.lib
+
+Did not select d libs for wxWidget in debug mode causing link errors
+
+getaddrinfo()
