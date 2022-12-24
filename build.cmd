@@ -68,6 +68,8 @@ REM Hack on window.cpp, not needed?
 cd ..\..\build\msw
 nmake -f makefile.vc BUILD=release SHARED=0
 @IF ERRORLEVEL 1 GOTO error
+nmake -f makefile.vc BUILD=debug SHARED=0
+@IF ERRORLEVEL 1 GOTO error
 GOTO end_wxwidgets
 
 :curl
@@ -96,6 +98,8 @@ msbuild /p:Configuration=Debug ALL_BUILD.vcproj
 @IF ERRORLEVEL 1 GOTO error
 REM msbuild /p:Configuration=Release ALL_BUILD.vcxproj
 msbuild /p:Configuration=Release ALL_BUILD.vcproj
+@IF ERRORLEVEL 1 GOTO error
+copy /y zconf.h ..
 @IF ERRORLEVEL 1 GOTO error
 GOTO end_zlib
 
