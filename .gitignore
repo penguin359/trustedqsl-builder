@@ -11,3 +11,4 @@
 *.zip
 *.gz
 *.exe
+!/expat-vc2008.zip
