@@ -151,6 +151,10 @@ REM vcbuild TrustedQSL.sln "Release|Win32"
 vcbuild src/tqsllib2.vcproj "Release|Win32"
 vcbuild apps/tqslupdater.vcproj "Release|Win32"
 vcbuild apps/tqsl.vcproj "Release|Win32"
+REM vcbuild TrustedQSL.sln "Debug|Win32"
+vcbuild src/tqsllib2.vcproj "Debug|Win32"
+vcbuild apps/tqslupdater.vcproj "Debug|Win32"
+vcbuild apps/tqsl.vcproj "Debug|Win32"
 @IF ERRORLEVEL 1 GOTO error
 GOTO end_tqsl
 
