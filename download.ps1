@@ -40,5 +40,5 @@ if(-not(Test-Path -Path "tqsl")) {
 	git remote set-url --push penguin359 ssh://penguin359@git.code.sf.net/u/penguin359/trustedqsl
 	git remote update penguin359
 	git config remote.pushDefault penguin359
-	git switch ansi-fix
+	git switch other-fixes
 }
