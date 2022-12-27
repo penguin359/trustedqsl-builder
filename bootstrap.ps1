@@ -28,6 +28,11 @@ function Test-CommandExists {
 	return $false
 }
 
+function Add-Path($Path) {
+	$Path = [Environment]::GetEnvironmentVariable("PATH", "Machine") + [IO.Path]::PathSeparator + $Path
+	[Environment]::SetEnvironmentVariable( "Path", $Path, "Machine" )
+}
+
 function Update-Path {
 	param(
 		[Parameter(Mandatory)]
@@ -41,8 +46,7 @@ function Update-Path {
 		$commandPath = Join-Path $Path $Command
 		if(Test-Path -Path $commandPath) {
 			Write-Verbose "Adding path entry for $Command"
-			$env:Path = "${Path};${env:Path}"
-			setx Path "$env:Path"
+			Add-Path $Path
 		} else {
 			Write-Warning "Failed to find $Command in $Path"
 		}

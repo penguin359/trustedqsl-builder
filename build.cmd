@@ -31,6 +31,7 @@ IF EXIST vcvars2008.bat CALL vcvars2008.bat
 :end_tqsl
 GOTO success
 
+
 :openssl
 @ECHO Building OpenSSL...
 @cd %ROOT%
@@ -55,6 +56,7 @@ move *.lib VC/
 @IF ERRORLEVEL 1 GOTO error
 GOTO end_openssl
 
+
 :wxwidgets
 @ECHO Building wxWidgets...
 @cd %ROOT%
@@ -71,6 +73,7 @@ nmake -f makefile.vc BUILD=debug SHARED=0
 @IF ERRORLEVEL 1 GOTO error
 GOTO end_wxwidgets
 
+
 :curl
 @ECHO Building cURL...
 @cd %ROOT%
@@ -83,6 +86,7 @@ REM mode=dll for DLL
 nmake -f Makefile.vc mode=static ENABLE_WINSSL=yes ENABLE_IDN=no ENABLE_IPV6=no
 @IF ERRORLEVEL 1 GOTO error
 GOTO end_curl
+
 
 :zlib
 @ECHO Building zlib...
@@ -104,6 +108,7 @@ copy /y zconf.h ..
 @IF ERRORLEVEL 1 GOTO error
 GOTO end_zlib
 
+
 :bdb
 @ECHO Building Berkeley DB...
 @cd %ROOT%
@@ -121,6 +126,7 @@ vcbuild /upgrade Berkeley_DB.sln "Static Release|Win32"
 @IF ERRORLEVEL 1 GOTO error
 GOTO end_bdb
 
+
 :expat
 @ECHO Building Expat...
 @cd %ROOT%
@@ -136,6 +142,7 @@ vcbuild expat.sln "Release|Win32"
 copy /y win32\bin\Release\libexpatMT.lib ..\Bin\libexpat.lib
 @IF ERRORLEVEL 1 GOTO error
 GOTO end_expat
+
 
 :tqsl
 @ECHO Building Trusted QSL...
@@ -166,13 +173,16 @@ vcbuild apps/tqsl.vcproj "Debug|Win32"
 @IF ERRORLEVEL 1 GOTO error
 GOTO end_tqsl
 
+
 :success
 @ECHO Success!
 @GOTO eof
+
 
 :error
 @ECHO ************************************ 1>&2
 @ECHO There was an error during the build! 1>&2
 @GOTO eof
+
 
 :eof
