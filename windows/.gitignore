@@ -1,0 +1,12 @@
+/curl-*/
+/db-*/
+/expat-*/
+/openssl/
+/openssl-*/
+/wxMSW-*/
+/zlib-*/
+/tqsl/
+*.zip
+*.gz
+*.exe
+!/expat-vc2008.zip
