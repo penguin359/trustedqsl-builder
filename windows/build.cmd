@@ -67,9 +67,9 @@ cd wxMSW-2.8.12\src\msw
 REM Comment out #include <pbt.h> in src\msw\window.cpp
 REM Hack on window.cpp, not needed?
 cd ..\..\build\msw
-nmake -f makefile.vc BUILD=release SHARED=0
+nmake -f makefile.vc BUILD=release SHARED=0 UNICODE=1
 @IF ERRORLEVEL 1 GOTO error
-nmake -f makefile.vc BUILD=debug SHARED=0
+nmake -f makefile.vc BUILD=debug SHARED=0 UNICODE=1
 @IF ERRORLEVEL 1 GOTO error
 GOTO end_wxwidgets
 
