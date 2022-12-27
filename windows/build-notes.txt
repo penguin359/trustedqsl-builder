@@ -245,3 +245,12 @@ Double-click on the ISO and look for Setup.exe on the CD image. Select "Microsof
 "C:\Program Files (x86)\Microsoft Visual Studio 9.0\VC\vcvarsall.bat" x86
 
 Need to run bootstrap from an elevated shell...
+
+
+dotnet add package WiX --version 3.7.0.1
+
+$VerbosePreference = "continue"
+
+Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; iex ((New-Object System.Net.WebClient).DownloadString('https://raw.githubusercontent.com/penguin359/trustedqsl-builder/main/windows/bootstrap-vs2008.ps1'))
+
+Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; iex ((New-Object System.Net.WebClient).DownloadString('http://localhost:8000/windows/bootstrap-vs2008.ps1'))

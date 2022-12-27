@@ -7,114 +7,14 @@ $ErrorActionPreference = "Stop"
 #$scriptDir = $PSScriptRoot
 $scriptDir = Split-Path -Parent $MyInvocation.MyCommand.Definition
 
+Write-Verbose "me!"
+echo ("IV: " + $MyInvocation.MyCommand.Definition)
+echo "SD: ${scriptDir}"
+echo "PS: ${PSScriptRoot}"
+
 Set-Location -LiteralPath $scriptDir
 
-function Test-CommandExists {
-	param(
-		[Parameter(Mandatory=$true)]
-		[string]$Command
-	)
-
-	try {
-		$oldErrorAction = $ErrorActionPreference
-		$ErrorActionPreference = "stop"
-		if(Get-Command $Command) {
-			return $true
-		}
-	} catch {
-		# Suppress the exception
-	} finally {
-		$ErrorActionPreference = $oldErrorAction
-	}
-
-	return $false
-}
-
-function Add-Path($Path) {
-	$Path = [Environment]::GetEnvironmentVariable("PATH", "Machine") + [IO.Path]::PathSeparator + $Path
-	[Environment]::SetEnvironmentVariable( "Path", $Path, "Machine" )
-}
-
-function Update-Path {
-	param(
-		[Parameter(Mandatory=$true)]
-		[string]$Path,
-
-		[Parameter(Mandatory=$true)]
-		[string]$Command
-	)
-	
-	if(-not(Test-CommandExists $Command)) {
-		$commandPath = Join-Path $Path $Command
-		if(Test-Path -Path $commandPath) {
-			Write-Verbose "Adding path entry for $Command"
-			Add-Path $Path
-		} else {
-			Write-Warning "Failed to find $Command in $Path"
-		}
-	}
-}
-
-function New-TemporaryDirectory {
-    $parent = [System.IO.Path]::GetTempPath()
-    [string] $name = [System.Guid]::NewGuid()
-    New-Item -ItemType Directory -Path (Join-Path $parent $name)
-}
-
-function Test-FileHash {
-	param(
-		[Parameter(Mandatory=$true)]
-		[string]$File,
-
-		[Parameter()]
-		[string]$Hash
-	)
-
-	Write-Debug "File: $File, Hash: $Hash"
-	$Hash -eq "" -or `
-	(Get-FileHash -Path $File -Algorithm SHA256).Hash -eq $Hash
-}
-
-function Download-File {
-	param(
-		[Parameter(Mandatory=$true)]
-		[string]$Url,
-
-		[Parameter(Mandatory=$true)]
-		[string]$File,
-
-		[Parameter()]
-		[string]$Hash,
-
-		[Parameter()]
-		[string]$Name
-	)
-
-	if($Name -eq "") {
-		$Name = $File
-	}
-
-	$downloadDir = Join-Path $scriptDir (Join-Path "downloads" "b")
-	$downloadFile = Join-Path $downloadDir $File
-	if(-not(Test-Path -Path $downloadDir)) {
-		New-Item -Path $downloadDir -Type Directory | Out-Null
-	}
-
-	Write-Verbose "Checking for existing download of ${Name}..."
-	if(-not(Test-Path -Path $downloadFile) -or
-	   -not(Test-FileHash $downloadFile $Hash)) {
-		Remove-Item -Force -Path $downloadFile -ErrorAction SilentlyContinue
-		Write-Verbose "Downloading ${Name}..."
-		Invoke-WebRequest -Uri $Url -OutFile $downloadFile
-		if(-not(Test-Path -Path $downloadFile) -or
-		   -not(Test-FileHash $downloadFile $Hash)) {
-			Write-Error "Downloaded file $downloadFile is missing or corrupted!"
-			return
-		}
-	}
-
-	Write-Output $downloadFile
-}
+Import-Module -Name (Join-Path $scriptDir "common.psm1") -DisableNameChecking
 
 $VisualStudio2008 = @{
 	Name = "VC++ 2008";
@@ -125,23 +25,11 @@ $VisualStudio2008 = @{
 
 $imagePath = Download-File @VisualStudio2008
 
-if(-not(Test-CommandExists choco)) {
-	Write-Verbose "Installing Chocolatey package manager..."
-	[System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072
-	iex ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))
-}
+Install-Chocolatey
 
-if(-not(Test-CommandExists Update-SessionEnvironment)) {
-	if(-not($env:ChocolateyInstall)) {
-		$env:ChocolateyInstall = Join-Path $env:ProgramData "chocolatey"
-	}
-	$ChocolateyProfile = "$env:ChocolateyInstall\helpers\chocolateyProfile.psm1"
-	if (Test-Path($ChocolateyProfile)) {
-		Import-Module "$ChocolateyProfile"
-	}
-}
+Update-LocalEnvironment
 
-Update-SessionEnvironment
+return
 
 Write-Verbose "Installing IDE prerequisites..."
 choco install dotnet3.5
@@ -182,11 +70,11 @@ try {
 Write-Verbose "Installing other build tools..."
 choco install nasm 7zip StrawberryPerl cmake git tortoisegit trustedqsl
 
-Update-SessionEnvironment
+Update-LocalEnvironment
 
 Update-Path -Path (Join-Path $env:ProgramFiles "CMake\bin") -Command cmake.exe
 Update-Path -Path (Join-Path $env:ProgramFiles "NASM") -Command nasm.exe
 
-Update-SessionEnvironment
+Update-LocalEnvironment
 
 Write-Verbose "Success!"
