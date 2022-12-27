@@ -35,25 +35,41 @@ GOTO success
 :openssl
 @ECHO Building OpenSSL...
 @cd %ROOT%
-@del /s/q openssl-1.0.1e
-@rmdir /s/q openssl-1.0.1e
-@7z x "downloads\openssl-1.0.1e.tar.gz" -so | 7z x -aoa -si -ttar
-cd openssl-1.0.1e
-perl Configure VC-WIN32 --prefix=%ROOT%openssl
-@IF ERRORLEVEL 1 GOTO error
-call ms\do_nasm
-@IF ERRORLEVEL 1 GOTO error
+@del /s/q openssl-1.1.1m
+@rmdir /s/q openssl-1.1.1m
+@7z x "downloads\openssl-1.1.1m.tar.gz" -so | 7z x -aoa -si -ttar
+cd openssl-1.1.1m
+
+REM Build for OpenSSL 1.0.1*
+REM perl Configure VC-WIN32 --prefix=%ROOT%openssl
+REM @IF ERRORLEVEL 1 GOTO error
+REM call ms\do_nasm
+REM @IF ERRORLEVEL 1 GOTO error
+REM Only needed for OpenSSL 1.0.1:
+REM ECHO #define OPENSSL_NO_CAPIENG >> crypto\opensslconf.h
 REM Use ntdll.mak for DLL
-nmake -f ms\nt.mak
+REM nmake -f ms\nt.mak
+REM @IF ERRORLEVEL 1 GOTO error
+REM nmake -f ms\nt.mak test
+REM @IF ERRORLEVEL 1 GOTO error
+REM nmake -f ms\nt.mak install
+REM @IF ERRORLEVEL 1 GOTO error
+REM Only needed for VS 2012 and newer?
+REM cd ..\openssl\lib
+REM @mkdir VC
+REM move *.lib VC/
+REM @IF ERRORLEVEL 1 GOTO error
+
+REM Build for OpenSSL 1.1.1+
+perl Configure VC-WIN32 no-shared no-capieng no-async --prefix=%ROOT%openssl --openssldir=%ROOT%openssl\bin\
 @IF ERRORLEVEL 1 GOTO error
-nmake -f ms\nt.mak test
+nmake
 @IF ERRORLEVEL 1 GOTO error
-nmake -f ms\nt.mak install
+nmake test
 @IF ERRORLEVEL 1 GOTO error
-cd ..\openssl\lib
-@mkdir VC
-move *.lib VC/
+nmake install
 @IF ERRORLEVEL 1 GOTO error
+
 GOTO end_openssl
 
 
