@@ -28,6 +28,27 @@ function Test-CommandExists {
 	return $false
 }
 
+function Update-Path {
+	param(
+		[Parameter(Mandatory)]
+		[string]$Path,
+
+		[Parameter(Mandatory)]
+		[string]$Command
+	)
+	
+	if(-not(Test-CommandExists $Command)) {
+		$commandPath = Join-Path $Path $Command
+		if(Test-Path -Path $commandPath) {
+			Write-Verbose "Adding path entry for $Command"
+			$env:Path = "${Path};${env:Path}"
+			setx Path "$env:Path"
+		} else {
+			Write-Warning "Failed to find $Command in $Path"
+		}
+	}
+}
+
 function New-TemporaryDirectory {
     $parent = [System.IO.Path]::GetTempPath()
     [string] $name = [System.Guid]::NewGuid()
@@ -68,7 +89,6 @@ function Download-File {
 	}
 
 	$downloadDir = Join-Path $scriptDir (Join-Path "downloads" "b")
-	Write-Warning "$downloadDir"
 	$downloadFile = Join-Path $downloadDir $File
 	if(-not(Test-Path -Path $downloadDir)) {
 		New-Item -Path $downloadDir -Type Directory | Out-Null
@@ -99,7 +119,25 @@ $VisualStudio2008 = @{
 
 $imagePath = Download-File @VisualStudio2008
 
-Write-Verbose "Installing prerequisites..."
+if(-not(Test-CommandExists choco)) {
+	Write-Verbose "Installing Chocolatey package manager..."
+	[System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072
+	iex ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))
+}
+
+if(-not(Test-CommandExists Update-SessionEnvironment)) {
+	if(-not($env:ChocolateyInstall)) {
+		$env:ChocolateyInstall = Join-Path $env:ProgramData "chocolatey"
+	}
+	$ChocolateyProfile = "$env:ChocolateyInstall\helpers\chocolateyProfile.psm1"
+	if (Test-Path($ChocolateyProfile)) {
+		Import-Module "$ChocolateyProfile"
+	}
+}
+
+Update-SessionEnvironment
+
+Write-Verbose "Installing IDE prerequisites..."
 choco install dotnet3.5
 
 Write-Verbose "Mounting disk image..."
@@ -107,11 +145,6 @@ $disk = Mount-DiskImage -ImagePath $imagePath -Access ReadOnly -StorageType ISO
 try {
 	$volume = $disk | Get-Volume
 	$drive = $volume.DriveLetter
-	#& "${drive}:\VCExpress\setup.exe"
-
-	#Copy-Item E:\VCExpress\*.* .
-	#E:\VCExpress\WCU\vcredistmin_x86.exe  
-	#Copy-Item E:\VCExpress\WCU\WinSDK\ . 
 
 	Write-Verbose "Copying files..."
 	$tempDir = New-TemporaryDirectory 
@@ -139,5 +172,15 @@ try {
 	Write-Verbose "Unmounting disk image..."
 	Dismount-DiskImage -ImagePath $imagePath | Out-Null
 }
+
+Write-Verbose "Installing other build tools..."
+choco install nasm 7zip StrawberryPerl cmake git tortoisegit trustedqsl
+
+Update-SessionEnvironment
+
+Update-Path -Path (Join-Path $env:ProgramFiles "CMake\bin") -Command cmake.exe
+Update-Path -Path (Join-Path $env:ProgramFiles "NASM") -Command nasm.exe
+
+Update-SessionEnvironment
 
 Write-Verbose "Success!"
