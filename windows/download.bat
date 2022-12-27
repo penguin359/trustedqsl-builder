@@ -1,3 +1,2 @@
 @ECHO OFF
-cd %~dp0
-powershell.exe -ExecutionPolicy Unrestricted -File "download.ps1"
+powershell.exe -ExecutionPolicy Unrestricted -File "%~dp0download.ps1"

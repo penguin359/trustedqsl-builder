@@ -1,5 +1,7 @@
 # Set-ExecutionPolicy -Scope Process Unrestricted -Force
 
+[CmdletBinding()] param()
+
 $ErrorActionPreference = "Stop"
 
 #$scriptDir = $PSScriptRoot
@@ -9,7 +11,7 @@ Set-Location -LiteralPath $scriptDir
 
 function Test-CommandExists {
 	param(
-		[Parameter(Mandatory)]
+		[Parameter(Mandatory=$true)]
 		[string]$Command
 	)
 
@@ -35,10 +37,10 @@ function Add-Path($Path) {
 
 function Update-Path {
 	param(
-		[Parameter(Mandatory)]
+		[Parameter(Mandatory=$true)]
 		[string]$Path,
 
-		[Parameter(Mandatory)]
+		[Parameter(Mandatory=$true)]
 		[string]$Command
 	)
 	
@@ -61,7 +63,7 @@ function New-TemporaryDirectory {
 
 function Test-FileHash {
 	param(
-		[Parameter(Mandatory)]
+		[Parameter(Mandatory=$true)]
 		[string]$File,
 
 		[Parameter()]
@@ -75,10 +77,10 @@ function Test-FileHash {
 
 function Download-File {
 	param(
-		[Parameter(Mandatory)]
+		[Parameter(Mandatory=$true)]
 		[string]$Url,
 
-		[Parameter(Mandatory)]
+		[Parameter(Mandatory=$true)]
 		[string]$File,
 
 		[Parameter()]
