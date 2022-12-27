@@ -28,6 +28,12 @@ function Test-CommandExists {
 	return $false
 }
 
+function New-TemporaryDirectory {
+    $parent = [System.IO.Path]::GetTempPath()
+    [string] $name = [System.Guid]::NewGuid()
+    New-Item -ItemType Directory -Path (Join-Path $parent $name)
+}
+
 function Test-FileHash {
 	param(
 		[Parameter(Mandatory)]
@@ -108,13 +114,12 @@ try {
 	#Copy-Item E:\VCExpress\WCU\WinSDK\ . 
 
 	Write-Verbose "Copying files..."
-	Remove-Item -LiteralPath temp -Recurse -Force -ErrorAction SilentlyContinue
-	New-Item -Name temp -Type Directory | Out-Null
-	Copy-Item "${drive}:\VCExpress" temp -Recurse -Force
+	$tempDir = New-TemporaryDirectory 
+	Copy-Item "${drive}:\VCExpress" $tempDir -Recurse -Force
 
-	attrib -r "temp\VCExpress\baseline.dat"
+	attrib -r "${tempDir}\VCExpress\baseline.dat"
 	# Disable optional components from installing
-	Get-Content E:\VCExpress\baseline.dat | ForEach-Object {
+	Get-Content "${drive}:\VCExpress\baseline.dat" | ForEach-Object {
 		if($_ -eq "DefaultSelected=1") {
 			"DefaultSelected=0"
 		} elseif($_ -like "*=silverlight*") {
@@ -122,12 +127,16 @@ try {
 		} else {
 			$_
 		}
-	} | Out-File -Force "temp\VCExpress\baseline.dat"
+	} | Out-File -Force "${tempDir}\VCExpress\baseline.dat"
 
 	Write-Verbose "Starting installer..."
-	Start-Process -Wait -FilePath temp\VCExpress\setup.exe -ArgumentList /qb,/norestart,/log,$env:temp\vc.log -WorkingDirectory temp\VCExpress
-	Remove-Item -LiteralPath temp -Recurse -Force -ErrorAction SilentlyContinue
+	Start-Process -Wait -FilePath "${tempDir}\VCExpress\setup.exe" -ArgumentList /qb,/norestart,/log,$env:temp\vc.log -WorkingDirectory "${tempDir}\VCExpress"
 } finally {
+	if($tempDir -ne $null) {
+		Write-Verbose "Cleaning up files..."
+		Remove-Item -LiteralPath $tempDir -Recurse -Force -ErrorAction SilentlyContinue
+	}
+	Write-Verbose "Unmounting disk image..."
 	Dismount-DiskImage -ImagePath $imagePath | Out-Null
 }
 
