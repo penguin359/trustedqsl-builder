@@ -1,5 +1,10 @@
 SETLOCAL
 
+echo Old: %VS90COMNTOOLS%
+set VS90COMNTOOLS=C:\Program Files (x86)\Microsoft Visual Studio 9.0\Common7\Tools\
+echo New: %VS90COMNTOOLS%
+dir %VS90COMNTOOLS%
+
 SET ROOT=%~dp0
 @REM SET PATH=C:\Program Files\NASM;C:\Strawberry\perl\bin;C:\Program Files\CMake\bin;%PATH%
 
