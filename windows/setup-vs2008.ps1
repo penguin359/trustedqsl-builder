@@ -25,7 +25,7 @@ Install-Chocolatey
 Update-LocalEnvironment
 
 Write-Verbose "Installing IDE prerequisites..."
-choco install dotnet3.5
+choco --no-progress install dotnet3.5
 
 Write-Verbose "Mounting disk image..."
 $disk = Mount-DiskImage -ImagePath $imagePath -Access ReadOnly -StorageType ISO
@@ -61,7 +61,7 @@ try {
 }
 
 Write-Verbose "Installing other build tools..."
-choco install nasm 7zip StrawberryPerl cmake git tortoisegit trustedqsl
+choco --no-progress install nasm 7zip StrawberryPerl cmake git tortoisegit trustedqsl
 
 Update-LocalEnvironment
 
