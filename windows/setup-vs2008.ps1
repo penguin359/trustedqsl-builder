@@ -7,12 +7,7 @@ $ErrorActionPreference = "Stop"
 #$scriptDir = $PSScriptRoot
 $scriptDir = Split-Path -Parent $MyInvocation.MyCommand.Definition
 
-Write-Verbose "me!"
-echo ("IV: " + $MyInvocation.MyCommand.Definition)
-echo "SD: ${scriptDir}"
-echo "PS: ${PSScriptRoot}"
-
-Set-Location -LiteralPath $scriptDir
+#Set-Location -LiteralPath $scriptDir
 
 Import-Module -Name (Join-Path $scriptDir "common.psm1") -DisableNameChecking
 
@@ -28,8 +23,6 @@ $imagePath = Download-File @VisualStudio2008
 Install-Chocolatey
 
 Update-LocalEnvironment
-
-return
 
 Write-Verbose "Installing IDE prerequisites..."
 choco install dotnet3.5
