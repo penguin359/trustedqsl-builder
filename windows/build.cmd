@@ -37,7 +37,7 @@ GOTO success
 @cd %ROOT%
 @del /s/q openssl-1.0.1e
 @rmdir /s/q openssl-1.0.1e
-@7z x "openssl-1.0.1e.tar.gz" -so | 7z x -aoa -si -ttar
+@7z x "downloads\openssl-1.0.1e.tar.gz" -so | 7z x -aoa -si -ttar
 cd openssl-1.0.1e
 perl Configure VC-WIN32 --prefix=%ROOT%openssl
 @IF ERRORLEVEL 1 GOTO error
@@ -62,7 +62,7 @@ GOTO end_openssl
 @cd %ROOT%
 @del /s/q wxMSW-2.8.12
 @rmdir /s/q wxMSW-2.8.12
-@7z x "wxMSW-2.8.12.zip" -aoa 
+@7z x "downloads\wxMSW-2.8.12.zip" -aoa 
 cd wxMSW-2.8.12\src\msw
 REM Comment out #include <pbt.h> in src\msw\window.cpp
 REM Hack on window.cpp, not needed?
@@ -79,7 +79,7 @@ GOTO end_wxwidgets
 @cd %ROOT%
 @del /s/q curl-7.39.0
 @rmdir /s/q curl-7.39.0
-@7z x "curl-7.39.0.tar.gz" -so | 7z x -aoa -si -ttar
+@7z x "downloads\curl-7.39.0.tar.gz" -so | 7z x -aoa -si -ttar
 cd curl-7.39.0\winbuild
 "C:\Program Files\Git\usr\bin\sed.exe" -i.bak -e '/HAVE.*ADDRINFO/s/define\([ \t]\+[A-Za-z0-9_]\+\).*/undef \1/' ../lib/config-win32.h
 REM mode=dll for DLL
@@ -93,7 +93,7 @@ GOTO end_curl
 @cd %ROOT%
 @del /s/q zlib-1.2.8
 @rmdir /s/q zlib-1.2.8
-@7z x "zlib-1.2.8.tar.gz" -so | 7z x -aoa -si -ttar
+@7z x "downloads\zlib-1.2.8.tar.gz" -so | 7z x -aoa -si -ttar
 cd zlib-1.2.8
 cmake -G "Visual Studio 9 2008" -B build -S .
 @IF ERRORLEVEL 1 GOTO error
@@ -114,7 +114,7 @@ GOTO end_zlib
 @cd %ROOT%
 @del /s/q db-6.0.20.NC
 @rmdir /s/q db-6.0.20.NC
-@7z x "db-6.0.20.NC.zip" -aoa 
+@7z x "downloads\db-6.0.20.NC.zip" -aoa 
 cd db-6.0.20.NC\build_windows
 vcbuild /upgrade Berkeley_DB.sln "Debug|Win32"
 @IF ERRORLEVEL 1 GOTO error
@@ -132,7 +132,7 @@ GOTO end_bdb
 @cd %ROOT%
 @del /s/q expat-2.1.0
 @rmdir /s/q expat-2.1.0
-@start /w .\expat-win32bin-2.1.0.exe /VERYSILENT /SUPPRESSMSGBOXES /NORESTART /SP- /VERYSILENT /SUPPRESSMSGBOXES /NORESTART /SP- /DIR="expat-2.1.0"
+@start /w .\downloads\expat-win32bin-2.1.0.exe /VERYSILENT /SUPPRESSMSGBOXES /NORESTART /SP- /VERYSILENT /SUPPRESSMSGBOXES /NORESTART /SP- /DIR="expat-2.1.0"
 cd expat-2.1.0
 @7z x ../expat-vc2008.zip -aoa 
 cd Source
