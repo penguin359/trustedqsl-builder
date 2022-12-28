@@ -1,19 +1,17 @@
 SETLOCAL
 
 SET ROOT=%~dp0
-@SET PATH=C:\Program Files\NASM;C:\Strawberry\perl\bin;C:\Program Files\CMake\bin;%PATH%
+@REM SET PATH=C:\Program Files\NASM;C:\Strawberry\perl\bin;C:\Program Files\CMake\bin;%PATH%
 
 ECHO ROOT=%ROOT%
 
-REM This file is broken on my system.
-REM call "C:\Program Files (x86)\Microsoft Visual Studio 9.0\VC\vcvarsall.bat" x86
+call "C:\Program Files (x86)\Microsoft Visual Studio 9.0\VC\vcvarsall.bat" x86
 
-REM Change to the correct drive
+@REM Change to the correct drive
 %~d0
 cd %ROOT%
 
 CALL download.bat
-IF EXIST vcvars2008.bat CALL vcvars2008.bat
 
 @GOTO openssl
 :end_openssl

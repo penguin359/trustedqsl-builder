@@ -123,6 +123,8 @@ function Install-Chocolatey {
 			Import-Module "$ChocolateyProfile"
 		}
 	}
+
+	choco feature enable -n allowGlobalConfirmation
 }
 
 function Update-LocalEnvironment {
