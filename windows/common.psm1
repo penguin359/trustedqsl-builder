@@ -1,3 +1,5 @@
+Set-StrictMode -Version 3.0
+
 function Test-CommandExists {
 	param(
 		[Parameter(Mandatory=$true)]
@@ -83,7 +85,7 @@ function Download-File {
 		$Name = $File
 	}
 
-	$downloadDir = Join-Path $scriptDir (Join-Path "downloads" "b")
+	$downloadDir = Join-Path $PSScriptRoot "downloads"
 	$downloadFile = Join-Path $downloadDir $File
 	if(-not(Test-Path -Path $downloadDir)) {
 		New-Item -Path $downloadDir -Type Directory | Out-Null
@@ -94,7 +96,7 @@ function Download-File {
 	   -not(Test-FileHash $downloadFile $Hash)) {
 		Remove-Item -Force -Path $downloadFile -ErrorAction SilentlyContinue
 		Write-Verbose "Downloading ${Name}..."
-		Invoke-WebRequest -Uri $Url -OutFile $downloadFile
+		Invoke-WebRequest -UserAgent "Wget" -Uri $Url -OutFile $downloadFile
 		if(-not(Test-Path -Path $downloadFile) -or
 		   -not(Test-FileHash $downloadFile $Hash)) {
 			Write-Error "Downloaded file $downloadFile is missing or corrupted!"
