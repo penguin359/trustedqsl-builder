@@ -3,7 +3,34 @@ SETLOCAL
 SET ROOT=%~dp0
 @REM SET PATH=C:\Program Files\NASM;C:\Strawberry\perl\bin;C:\Program Files\CMake\bin;%PATH%
 
-ECHO ROOT=%ROOT%
+
+@SET BUILD_OPENSSL=y
+@SET BUILD_WXWIDGETS=y
+@SET BUILD_CURL=y
+@SET BUILD_EXPAT=y
+@SET BUILD_ZLIB=y
+@SET BUILD_BDB=y
+@SET BUILD_TQSL=y
+@IF NOT x%1==x (
+	@SET BUILD_OPENSSL=
+	@SET BUILD_WXWIDGETS=
+	@SET BUILD_CURL=
+	@SET BUILD_EXPAT=
+	@SET BUILD_ZLIB=
+	@SET BUILD_BDB=
+	@SET BUILD_TQSL=
+:opt_loop
+	REM weird syntax error breaking command after label?
+	@IF x%1==xopenssl SET BUILD_OPENSSL=y
+	@IF x%1==xwxwidgets SET BUILD_WXWIDGETS=y
+	@IF x%1==xcurl SET BUILD_CURL=y
+	@IF x%1==xexpat SET BUILD_EXPAT=y
+	@IF x%1==xzlib SET BUILD_ZLIB=y
+	@IF x%1==xbdb SET BUILD_BDB=y
+	@IF x%1==xtqsl SET BUILD_TQSL=y
+	@SHIFT
+	@IF NOT x%1==x GOTO opt_loop
+)
 
 call "C:\Program Files (x86)\Microsoft Visual Studio 9.0\VC\vcvarsall.bat" x86
 
@@ -13,19 +40,19 @@ cd %ROOT%
 
 CALL download.bat
 
-@GOTO openssl
+@IF x%BUILD_OPENSSL%==xy GOTO openssl
 :end_openssl
-@GOTO wxwidgets
+@IF x%BUILD_WXWIDGETS%==xy GOTO wxwidgets
 :end_wxwidgets
-@GOTO curl
+@IF x%BUILD_CURL%==xy GOTO curl
 :end_curl
-@GOTO zlib
-:end_zlib
-@GOTO bdb
-:end_bdb
-@GOTO expat
+@IF x%BUILD_EXPAT%==xy GOTO expat
 :end_expat
-@GOTO tqsl
+@IF x%BUILD_ZLIB%==xy GOTO zlib
+:end_zlib
+@IF x%BUILD_BDB%==xy GOTO bdb
+:end_bdb
+@IF x%BUILD_TQSL%==xy GOTO tqsl
 :end_tqsl
 GOTO success
 
@@ -86,6 +113,23 @@ nmake -f Makefile.vc mode=static ENABLE_WINSSL=yes ENABLE_IDN=no ENABLE_IPV6=no
 GOTO end_curl
 
 
+:expat
+@ECHO Building Expat...
+@cd %ROOT%
+@del /s/q expat-2.1.0 2>NUL
+@rmdir /s/q expat-2.1.0 2>NUL
+@start /w .\downloads\expat-win32bin-2.1.0.exe /VERYSILENT /SUPPRESSMSGBOXES /NORESTART /SP- /VERYSILENT /SUPPRESSMSGBOXES /NORESTART /SP- /DIR="expat-2.1.0"
+cd expat-2.1.0
+@7z x ../expat-vc2008.zip -aoa 
+cd Source
+REM Only expat_static is needed
+vcbuild expat.sln "Release|Win32"
+@IF ERRORLEVEL 1 GOTO error
+copy /y win32\bin\Release\libexpatMT.lib ..\Bin\libexpat.lib
+@IF ERRORLEVEL 1 GOTO error
+GOTO end_expat
+
+
 :zlib
 @ECHO Building zlib...
 @cd %ROOT%
@@ -123,23 +167,6 @@ vcbuild /upgrade Berkeley_DB.sln "Release|Win32"
 vcbuild /upgrade Berkeley_DB.sln "Static Release|Win32"
 @IF ERRORLEVEL 1 GOTO error
 GOTO end_bdb
-
-
-:expat
-@ECHO Building Expat...
-@cd %ROOT%
-@del /s/q expat-2.1.0 2>NUL
-@rmdir /s/q expat-2.1.0 2>NUL
-@start /w .\downloads\expat-win32bin-2.1.0.exe /VERYSILENT /SUPPRESSMSGBOXES /NORESTART /SP- /VERYSILENT /SUPPRESSMSGBOXES /NORESTART /SP- /DIR="expat-2.1.0"
-cd expat-2.1.0
-@7z x ../expat-vc2008.zip -aoa 
-cd Source
-REM Only expat_static is needed
-vcbuild expat.sln "Release|Win32"
-@IF ERRORLEVEL 1 GOTO error
-copy /y win32\bin\Release\libexpatMT.lib ..\Bin\libexpat.lib
-@IF ERRORLEVEL 1 GOTO error
-GOTO end_expat
 
 
 :tqsl
