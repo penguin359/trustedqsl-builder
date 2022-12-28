@@ -254,3 +254,12 @@ $VerbosePreference = "continue"
 Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; iex ((New-Object System.Net.WebClient).DownloadString('https://raw.githubusercontent.com/penguin359/trustedqsl-builder/main/windows/bootstrap-vs2008.ps1'))
 
 Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; iex ((New-Object System.Net.WebClient).DownloadString('http://localhost:8000/windows/bootstrap-vs2008.ps1'))
+
+
+Somehow, CMake found and added this to the INCLUDE path:
+C:\Strawberry\c\include
+That includes a db.h masking Berkeley DB's file and it depends on inttype.h
+which is missing breaking the build.
+
+Windows 7
+Windows PowerShell -> Run as administrator
