@@ -91,6 +91,8 @@ function Download-File {
 		New-Item -Path $downloadDir -Type Directory | Out-Null
 	}
 
+	[System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072
+
 	Write-Verbose "Checking for existing download of ${Name}..."
 	if(-not(Test-Path -Path $downloadFile) -or
 	   -not(Test-FileHash $downloadFile $Hash)) {
