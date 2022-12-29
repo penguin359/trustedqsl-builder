@@ -283,6 +283,7 @@ GOTO end_tqsl
 :error
 @ECHO ************************************ 1>&2
 @ECHO There was an error during the build! 1>&2
+exit /b 1
 @GOTO eof
 
 
