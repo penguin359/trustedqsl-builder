@@ -92,7 +92,7 @@ perl Configure VC-WIN32 --prefix=%ROOT%openssl
 @IF ERRORLEVEL 1 GOTO error
 call ms\do_nasm
 @IF ERRORLEVEL 1 GOTO error
-REM Use ntdll.mak for DLL
+@REM Use ntdll.mak for DLL
 nmake -f ms\nt.mak
 @IF ERRORLEVEL 1 GOTO error
 nmake -f ms\nt.mak test
@@ -112,10 +112,10 @@ GOTO end_openssl
 @del /s/q wxMSW-2.8.12 2>NUL
 @rmdir /s/q wxMSW-2.8.12 2>NUL
 @7z x "downloads\wxMSW-2.8.12.zip" -aoa 
-cd wxMSW-2.8.12\src\msw
-REM Comment out #include <pbt.h> in src\msw\window.cpp
-REM Hack on window.cpp, not needed?
-cd ..\..\build\msw
+cd wxMSW-2.8.12
+@REM Needed for VS 2012 and newer
+"C:\Program Files\Git\usr\bin\sed.exe" -i.bak -e "s/\(#include.*<pbt\.h>\)/\/\/\1/" src\msw\window.cpp
+cd build\msw
 nmake -f makefile.vc BUILD=release SHARED=0
 @IF ERRORLEVEL 1 GOTO error
 nmake -f makefile.vc BUILD=debug SHARED=0
@@ -131,7 +131,7 @@ GOTO end_wxwidgets
 @7z x "downloads\curl-7.39.0.tar.gz" -so | 7z x -aoa -si -ttar
 cd curl-7.39.0\winbuild
 "C:\Program Files\Git\usr\bin\sed.exe" -i.bak -e '/HAVE.*ADDRINFO/s/define\([ \t]\+[A-Za-z0-9_]\+\).*/undef \1/' ../lib/config-win32.h
-REM mode=dll for DLL
+@REM mode=dll for DLL
 nmake -f Makefile.vc mode=static ENABLE_WINSSL=yes ENABLE_IDN=no ENABLE_IPV6=no
 @IF ERRORLEVEL 1 GOTO error
 GOTO end_curl
@@ -146,8 +146,9 @@ GOTO end_curl
 cd expat-2.1.0
 @7z x ../expat-vc2008.zip -aoa 
 cd Source
-REM Only expat_static is needed
-vcbuild expat.sln "Release|Win32"
+@REM Only expat_static is needed
+@REM vcbuild expat.sln "Release|Win32"
+msbuild /p:Configuration=Release /p:Platform=Win32 /t:expat_static expat.sln
 @IF ERRORLEVEL 1 GOTO error
 copy /y win32\bin\Release\libexpatMT.lib ..\Bin\libexpat.lib
 @IF ERRORLEVEL 1 GOTO error
@@ -164,12 +165,19 @@ cd zlib-1.2.8
 cmake -G "%VS_GENERATOR%" -B build -S .
 @IF ERRORLEVEL 1 GOTO error
 cd build
-REM msbuild /p:Configuration=Debug ALL_BUILD.vcxproj
-msbuild /p:Configuration=Debug zlibstatic.vcproj
-@IF ERRORLEVEL 1 GOTO error
-REM msbuild /p:Configuration=Release ALL_BUILD.vcxproj
-msbuild /p:Configuration=Release zlibstatic.vcproj
-@IF ERRORLEVEL 1 GOTO error
+@IF %VS_RELEASE%==2008 (
+	msbuild /p:Configuration=Debug zlibstatic.vcproj
+	@IF ERRORLEVEL 1 GOTO error
+	msbuild /p:Configuration=Release zlibstatic.vcproj
+	@IF ERRORLEVEL 1 GOTO error
+) ELSE (
+	@REM msbuild /p:Configuration=Debug ALL_BUILD.vcxproj
+	msbuild /p:Configuration=Debug zlibstatic.vcxproj
+	@IF ERRORLEVEL 1 GOTO error
+	@REM msbuild /p:Configuration=Release ALL_BUILD.vcxproj
+	msbuild /p:Configuration=Release zlibstatic.vcxproj
+	@IF ERRORLEVEL 1 GOTO error
+)
 copy /y zconf.h ..
 @IF ERRORLEVEL 1 GOTO error
 GOTO end_zlib
@@ -182,14 +190,27 @@ GOTO end_zlib
 @rmdir /s/q db-6.0.20.NC 2>NUL
 @7z x "downloads\db-6.0.20.NC.zip" -aoa 
 cd db-6.0.20.NC\build_windows
-vcbuild /upgrade Berkeley_DB.sln "Debug|Win32"
-@IF ERRORLEVEL 1 GOTO error
-vcbuild /upgrade Berkeley_DB.sln "Static Debug|Win32"
-@IF ERRORLEVEL 1 GOTO error
-vcbuild /upgrade Berkeley_DB.sln "Release|Win32"
-@IF ERRORLEVEL 1 GOTO error
-vcbuild /upgrade Berkeley_DB.sln "Static Release|Win32"
-@IF ERRORLEVEL 1 GOTO error
+@IF %VS_RELEASE%==2008 (
+	vcbuild /upgrade Berkeley_DB.sln "Debug|Win32"
+	@IF ERRORLEVEL 1 GOTO error
+	vcbuild /upgrade Berkeley_DB.sln "Static Debug|Win32"
+	@IF ERRORLEVEL 1 GOTO error
+	vcbuild /upgrade Berkeley_DB.sln "Release|Win32"
+	@IF ERRORLEVEL 1 GOTO error
+	vcbuild /upgrade Berkeley_DB.sln "Static Release|Win32"
+	@IF ERRORLEVEL 1 GOTO error
+) ELSE (
+	@REM msbuild /p:Configuration="Debug" /p:Platform=Win32 /t:db /p:PlatformToolSet=v110 Berkeley_DB_vs2010.sln
+	@REM @IF ERRORLEVEL 1 GOTO error
+	msbuild /p:Configuration="Static Debug" /p:Platform=Win32 /t:db /p:PlatformToolSet=v110 Berkeley_DB_vs2010.sln
+	@IF ERRORLEVEL 1 GOTO error
+	@REM msbuild /p:Configuration="Release" /p:Platform=Win32 /t:db /p:PlatformToolSet=v110 Berkeley_DB_vs2010.sln
+	@REM @IF ERRORLEVEL 1 GOTO error
+	msbuild /p:Configuration="Static Release" /p:Platform=Win32 /t:db /p:PlatformToolSet=v110 Berkeley_DB_vs2010.sln
+	@IF ERRORLEVEL 1 GOTO error
+	move "Win32\Static Debug" "Win32\Static_Debug"
+	move "Win32\Static Release" "Win32\Static_Release"
+)
 GOTO end_bdb
 
 
@@ -199,22 +220,22 @@ GOTO end_bdb
 cd tqsl
 @del /s/q build32-vs2008 2>NUL
 @rmdir /s/q build32-vs2008 2>NUL
-REM cmake -DCMAKE_LIBRARY_PATH="%ROOT%expat-2.1.0\Bin" -DCMAKE_INCLUDE_PATH="%ROOT%expat-2.1.0\Source\lib" -DwxWidgets_ROOT_DIR="%ROOT%wxMSW-2.8.12" -DBDB_INCLUDE_DIR="%ROOT%db-6.0.20.NC\build_windows" -DBDB_LIBRARY="%ROOT%db-6.0.20.NC\build_windows\Win32\Static_Release\libdb60s.lib" -DOPENSSL_ROOT_DIR=%ROOT%openssl -DCURL_LIBRARY=%ROOT%curl-7.39.0\builds\libcurl-vc-x86-release-static-sspi-winssl\lib\libcurl_a.lib -DCURL_INCLUDE_DIR=%ROOT%curl-7.39.0\builds\libcurl-vc-x86-release-static-sspi-winssl\include -DwxWidgets_LIB_DIR=%ROOT%wxMSW-2.8.12\lib\vc_lib -DZLIB_LIBRARY_REL=%ROOT%zlib-1.2.8\build\Release\zlibstatic.lib -DZLIB_INCLUDE_DIR=%ROOT%zlib-1.2.8 -G "%VS_GENERATOR%" -A Win32 -B build32-vs2008 -S .
+@REM cmake -DCMAKE_LIBRARY_PATH="%ROOT%expat-2.1.0\Bin" -DCMAKE_INCLUDE_PATH="%ROOT%expat-2.1.0\Source\lib" -DwxWidgets_ROOT_DIR="%ROOT%wxMSW-2.8.12" -DBDB_INCLUDE_DIR="%ROOT%db-6.0.20.NC\build_windows" -DBDB_LIBRARY="%ROOT%db-6.0.20.NC\build_windows\Win32\Static_Release\libdb60s.lib" -DOPENSSL_ROOT_DIR=%ROOT%openssl -DCURL_LIBRARY=%ROOT%curl-7.39.0\builds\libcurl-vc-x86-release-static-sspi-winssl\lib\libcurl_a.lib -DCURL_INCLUDE_DIR=%ROOT%curl-7.39.0\builds\libcurl-vc-x86-release-static-sspi-winssl\include -DwxWidgets_LIB_DIR=%ROOT%wxMSW-2.8.12\lib\vc_lib -DZLIB_LIBRARY_REL=%ROOT%zlib-1.2.8\build\Release\zlibstatic.lib -DZLIB_INCLUDE_DIR=%ROOT%zlib-1.2.8 -G "%VS_GENERATOR%" -A Win32 -B build32-vs2008 -S .
 cmake -DCMAKE_LIBRARY_PATH="%ROOT%expat-2.1.0\Bin" -DCMAKE_INCLUDE_PATH="%ROOT%expat-2.1.0\Source\lib" -DwxWidgets_ROOT_DIR="%ROOT%wxMSW-2.8.12" -DBDB_INCLUDE_DIR="%ROOT%db-6.0.20.NC\build_windows" -DBDB_LIBRARY="%ROOT%db-6.0.20.NC\build_windows\Win32\Static_Release\libdb60s.lib" -DOPENSSL_ROOT_DIR="%ROOT%openssl" -DCURL_LIBRARY="%ROOT%curl-7.39.0\builds\libcurl-vc-x86-release-static-sspi-winssl\lib\libcurl_a.lib" -DCURL_INCLUDE_DIR="%ROOT%curl-7.39.0\builds\libcurl-vc-x86-release-static-sspi-winssl\include" -G "%VS_GENERATOR%" -A Win32 -B build32-vs2008 -S .
 @IF ERRORLEVEL 1 GOTO error
-REM cmake --build build32-vs2008
+@REM cmake --build build32-vs2008
 cd build32-vs2008
-REM Building tests currently has build failures
-REM vcbuild TrustedQSL.sln "Release|Win32"
-REM @IF ERRORLEVEL 1 GOTO error
+@REM Building tests currently has build failures
+@REM vcbuild TrustedQSL.sln "Release|Win32"
+@REM @IF ERRORLEVEL 1 GOTO error
 vcbuild src/tqsllib2.vcproj "Release|Win32"
 @IF ERRORLEVEL 1 GOTO error
 vcbuild apps/tqslupdater.vcproj "Release|Win32"
 @IF ERRORLEVEL 1 GOTO error
 vcbuild apps/tqsl.vcproj "Release|Win32"
 @IF ERRORLEVEL 1 GOTO error
-REM vcbuild TrustedQSL.sln "Debug|Win32"
-REM @IF ERRORLEVEL 1 GOTO error
+@REM vcbuild TrustedQSL.sln "Debug|Win32"
+@REM @IF ERRORLEVEL 1 GOTO error
 vcbuild src/tqsllib2.vcproj "Debug|Win32"
 @IF ERRORLEVEL 1 GOTO error
 vcbuild apps/tqslupdater.vcproj "Debug|Win32"
