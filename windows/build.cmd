@@ -225,23 +225,43 @@ cmake -DCMAKE_LIBRARY_PATH="%ROOT%expat-2.1.0\Bin" -DCMAKE_INCLUDE_PATH="%ROOT%e
 @IF ERRORLEVEL 1 GOTO error
 @REM cmake --build build32-vs2008
 cd build32-vs2008
-@REM Building tests currently has build failures
-@REM vcbuild TrustedQSL.sln "Release|Win32"
-@REM @IF ERRORLEVEL 1 GOTO error
-vcbuild src/tqsllib2.vcproj "Release|Win32"
-@IF ERRORLEVEL 1 GOTO error
-vcbuild apps/tqslupdater.vcproj "Release|Win32"
-@IF ERRORLEVEL 1 GOTO error
-vcbuild apps/tqsl.vcproj "Release|Win32"
-@IF ERRORLEVEL 1 GOTO error
-@REM vcbuild TrustedQSL.sln "Debug|Win32"
-@REM @IF ERRORLEVEL 1 GOTO error
-vcbuild src/tqsllib2.vcproj "Debug|Win32"
-@IF ERRORLEVEL 1 GOTO error
-vcbuild apps/tqslupdater.vcproj "Debug|Win32"
-@IF ERRORLEVEL 1 GOTO error
-vcbuild apps/tqsl.vcproj "Debug|Win32"
-@IF ERRORLEVEL 1 GOTO error
+@IF %VS_RELEASE%==2008 (
+	@REM Building tests currently has build failures
+	@REM vcbuild TrustedQSL.sln "Release|Win32"
+	@REM @IF ERRORLEVEL 1 GOTO error
+	vcbuild src/tqsllib2.vcproj "Release|Win32"
+	@IF ERRORLEVEL 1 GOTO error
+	vcbuild apps/tqslupdater.vcproj "Release|Win32"
+	@IF ERRORLEVEL 1 GOTO error
+	vcbuild apps/tqsl.vcproj "Release|Win32"
+	@IF ERRORLEVEL 1 GOTO error
+	@REM vcbuild TrustedQSL.sln "Debug|Win32"
+	@REM @IF ERRORLEVEL 1 GOTO error
+	vcbuild src/tqsllib2.vcproj "Debug|Win32"
+	@IF ERRORLEVEL 1 GOTO error
+	vcbuild apps/tqslupdater.vcproj "Debug|Win32"
+	@IF ERRORLEVEL 1 GOTO error
+	vcbuild apps/tqsl.vcproj "Debug|Win32"
+	@IF ERRORLEVEL 1 GOTO error
+) ELSE (
+	@REM Building tests currently has build failures
+	@REM msbuild /p:Configuration=Release /p:Platform=Win32 TrustedQSL.sln
+	@REM @IF ERRORLEVEL 1 GOTO error
+	msbuild /p:Configuration=Release /p:Platform=Win32 /t:tqsllib2 TrustedQSL.sln
+	@IF ERRORLEVEL 1 GOTO error
+	msbuild /p:Configuration=Release /p:Platform=Win32 /t:tqslupdater TrustedQSL.sln
+	@IF ERRORLEVEL 1 GOTO error
+	msbuild /p:Configuration=Release /p:Platform=Win32 /t:tqsl TrustedQSL.sln
+	@IF ERRORLEVEL 1 GOTO error
+	@REM msbuild /p:Configuration=Debug /p:Platform=Win32 TrustedQSL.sln
+	@REM @IF ERRORLEVEL 1 GOTO error
+	msbuild /p:Configuration=Debug /p:Platform=Win32 /t:tqsllib2 TrustedQSL.sln
+	@IF ERRORLEVEL 1 GOTO error
+	msbuild /p:Configuration=Debug /p:Platform=Win32 /t:tqslupdater TrustedQSL.sln
+	@IF ERRORLEVEL 1 GOTO error
+	msbuild /p:Configuration=Debug /p:Platform=Win32 /t:tqsl TrustedQSL.sln
+	@IF ERRORLEVEL 1 GOTO error
+)
 GOTO end_tqsl
 
 
