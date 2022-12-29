@@ -218,8 +218,6 @@ cd %ROOT%
 CALL download.bat
 @IF ERRORLEVEL 1 GOTO error
 
-@IF x%BUILD_OPENSSL%==xy GOTO openssl
-:end_openssl
 @IF x%BUILD_WXWIDGETS%==xy GOTO wxwidgets
 :end_wxwidgets
 @IF x%BUILD_CURL%==xy GOTO curl
@@ -232,6 +230,8 @@ CALL download.bat
 :end_bdb
 @IF x%BUILD_LMDB%==xy GOTO lmdb
 :end_lmdb
+@IF x%BUILD_OPENSSL%==xy GOTO openssl
+:end_openssl
 @IF x%BUILD_TQSL%==xy GOTO tqsl
 :end_tqsl
 GOTO success
