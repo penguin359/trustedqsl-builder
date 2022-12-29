@@ -4,6 +4,30 @@ SET ROOT=%~dp0
 @REM SET PATH=C:\Program Files\NASM;C:\Strawberry\perl\bin;C:\Program Files\CMake\bin;%PATH%
 
 
+@IF x%VS_RELEASE%==x (
+	@SET VS_RELEASE=2008
+	@REM SET VS_RELEASE=2012
+	@REM SET VS_RELEASE=2015
+)
+
+@IF %VS_RELEASE%==2008 (
+	SET VS_VERSION=9.0
+	SET VS_GENERATOR=Visual Studio 9 2008
+) ELSE (
+	@IF %VS_RELEASE%==2012 (
+		SET VS_VERSION=11.0
+		SET VS_GENERATOR=Visual Studio 11 2012
+	) ELSE (
+		@IF %VS_RELEASE%==2015 (
+			SET VS_VERSION=14.0
+			SET VS_GENERATOR=Visual Studio 14 2015
+		) ELSE (
+			@ECHO Unrecognized Visual Studio release: %VS_RELEASE% >&2
+			exit /b 1
+		)
+	)
+)
+
 @SET BUILD_OPENSSL=y
 @SET BUILD_WXWIDGETS=y
 @SET BUILD_CURL=y
@@ -32,7 +56,7 @@ SET ROOT=%~dp0
 	@IF NOT x%1==x GOTO opt_loop
 )
 
-call "C:\Program Files (x86)\Microsoft Visual Studio 9.0\VC\vcvarsall.bat" x86
+call "C:\Program Files (x86)\Microsoft Visual Studio %VS_VERSION%\VC\vcvarsall.bat" x86
 
 @REM Change to the correct drive
 %~d0
@@ -137,7 +161,7 @@ GOTO end_expat
 @rmdir /s/q zlib-1.2.8 2>NUL
 @7z x "downloads\zlib-1.2.8.tar.gz" -so | 7z x -aoa -si -ttar
 cd zlib-1.2.8
-cmake -G "Visual Studio 9 2008" -B build -S .
+cmake -G "%VS_GENERATOR%" -B build -S .
 @IF ERRORLEVEL 1 GOTO error
 cd build
 REM msbuild /p:Configuration=Debug ALL_BUILD.vcxproj
@@ -175,8 +199,8 @@ GOTO end_bdb
 cd tqsl
 @del /s/q build32-vs2008 2>NUL
 @rmdir /s/q build32-vs2008 2>NUL
-REM cmake -DCMAKE_LIBRARY_PATH="%ROOT%expat-2.1.0\Bin" -DCMAKE_INCLUDE_PATH="%ROOT%expat-2.1.0\Source\lib" -DwxWidgets_ROOT_DIR="%ROOT%wxMSW-2.8.12" -DBDB_INCLUDE_DIR="%ROOT%db-6.0.20.NC\build_windows" -DBDB_LIBRARY="%ROOT%db-6.0.20.NC\build_windows\Win32\Static_Release\libdb60s.lib" -DOPENSSL_ROOT_DIR=%ROOT%openssl -DCURL_LIBRARY=%ROOT%curl-7.39.0\builds\libcurl-vc-x86-release-static-sspi-winssl\lib\libcurl_a.lib -DCURL_INCLUDE_DIR=%ROOT%curl-7.39.0\builds\libcurl-vc-x86-release-static-sspi-winssl\include -DwxWidgets_LIB_DIR=%ROOT%wxMSW-2.8.12\lib\vc_lib -DZLIB_LIBRARY_REL=%ROOT%zlib-1.2.8\build\Release\zlibstatic.lib -DZLIB_INCLUDE_DIR=%ROOT%zlib-1.2.8 -G "Visual Studio 9 2008" -A Win32 -B build32-vs2008 -S .
-cmake -DCMAKE_LIBRARY_PATH="%ROOT%expat-2.1.0\Bin" -DCMAKE_INCLUDE_PATH="%ROOT%expat-2.1.0\Source\lib" -DwxWidgets_ROOT_DIR="%ROOT%wxMSW-2.8.12" -DBDB_INCLUDE_DIR="%ROOT%db-6.0.20.NC\build_windows" -DBDB_LIBRARY="%ROOT%db-6.0.20.NC\build_windows\Win32\Static_Release\libdb60s.lib" -DOPENSSL_ROOT_DIR="%ROOT%openssl" -DCURL_LIBRARY="%ROOT%curl-7.39.0\builds\libcurl-vc-x86-release-static-sspi-winssl\lib\libcurl_a.lib" -DCURL_INCLUDE_DIR="%ROOT%curl-7.39.0\builds\libcurl-vc-x86-release-static-sspi-winssl\include" -G "Visual Studio 9 2008" -A Win32 -B build32-vs2008 -S .
+REM cmake -DCMAKE_LIBRARY_PATH="%ROOT%expat-2.1.0\Bin" -DCMAKE_INCLUDE_PATH="%ROOT%expat-2.1.0\Source\lib" -DwxWidgets_ROOT_DIR="%ROOT%wxMSW-2.8.12" -DBDB_INCLUDE_DIR="%ROOT%db-6.0.20.NC\build_windows" -DBDB_LIBRARY="%ROOT%db-6.0.20.NC\build_windows\Win32\Static_Release\libdb60s.lib" -DOPENSSL_ROOT_DIR=%ROOT%openssl -DCURL_LIBRARY=%ROOT%curl-7.39.0\builds\libcurl-vc-x86-release-static-sspi-winssl\lib\libcurl_a.lib -DCURL_INCLUDE_DIR=%ROOT%curl-7.39.0\builds\libcurl-vc-x86-release-static-sspi-winssl\include -DwxWidgets_LIB_DIR=%ROOT%wxMSW-2.8.12\lib\vc_lib -DZLIB_LIBRARY_REL=%ROOT%zlib-1.2.8\build\Release\zlibstatic.lib -DZLIB_INCLUDE_DIR=%ROOT%zlib-1.2.8 -G "%VS_GENERATOR%" -A Win32 -B build32-vs2008 -S .
+cmake -DCMAKE_LIBRARY_PATH="%ROOT%expat-2.1.0\Bin" -DCMAKE_INCLUDE_PATH="%ROOT%expat-2.1.0\Source\lib" -DwxWidgets_ROOT_DIR="%ROOT%wxMSW-2.8.12" -DBDB_INCLUDE_DIR="%ROOT%db-6.0.20.NC\build_windows" -DBDB_LIBRARY="%ROOT%db-6.0.20.NC\build_windows\Win32\Static_Release\libdb60s.lib" -DOPENSSL_ROOT_DIR="%ROOT%openssl" -DCURL_LIBRARY="%ROOT%curl-7.39.0\builds\libcurl-vc-x86-release-static-sspi-winssl\lib\libcurl_a.lib" -DCURL_INCLUDE_DIR="%ROOT%curl-7.39.0\builds\libcurl-vc-x86-release-static-sspi-winssl\include" -G "%VS_GENERATOR%" -A Win32 -B build32-vs2008 -S .
 @IF ERRORLEVEL 1 GOTO error
 REM cmake --build build32-vs2008
 cd build32-vs2008
