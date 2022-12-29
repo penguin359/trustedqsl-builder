@@ -7,23 +7,33 @@ SET ROOT=%~dp0
 @IF x%VS_RELEASE%==x (
 	@SET VS_RELEASE=2008
 	@REM SET VS_RELEASE=2012
+	@REM SET VS_RELEASE=2013
 	@REM SET VS_RELEASE=2015
 )
 
 @IF %VS_RELEASE%==2008 (
 	SET VS_VERSION=9.0
 	SET VS_GENERATOR=Visual Studio 9 2008
+	SET VS_PLATFORMSET=v90
 ) ELSE (
 	@IF %VS_RELEASE%==2012 (
 		SET VS_VERSION=11.0
 		SET VS_GENERATOR=Visual Studio 11 2012
+		SET VS_PLATFORMSET=v110
 	) ELSE (
-		@IF %VS_RELEASE%==2015 (
-			SET VS_VERSION=14.0
-			SET VS_GENERATOR=Visual Studio 14 2015
+		@IF %VS_RELEASE%==2013 (
+			SET VS_VERSION=12.0
+			SET VS_GENERATOR=Visual Studio 14 2013
+			SET VS_PLATFORMSET=v120
 		) ELSE (
-			@ECHO Unrecognized Visual Studio release: %VS_RELEASE% >&2
-			exit /b 1
+			@IF %VS_RELEASE%==2015 (
+				SET VS_VERSION=14.0
+				SET VS_GENERATOR=Visual Studio 14 2015
+				SET VS_PLATFORMSET=v140
+			) ELSE (
+				@ECHO Unrecognized Visual Studio release: %VS_RELEASE% >&2
+				exit /b 1
+			)
 		)
 	)
 )
@@ -200,13 +210,13 @@ cd db-6.0.20.NC\build_windows
 	vcbuild /upgrade Berkeley_DB.sln "Static Release|Win32"
 	@IF ERRORLEVEL 1 GOTO error
 ) ELSE (
-	@REM msbuild /p:Configuration="Debug" /p:Platform=Win32 /t:db /p:PlatformToolSet=v110 Berkeley_DB_vs2010.sln
+	@REM msbuild /p:Configuration="Debug" /p:Platform=Win32 /t:db /p:PlatformToolSet=%VS_PLATFORMSET% Berkeley_DB_vs2010.sln
 	@REM @IF ERRORLEVEL 1 GOTO error
-	msbuild /p:Configuration="Static Debug" /p:Platform=Win32 /t:db /p:PlatformToolSet=v110 Berkeley_DB_vs2010.sln
+	msbuild /p:Configuration="Static Debug" /p:Platform=Win32 /t:db /p:PlatformToolSet=%VS_PLATFORMSET% Berkeley_DB_vs2010.sln
 	@IF ERRORLEVEL 1 GOTO error
-	@REM msbuild /p:Configuration="Release" /p:Platform=Win32 /t:db /p:PlatformToolSet=v110 Berkeley_DB_vs2010.sln
+	@REM msbuild /p:Configuration="Release" /p:Platform=Win32 /t:db /p:PlatformToolSet=%VS_PLATFORMSET% Berkeley_DB_vs2010.sln
 	@REM @IF ERRORLEVEL 1 GOTO error
-	msbuild /p:Configuration="Static Release" /p:Platform=Win32 /t:db /p:PlatformToolSet=v110 Berkeley_DB_vs2010.sln
+	msbuild /p:Configuration="Static Release" /p:Platform=Win32 /t:db /p:PlatformToolSet=%VS_PLATFORMSET% Berkeley_DB_vs2010.sln
 	@IF ERRORLEVEL 1 GOTO error
 	move "Win32\Static Debug" "Win32\Static_Debug"
 	move "Win32\Static Release" "Win32\Static_Release"
