@@ -263,3 +263,29 @@ which is missing breaking the build.
 
 Windows 7
 Windows PowerShell -> Run as administrator
+
+
+
+# Default is VS 2008
+$env:USE_BDB = $null
+$env:VS_RELEASE = $null
+$env:WindowsSdkDir = $null
+
+$env:USE_BDB = "y"
+$env:VS_RELEASE = "2012"
+$env:WindowsSdkDir = "C:\Program Files (x86)\Microsoft SDKs\Windows\v7.1A\"
+
+$env:USE_BDB = $null
+$env:VS_RELEASE = "2013"
+$env:WindowsSdkDir = "C:\Program Files (x86)\Microsoft SDKs\Windows\v8.1A\"
+
+$env:USE_BDB = $null
+$env:VS_RELEASE = "2015"
+$env:WindowsSdkDir = $null
+$env:Path = "C:\Program Files (x86)\Windows Kits\10\bin\10.0.19041.0\x86;${env:Path}"
+
+$env:USE_BDB = $null
+$env:VS_RELEASE = "2019"
+$env:WindowsSdkDir = $null
+
+$env:Path = ($env:Path -split ";" | ?{ $_ -ne "C:\Strawberry\c\bin" }) -join ";"
