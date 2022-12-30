@@ -7,9 +7,9 @@ Import-Module -Name (Join-Path $PSScriptRoot "common.psm1") -DisableNameChecking
 $dependencies = @(
 	@{
 		Name = "OpenSSL";
-		File = "openssl-1.0.1e.tar.gz";
-		Url  = "https://www.openssl.org/source/openssl-1.0.1e.tar.gz";
-		Hash = "F74F15E8C8FF11AA3D5BB5F276D202EC18D7246E95F961DB76054199C69C1AE3";
+		File = "openssl-1.0.1u.tar.gz";
+		Url  = "https://www.openssl.org/source/openssl-1.0.1u.tar.gz";
+		Hash = "4312B4CA1215B6F2C97007503D80DB80D5157F76F8F7D3FEBBE6B4C56FF26739";
 	},
 	@{
 		Name = "wxWidgets";

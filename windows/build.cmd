@@ -100,10 +100,10 @@ GOTO success
 :openssl
 @ECHO Building OpenSSL...
 @cd %ROOT%
-@del /s/q openssl-1.0.1e 2>NUL
-@rmdir /s/q openssl-1.0.1e 2>NUL
-@7z x "downloads\openssl-1.0.1e.tar.gz" -so | 7z x -aoa -si -ttar
-cd openssl-1.0.1e
+@del /s/q openssl-1.0.1u 2>NUL
+@rmdir /s/q openssl-1.0.1u 2>NUL
+@7z x "downloads\openssl-1.0.1u.tar.gz" -so | 7z x -aoa -si -ttar
+cd openssl-1.0.1u
 perl Configure VC-WIN32 --prefix=%ROOT%openssl
 @IF ERRORLEVEL 1 GOTO error
 call ms\do_nasm
