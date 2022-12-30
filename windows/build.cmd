@@ -615,6 +615,7 @@ GOTO end_tqsl
 
 :success
 @ECHO Success!
+exit /b 0
 @GOTO eof
 
 
