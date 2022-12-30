@@ -1,0 +1,47 @@
+From 862d69e384873ec5a70a915a39aeebfee08a5b7e Mon Sep 17 00:00:00 2001
+From: "Loren M. Lang" <lorenl@north-winds.org>
+Date: Thu, 29 Dec 2022 23:46:40 -0800
+Subject: [PATCH] Fixed a small compilation issue on older Visual Studio
+ releases
+
+Visual Studio 2012 and older do not like the syntax declaring variables
+after code in a block. This commit just moved the variable
+declariations up to the top of the block. Not needed on 2013 and newer.
+---
+ libraries/liblmdb/mdb.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
+
+diff --git a/libraries/liblmdb/mdb.c b/libraries/liblmdb/mdb.c
+index 26b7cba..64306e8 100644
+--- a/libraries/liblmdb/mdb.c
++++ b/libraries/liblmdb/mdb.c
+@@ -3736,10 +3736,11 @@ mdb_page_flush(MDB_txn *txn, int keep)
+ 		/* ran out of room in ov array, and re-malloc, copy handles and free previous */
+ 		int ovs = (pagecount - keep) * 1.5; /* provide extra padding to reduce number of re-allocations */
+ 		int new_size = ovs * sizeof(OVERLAPPED);
++		int previous_size;
+ 		ov = malloc(new_size);
+ 		if (ov == NULL)
+ 			return ENOMEM;
+-		int previous_size = env->ovs * sizeof(OVERLAPPED);
++		previous_size = env->ovs * sizeof(OVERLAPPED);
+ 		memcpy(ov, env->ov, previous_size); /* Copy previous OVERLAPPED data to retain event handles */
+ 		/* And clear rest of memory */
+ 		memset(&ov[env->ovs], 0, new_size - previous_size);
+@@ -3786,11 +3787,12 @@ mdb_page_flush(MDB_txn *txn, int keep)
+ #endif
+ 			) {
+ 			if (n) {
++				OVERLAPPED *this_ov;
+ retry_write:
+ 				/* Write previous page(s) */
+ 				DPRINTF(("committing page %"Z"u", pgno));
+ #ifdef _WIN32
+-				OVERLAPPED *this_ov = &ov[async_i];
++				this_ov = &ov[async_i];
+ 				/* Clear status, and keep hEvent, we reuse that */
+ 				this_ov->Internal = 0;
+ 				this_ov->Offset = wpos & 0xffffffff;
+-- 
+2.39.0.windows.1
+

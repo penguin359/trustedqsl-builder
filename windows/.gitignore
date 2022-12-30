@@ -1,13 +1,10 @@
-/downloads/
 /curl-*/
 /db-*/
+/downloads/
 /expat-*/
+/lmdb/
 /openssl/
 /openssl-*/
+/tqsl/
 /wxMSW-*/
 /zlib-*/
-/tqsl/
-*.zip
-*.gz
-*.exe
-!/expat-vc2008.zip

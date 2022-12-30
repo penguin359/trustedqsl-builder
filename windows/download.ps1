@@ -47,6 +47,11 @@ $dependencies | ForEach-Object {
 	Download-File @_
 }
 
+if(-not(Test-Path -Path "lmdb")) {
+	echo "Downloading LMDB..."
+	git clone -b LMDB_0.9.29 https://github.com/LMDB/lmdb.git
+}
+
 if(-not(Test-Path -Path "tqsl")) {
 	echo "Downloading Trusted QSL..."
 	git clone https://git.code.sf.net/p/trustedqsl/tqsl tqsl

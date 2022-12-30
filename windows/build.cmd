@@ -15,27 +15,21 @@ SET ROOT=%~dp0
 	SET VS_VERSION=9.0
 	SET VS_GENERATOR=Visual Studio 9 2008
 	SET VS_PLATFORMSET=v90
-) ELSE (
-	@IF %VS_RELEASE%==2012 (
+) ELSE IF %VS_RELEASE%==2012 (
 		SET VS_VERSION=11.0
 		SET VS_GENERATOR=Visual Studio 11 2012
 		SET VS_PLATFORMSET=v110
-	) ELSE (
-		@IF %VS_RELEASE%==2013 (
-			SET VS_VERSION=12.0
-			SET VS_GENERATOR=Visual Studio 12 2013
-			SET VS_PLATFORMSET=v120
-		) ELSE (
-			@IF %VS_RELEASE%==2015 (
-				SET VS_VERSION=14.0
-				SET VS_GENERATOR=Visual Studio 14 2015
-				SET VS_PLATFORMSET=v140
-			) ELSE (
-				@ECHO Unrecognized Visual Studio release: %VS_RELEASE% >&2
-				exit /b 1
-			)
-		)
-	)
+) ELSE IF %VS_RELEASE%==2013 (
+		SET VS_VERSION=12.0
+		SET VS_GENERATOR=Visual Studio 12 2013
+		SET VS_PLATFORMSET=v120
+) ELSE IF %VS_RELEASE%==2015 (
+		SET VS_VERSION=14.0
+		SET VS_GENERATOR=Visual Studio 14 2015
+		SET VS_PLATFORMSET=v140
+) ELSE (
+	@ECHO Unrecognized Visual Studio release: %VS_RELEASE% >&2
+	exit /b 1
 )
 
 @SET BUILD_OPENSSL=y
@@ -43,7 +37,15 @@ SET ROOT=%~dp0
 @SET BUILD_CURL=y
 @SET BUILD_EXPAT=y
 @SET BUILD_ZLIB=y
-@SET BUILD_BDB=y
+@SET BUILD_BDB=
+@SET BUILD_LMDB=
+@IF NOT x%USE_BDB%==x (
+	@SET BUILD_BDB=y
+	@SET LMDB_DIR=
+) ELSE (
+	@SET BUILD_LMDB=y
+	@SET LMDB_DIR=%ROOT%lmdb
+)
 @SET BUILD_TQSL=y
 @IF NOT x%1==x (
 	@SET BUILD_OPENSSL=
@@ -52,6 +54,7 @@ SET ROOT=%~dp0
 	@SET BUILD_EXPAT=
 	@SET BUILD_ZLIB=
 	@SET BUILD_BDB=
+	@SET BUILD_LMDB=
 	@SET BUILD_TQSL=
 :opt_loop
 	REM weird syntax error breaking command after label?
@@ -61,6 +64,7 @@ SET ROOT=%~dp0
 	@IF x%1==xexpat SET BUILD_EXPAT=y
 	@IF x%1==xzlib SET BUILD_ZLIB=y
 	@IF x%1==xbdb SET BUILD_BDB=y
+	@IF x%1==xlmdb SET BUILD_LMDB=y
 	@IF x%1==xtqsl SET BUILD_TQSL=y
 	@SHIFT
 	@IF NOT x%1==x GOTO opt_loop
@@ -86,6 +90,8 @@ CALL download.bat
 :end_zlib
 @IF x%BUILD_BDB%==xy GOTO bdb
 :end_bdb
+@IF x%BUILD_LMDB%==xy GOTO lmdb
+:end_lmdb
 @IF x%BUILD_TQSL%==xy GOTO tqsl
 :end_tqsl
 GOTO success
@@ -222,6 +228,45 @@ cd db-6.0.20.NC\build_windows
 	move "Win32\Static Release" "Win32\Static_Release"
 )
 GOTO end_bdb
+
+
+:lmdb
+@ECHO Building LMDB...
+@cd %ROOT%
+cd lmdb
+IF NOT EXIST include mkdir include
+IF NOT EXIST lib mkdir lib
+cd libraries\liblmdb
+@del /s/q *.obj 2>NUL
+@del /s/q *.lib 2>NUL
+SET CFLAGS=/c /O2 /DWIN32
+@IF %VS_RELEASE%==2008 GOTO apply_fixup
+@IF %VS_RELEASE%==2010 GOTO apply_fixup
+@IF %VS_RELEASE%==2012 GOTO apply_fixup
+GOTO skip_fixup
+
+:apply_fixup
+SET CFLAGS=%CFLAGS% /I..\..\..\lmdb-include
+copy /Y ..\..\..\lmdb-include\inttypes.h ..\..\include
+@IF ERRORLEVEL 1 GOTO error
+git reset --hard origin/mdb.master
+@IF ERRORLEVEL 1 GOTO error
+git am ..\..\..\lmdb-vs2008-vs2012.patch
+@IF ERRORLEVEL 1 GOTO error
+
+:skip_fixup
+echo cl %CFLAGS% mdb.c
+cl %CFLAGS% mdb.c
+@IF ERRORLEVEL 1 GOTO error
+cl %CFLAGS% midl.c
+@IF ERRORLEVEL 1 GOTO error
+lib /out:lmdb.lib *.obj
+@IF ERRORLEVEL 1 GOTO error
+copy /Y *.h ..\..\include
+@IF ERRORLEVEL 1 GOTO error
+copy /Y *.lib ..\..\lib
+@IF ERRORLEVEL 1 GOTO error
+GOTO end_lmdb
 
 
 :tqsl
