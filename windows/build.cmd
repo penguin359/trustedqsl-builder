@@ -273,13 +273,13 @@ GOTO end_lmdb
 @ECHO Building Trusted QSL...
 @cd %ROOT%
 cd tqsl
-@del /s/q build32-vs2008 2>NUL
-@rmdir /s/q build32-vs2008 2>NUL
-@REM cmake -DCMAKE_LIBRARY_PATH="%ROOT%expat-2.1.0\Bin" -DCMAKE_INCLUDE_PATH="%ROOT%expat-2.1.0\Source\lib" -DwxWidgets_ROOT_DIR="%ROOT%wxMSW-2.8.12" -DBDB_INCLUDE_DIR="%ROOT%db-6.0.20.NC\build_windows" -DBDB_LIBRARY="%ROOT%db-6.0.20.NC\build_windows\Win32\Static_Release\libdb60s.lib" -DOPENSSL_ROOT_DIR=%ROOT%openssl -DCURL_LIBRARY=%ROOT%curl-7.39.0\builds\libcurl-vc-x86-release-static-sspi-winssl\lib\libcurl_a.lib -DCURL_INCLUDE_DIR=%ROOT%curl-7.39.0\builds\libcurl-vc-x86-release-static-sspi-winssl\include -DwxWidgets_LIB_DIR=%ROOT%wxMSW-2.8.12\lib\vc_lib -DZLIB_LIBRARY_REL=%ROOT%zlib-1.2.8\build\Release\zlibstatic.lib -DZLIB_INCLUDE_DIR=%ROOT%zlib-1.2.8 -G "%VS_GENERATOR%" -A Win32 -B build32-vs2008 -S .
-cmake -DCMAKE_LIBRARY_PATH="%ROOT%expat-2.1.0\Bin" -DCMAKE_INCLUDE_PATH="%ROOT%expat-2.1.0\Source\lib" -DwxWidgets_ROOT_DIR="%ROOT%wxMSW-2.8.12" -DBDB_INCLUDE_DIR="%ROOT%db-6.0.20.NC\build_windows" -DBDB_LIBRARY="%ROOT%db-6.0.20.NC\build_windows\Win32\Static_Release\libdb60s.lib" -DOPENSSL_ROOT_DIR="%ROOT%openssl" -DCURL_LIBRARY="%ROOT%curl-7.39.0\builds\libcurl-vc-x86-release-static-sspi-winssl\lib\libcurl_a.lib" -DCURL_INCLUDE_DIR="%ROOT%curl-7.39.0\builds\libcurl-vc-x86-release-static-sspi-winssl\include" -G "%VS_GENERATOR%" -A Win32 -B build32-vs2008 -S .
+@del /s/q build 2>NUL
+@rmdir /s/q build 2>NUL
+@REM cmake -DCMAKE_LIBRARY_PATH="%ROOT%expat-2.1.0\Bin" -DCMAKE_INCLUDE_PATH="%ROOT%expat-2.1.0\Source\lib" -DwxWidgets_ROOT_DIR="%ROOT%wxMSW-2.8.12" -DBDB_INCLUDE_DIR="%ROOT%db-6.0.20.NC\build_windows" -DBDB_LIBRARY="%ROOT%db-6.0.20.NC\build_windows\Win32\Static_Release\libdb60s.lib" -DOPENSSL_ROOT_DIR=%ROOT%openssl -DCURL_LIBRARY=%ROOT%curl-7.39.0\builds\libcurl-vc-x86-release-static-sspi-winssl\lib\libcurl_a.lib -DCURL_INCLUDE_DIR=%ROOT%curl-7.39.0\builds\libcurl-vc-x86-release-static-sspi-winssl\include -DwxWidgets_LIB_DIR=%ROOT%wxMSW-2.8.12\lib\vc_lib -DZLIB_LIBRARY_REL=%ROOT%zlib-1.2.8\build\Release\zlibstatic.lib -DZLIB_INCLUDE_DIR=%ROOT%zlib-1.2.8 -G "%VS_GENERATOR%" -A Win32 -B build -S .
+cmake -DCMAKE_LIBRARY_PATH="%ROOT%expat-2.1.0\Bin" -DCMAKE_INCLUDE_PATH="%ROOT%expat-2.1.0\Source\lib" -DwxWidgets_ROOT_DIR="%ROOT%wxMSW-2.8.12" -DBDB_INCLUDE_DIR="%ROOT%db-6.0.20.NC\build_windows" -DBDB_LIBRARY="%ROOT%db-6.0.20.NC\build_windows\Win32\Static_Release\libdb60s.lib" -DOPENSSL_ROOT_DIR="%ROOT%openssl" -DCURL_LIBRARY="%ROOT%curl-7.39.0\builds\libcurl-vc-x86-release-static-sspi-winssl\lib\libcurl_a.lib" -DCURL_INCLUDE_DIR="%ROOT%curl-7.39.0\builds\libcurl-vc-x86-release-static-sspi-winssl\include" -G "%VS_GENERATOR%" -A Win32 -B build -S .
 @IF ERRORLEVEL 1 GOTO error
-@REM cmake --build build32-vs2008
-cd build32-vs2008
+@REM cmake --build build
+cd build
 @REM Building tests currently has build failures
 @REM msbuild /p:Configuration=Release /p:Platform=Win32 TrustedQSL.sln
 @REM @IF ERRORLEVEL 1 GOTO error
