@@ -9,6 +9,7 @@ SET ROOT=%~dp0
 	@REM SET VS_RELEASE=2012
 	@REM SET VS_RELEASE=2013
 	@REM SET VS_RELEASE=2015
+	@REM SET VS_RELEASE=2019
 )
 
 @IF x%OPENSSL_VERSION%==x (
@@ -39,6 +40,10 @@ SET ROOT=%~dp0
 		SET VS_VERSION=14.0
 		SET VS_GENERATOR=Visual Studio 14 2015
 		SET VS_PLATFORMSET=v140
+) ELSE IF %VS_RELEASE%==2019 (
+		SET VS_VERSION=16.0
+		SET VS_GENERATOR=Visual Studio 16 2019
+		SET VS_PLATFORMSET=v142
 ) ELSE (
 	@ECHO Unrecognized Visual Studio release: %VS_RELEASE% >&2
 	exit /b 1
@@ -82,7 +87,11 @@ SET ROOT=%~dp0
 	@IF NOT x%1==x GOTO opt_loop
 )
 
-call "C:\Program Files (x86)\Microsoft Visual Studio %VS_VERSION%\VC\vcvarsall.bat" x86
+@IF %VS_RELEASE%==2019 (
+	call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Auxiliary\Build\vcvarsall.bat" x86
+) ELSE (
+	call "C:\Program Files (x86)\Microsoft Visual Studio %VS_VERSION%\VC\vcvarsall.bat" x86
+)
 
 @REM Change to the correct drive
 %~d0
