@@ -11,6 +11,18 @@ SET ROOT=%~dp0
 	@REM SET VS_RELEASE=2015
 )
 
+@IF x%OPENSSL_VERSION%==x (
+	@REM SET OPENSSL_VERSION=1.0.1e
+	@SET OPENSSL_VERSION=1.0.1u
+	@REM SET OPENSSL_VERSION=1.1.1m
+)
+
+@IF x%WXWIDGETS_VERSION%==x (
+	@REM SET WXWIDGETS_VERSION=2.8.12
+	@SET WXWIDGETS_VERSION=3.0.5
+	@REM SET WXWIDGETS_VERSION=3.2.0
+)
+
 @IF %VS_RELEASE%==2008 (
 	SET VS_VERSION=9.0
 	SET VS_GENERATOR=Visual Studio 9 2008
@@ -76,7 +88,9 @@ call "C:\Program Files (x86)\Microsoft Visual Studio %VS_VERSION%\VC\vcvarsall.b
 %~d0
 cd %ROOT%
 
+@ECHO Checking for downloads...
 CALL download.bat
+@IF ERRORLEVEL 1 GOTO error
 
 @IF x%BUILD_OPENSSL%==xy GOTO openssl
 :end_openssl
@@ -100,10 +114,10 @@ GOTO success
 :openssl
 @ECHO Building OpenSSL...
 @cd %ROOT%
-@del /s/q openssl-1.0.1u 2>NUL
-@rmdir /s/q openssl-1.0.1u 2>NUL
-@7z x "downloads\openssl-1.0.1u.tar.gz" -so | 7z x -aoa -si -ttar
-cd openssl-1.0.1u
+@del /s/q openssl-%OPENSSL_VERSION% 2>NUL
+@rmdir /s/q openssl-%OPENSSL_VERSION% 2>NUL
+@7z x "downloads\openssl-%OPENSSL_VERSION%.tar.gz" -so | 7z x -aoa -si -ttar
+cd openssl-%OPENSSL_VERSION%
 perl Configure VC-WIN32 --prefix=%ROOT%openssl
 @IF ERRORLEVEL 1 GOTO error
 call ms\do_nasm
@@ -125,16 +139,30 @@ GOTO end_openssl
 :wxwidgets
 @ECHO Building wxWidgets...
 @cd %ROOT%
-@del /s/q wxMSW-2.8.12 2>NUL
-@rmdir /s/q wxMSW-2.8.12 2>NUL
-@7z x "downloads\wxMSW-2.8.12.zip" -aoa 
-cd wxMSW-2.8.12
-@REM Needed for VS 2012 and newer
-"C:\Program Files\Git\usr\bin\sed.exe" -i.bak -e "s/\(#include.*<pbt\.h>\)/\/\/\1/" src\msw\window.cpp
+@del /s/q wxWidgets-%WXWIDGETS_VERSION% 2>NUL
+@rmdir /s/q wxWidgets-%WXWIDGETS_VERSION% 2>NUL
+IF %WXWIDGETS_VERSION% LEQ 2.9 (
+	@7z x "downloads\wxWidgets-%WXWIDGETS_VERSION%.zip" -aoa 
+	move wxMSW-%WXWIDGETS_VERSION% wxWidgets-%WXWIDGETS_VERSION%
+	cd wxWidgets-%WXWIDGETS_VERSION%
+	@REM Needed for VS 2012 and newer
+	"C:\Program Files\Git\usr\bin\sed.exe" -i.bak -e "s/\(#include.*<pbt\.h>\)/\/\/\1/" src\msw\window.cpp
+	@REM cd build\msw
+	@REM nmake -f makefile.vc BUILD=release SHARED=0 UNICODE=1
+	@REM @IF ERRORLEVEL 1 GOTO error
+	@REM nmake -f makefile.vc BUILD=debug SHARED=0 UNICODE=1
+	@REM @IF ERRORLEVEL 1 GOTO error
+) ELSE (
+	@mkdir wxWidgets-%WXWIDGETS_VERSION%
+	cd wxWidgets-%WXWIDGETS_VERSION%
+	@7z x "..\downloads\wxWidgets-%WXWIDGETS_VERSION%.7z" -aoa 
+)
 cd build\msw
-nmake -f makefile.vc BUILD=release SHARED=0 UNICODE=1
+@REM nmake -f makefile.vc BUILD=release SHARED=0 UNICODE=1 RUNTIME_LIBS=static CPU=X86
+nmake -f makefile.vc BUILD=release SHARED=0 UNICODE=1 CPU=X86
 @IF ERRORLEVEL 1 GOTO error
-nmake -f makefile.vc BUILD=debug SHARED=0 UNICODE=1
+@REM nmake -f makefile.vc BUILD=debug SHARED=0 UNICODE=1 RUNTIME_LIBS=static CPU=X86
+nmake -f makefile.vc BUILD=debug SHARED=0 UNICODE=1 CPU=X86
 @IF ERRORLEVEL 1 GOTO error
 GOTO end_wxwidgets
 
@@ -275,8 +303,8 @@ GOTO end_lmdb
 cd tqsl
 @del /s/q build 2>NUL
 @rmdir /s/q build 2>NUL
-@REM cmake -DCMAKE_LIBRARY_PATH="%ROOT%expat-2.1.0\Bin" -DCMAKE_INCLUDE_PATH="%ROOT%expat-2.1.0\Source\lib" -DwxWidgets_ROOT_DIR="%ROOT%wxMSW-2.8.12" -DBDB_INCLUDE_DIR="%ROOT%db-6.0.20.NC\build_windows" -DBDB_LIBRARY="%ROOT%db-6.0.20.NC\build_windows\Win32\Static_Release\libdb60s.lib" -DOPENSSL_ROOT_DIR=%ROOT%openssl -DCURL_LIBRARY=%ROOT%curl-7.39.0\builds\libcurl-vc-x86-release-static-sspi-winssl\lib\libcurl_a.lib -DCURL_INCLUDE_DIR=%ROOT%curl-7.39.0\builds\libcurl-vc-x86-release-static-sspi-winssl\include -DwxWidgets_LIB_DIR=%ROOT%wxMSW-2.8.12\lib\vc_lib -DZLIB_LIBRARY_REL=%ROOT%zlib-1.2.8\build\Release\zlibstatic.lib -DZLIB_INCLUDE_DIR=%ROOT%zlib-1.2.8 -G "%VS_GENERATOR%" -A Win32 -B build -S .
-cmake -DCMAKE_LIBRARY_PATH="%ROOT%expat-2.1.0\Bin" -DCMAKE_INCLUDE_PATH="%ROOT%expat-2.1.0\Source\lib" -DwxWidgets_ROOT_DIR="%ROOT%wxMSW-2.8.12" -DBDB_INCLUDE_DIR="%ROOT%db-6.0.20.NC\build_windows" -DBDB_LIBRARY="%ROOT%db-6.0.20.NC\build_windows\Win32\Static_Release\libdb60s.lib" -DOPENSSL_ROOT_DIR="%ROOT%openssl" -DCURL_LIBRARY="%ROOT%curl-7.39.0\builds\libcurl-vc-x86-release-static-sspi-winssl\lib\libcurl_a.lib" -DCURL_INCLUDE_DIR="%ROOT%curl-7.39.0\builds\libcurl-vc-x86-release-static-sspi-winssl\include" -G "%VS_GENERATOR%" -A Win32 -B build -S .
+@REM cmake -DCMAKE_LIBRARY_PATH="%ROOT%expat-2.1.0\Bin" -DCMAKE_INCLUDE_PATH="%ROOT%expat-2.1.0\Source\lib" -DwxWidgets_ROOT_DIR="%ROOT%wxWidgets-%WXWIDGETS_VERSION%" -DBDB_INCLUDE_DIR="%ROOT%db-6.0.20.NC\build_windows" -DBDB_LIBRARY="%ROOT%db-6.0.20.NC\build_windows\Win32\Static_Release\libdb60s.lib" -DOPENSSL_ROOT_DIR=%ROOT%openssl -DCURL_LIBRARY=%ROOT%curl-7.39.0\builds\libcurl-vc-x86-release-static-sspi-winssl\lib\libcurl_a.lib -DCURL_INCLUDE_DIR=%ROOT%curl-7.39.0\builds\libcurl-vc-x86-release-static-sspi-winssl\include -DwxWidgets_LIB_DIR=%ROOT%wxWidgets-%WXWIDGETS_VERSION%\lib\vc_lib -DZLIB_LIBRARY_REL=%ROOT%zlib-1.2.8\build\Release\zlibstatic.lib -DZLIB_INCLUDE_DIR=%ROOT%zlib-1.2.8 -G "%VS_GENERATOR%" -A Win32 -B build -S .
+cmake -DCMAKE_LIBRARY_PATH="%ROOT%expat-2.1.0\Bin" -DCMAKE_INCLUDE_PATH="%ROOT%expat-2.1.0\Source\lib" -DwxWidgets_ROOT_DIR="%ROOT%wxWidgets-%WXWIDGETS_VERSION%" -DBDB_INCLUDE_DIR="%ROOT%db-6.0.20.NC\build_windows" -DBDB_LIBRARY="%ROOT%db-6.0.20.NC\build_windows\Win32\Static_Release\libdb60s.lib" -DOPENSSL_ROOT_DIR="%ROOT%openssl" -DCURL_LIBRARY="%ROOT%curl-7.39.0\builds\libcurl-vc-x86-release-static-sspi-winssl\lib\libcurl_a.lib" -DCURL_INCLUDE_DIR="%ROOT%curl-7.39.0\builds\libcurl-vc-x86-release-static-sspi-winssl\include" -G "%VS_GENERATOR%" -A Win32 -B build -S .
 @IF ERRORLEVEL 1 GOTO error
 @REM cmake --build build
 cd build
@@ -306,9 +334,11 @@ GOTO end_tqsl
 
 
 :error
+@SET STATUS=%ERRORLEVEL%
 @ECHO ************************************ 1>&2
 @ECHO There was an error during the build! 1>&2
-exit /b 1
+@ECHO Last command status: %STATUS%
+exit /b %STATUS%
 @GOTO eof
 
 

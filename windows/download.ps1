@@ -1,6 +1,34 @@
 Set-StrictMode -Version 3.0
 
+$ErrorActionPreference = "Stop"
+$VerboseActionPreference = "Continue"
+
 Import-Module -Name (Join-Path $PSScriptRoot "common.psm1") -DisableNameChecking
+
+$wxWidgetsVersions = @{
+	"2.8.12" = @{
+		Name = "wxWidgets 2.8";
+		File = "wxWidgets-2.8.12.zip";
+		Url  = "https://github.com/wxWidgets/wxWidgets/releases/download/v2.8.12/wxMSW-2.8.12.zip";
+		Hash = "307D713D8AFFBED69A89418D9C9073193AADFEF4B16DA3D8EF68558A9F57AE88";
+	};
+	"3.0.5" = @{
+		Name = "wxWidgets 3.0";
+		File = "wxWidgets-3.0.5.7z";
+		Url  = "https://github.com/wxWidgets/wxWidgets/releases/download/v3.0.5/wxWidgets-3.0.5.7z";
+		Hash = "33D7E9327CD0192CCC5D69F78C4A98C3C17F190D94F99F1B1C89BD4A47A1D5DC";
+	};
+	"3.2.0" = @{
+		Name = "wxWidgets 3.2";
+		File = "wxWidgets-3.2.0.7z";
+		Url  = "https://github.com/wxWidgets/wxWidgets/releases/download/v3.2.0/wxWidgets-3.2.0.7z";
+		Hash = "AE3516D75C1D8CBA519AC338310E7B3A9E5896E5CDB03396BBE3CE30A42C1A4E";
+	};
+}
+$wxWidgetsDefault = "3.0.5"
+if($env:wxWidgets_VERSION) {
+	$wxWidgetsDefault = $env:wxWidgets_VERSION
+}
 
 #"https://curl.se/download/curl-7.87.0.tar.gz"
 #"https://sourceforge.net/projects/expat/files/expat_win32/2.5.0/expat-win32bin-2.5.0.zip/download"
@@ -10,12 +38,6 @@ $dependencies = @(
 		File = "openssl-1.0.1u.tar.gz";
 		Url  = "https://www.openssl.org/source/openssl-1.0.1u.tar.gz";
 		Hash = "4312B4CA1215B6F2C97007503D80DB80D5157F76F8F7D3FEBBE6B4C56FF26739";
-	},
-	@{
-		Name = "wxWidgets";
-		File = "wxMSW-2.8.12.zip";
-		Url  = "https://github.com/wxWidgets/wxWidgets/releases/download/v2.8.12/wxMSW-2.8.12.zip";
-		Hash = "307D713D8AFFBED69A89418D9C9073193AADFEF4B16DA3D8EF68558A9F57AE88";
 	},
 	@{
 		Name = "cURL";
@@ -42,6 +64,10 @@ $dependencies = @(
 		Hash = "140731D64DA8B7E4DDF1C5FD52ED3C41DFE08E00857D48DC41BBEF2795FD6A16";
 	}
 )
+if(-not($wxWidgetsVersions[$wxWidgetsDefault])) {
+	throw "Can't find wxWidgets version $wxWidgetsDefault"
+}
+$dependencies += $wxWidgetsVersions[$wxWidgetsDefault]
 
 $dependencies | ForEach-Object {
 	Download-File @_
