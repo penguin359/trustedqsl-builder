@@ -132,7 +132,7 @@ GOTO success
 @rmdir /s/q openssl-%OPENSSL_VERSION% 2>NUL
 @7z x "downloads\openssl-%OPENSSL_VERSION%.tar.gz" -so | 7z x -aoa -si -ttar
 cd openssl-%OPENSSL_VERSION%
-IF %OPENSSL_VERSION% LEQ 1.0 (
+IF %OPENSSL_VERSION% LSS 1.1 (
 	perl Configure VC-WIN32 --prefix=%ROOT%openssl
 	@IF ERRORLEVEL 1 GOTO error
 	call ms\do_nasm
@@ -169,7 +169,7 @@ GOTO end_openssl
 @cd %ROOT%
 @del /s/q wxWidgets-%WXWIDGETS_VERSION% 2>NUL
 @rmdir /s/q wxWidgets-%WXWIDGETS_VERSION% 2>NUL
-IF %WXWIDGETS_VERSION% LEQ 2.9 (
+IF %WXWIDGETS_VERSION% LSS 3.0 (
 	@7z x "downloads\wxWidgets-%WXWIDGETS_VERSION%.zip" -aoa 
 	move wxMSW-%WXWIDGETS_VERSION% wxWidgets-%WXWIDGETS_VERSION%
 	cd wxWidgets-%WXWIDGETS_VERSION%
