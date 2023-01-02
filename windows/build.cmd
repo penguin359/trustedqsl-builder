@@ -134,24 +134,37 @@ GOTO success
 :openssl
 @ECHO Building OpenSSL...
 @cd %ROOT%
+@del /s/q openssl 2>NUL
+@rmdir /s/q openssl 2>NUL
 @del /s/q openssl-%OPENSSL_VERSION% 2>NUL
 @rmdir /s/q openssl-%OPENSSL_VERSION% 2>NUL
 @7z x "downloads\openssl-%OPENSSL_VERSION%.tar.gz" -so | 7z x -aoa -si -ttar
 cd openssl-%OPENSSL_VERSION%
+@IF NOT x%USE_64BIT%==x (
+	@SET target=VC-WIN64A
+) ELSE (
+	@SET target=VC-WIN32
+)
+@IF NOT x%USE_SHARED%==x (
+	@SET makefile=ms\ntdll.mak
+	@SET opts=shared
+) ELSE (
+	@SET makefile=ms\nt.mak
+	@SET opts=no-shared
+)
 IF %OPENSSL_VERSION% LSS 1.1 (
-	perl Configure VC-WIN32 --prefix=%ROOT%openssl
+	perl Configure %target% --prefix=%ROOT%openssl
 	@IF ERRORLEVEL 1 GOTO error
 	call ms\do_nasm
 	@IF ERRORLEVEL 1 GOTO error
-	@REM Use ntdll.mak for DLL
-	nmake -f ms\nt.mak
+	nmake -f %makefile%
 	@IF ERRORLEVEL 1 GOTO error
-	nmake -f ms\nt.mak test
+	nmake -f %makefile% test
 	@IF ERRORLEVEL 1 GOTO error
-	nmake -f ms\nt.mak install
+	nmake -f %makefile% install
 	@IF ERRORLEVEL 1 GOTO error
 ) ELSE (
-	perl Configure VC-WIN32 no-shared no-capieng no-async --prefix=%ROOT%openssl --openssldir=%ROOT%openssl\bin\
+	perl Configure %target% %opts% no-capieng no-async --prefix=%ROOT%openssl --openssldir=%ROOT%openssl\bin\
 	@IF ERRORLEVEL 1 GOTO error
 	nmake
 	@IF ERRORLEVEL 1 GOTO error
