@@ -201,22 +201,35 @@ IF %WXWIDGETS_VERSION% LSS 3.0 (
 	cd wxWidgets-%WXWIDGETS_VERSION%
 	@REM Needed for VS 2012 and newer
 	"C:\Program Files\Git\usr\bin\sed.exe" -i.bak -e "s/\(#include.*<pbt\.h>\)/\/\/\1/" src\msw\window.cpp
-	@REM cd build\msw
-	@REM nmake -f makefile.vc BUILD=release SHARED=0 UNICODE=1
-	@REM @IF ERRORLEVEL 1 GOTO error
-	@REM nmake -f makefile.vc BUILD=debug SHARED=0 UNICODE=1
-	@REM @IF ERRORLEVEL 1 GOTO error
 ) ELSE (
 	@mkdir wxWidgets-%WXWIDGETS_VERSION%
 	cd wxWidgets-%WXWIDGETS_VERSION%
 	@7z x "..\downloads\wxWidgets-%WXWIDGETS_VERSION%.7z" -aoa 
 )
+@IF NOT x%USE_SHARED%==x (
+	@SET shared=1
+) ELSE (
+	@SET shared=0
+)
+@IF NOT x%USE_DYNAMIC_CRT%==x (
+	@SET crt=dynamic
+) ELSE (
+	@SET crt=static
+)
+@IF NOT x%USE_ANSI%==x (
+	@SET unicode=0
+) ELSE (
+	@SET unicode=1
+)
+@IF NOT x%USE_64BIT%==x (
+	@SET arch=AMD64
+) ELSE (
+	@SET arch=X86
+)
 cd build\msw
-@REM nmake -f makefile.vc BUILD=release SHARED=0 UNICODE=1 RUNTIME_LIBS=static CPU=X86
-nmake -f makefile.vc BUILD=release SHARED=0 UNICODE=1 CPU=X86
+nmake -f makefile.vc BUILD=release SHARED=%shared% UNICODE=%unicode% RUNTIME_LIBS=%crt% TARGET_CPU=%arch%
 @IF ERRORLEVEL 1 GOTO error
-@REM nmake -f makefile.vc BUILD=debug SHARED=0 UNICODE=1 RUNTIME_LIBS=static CPU=X86
-nmake -f makefile.vc BUILD=debug SHARED=0 UNICODE=1 CPU=X86
+nmake -f makefile.vc BUILD=debug SHARED=%shared% UNICODE=%unicode% RUNTIME_LIBS=%crt% TARGET_CPU=%arch%
 @IF ERRORLEVEL 1 GOTO error
 GOTO end_wxwidgets
 
@@ -229,8 +242,17 @@ GOTO end_wxwidgets
 @7z x "downloads\curl-%CURL_VERSION%.tar.gz" -so | 7z x -aoa -si -ttar
 cd curl-%CURL_VERSION%\winbuild
 "C:\Program Files\Git\usr\bin\sed.exe" -i.bak -e '/HAVE.*ADDRINFO/s/define\([ \t]\+[A-Za-z0-9_]\+\).*/undef \1/' ../lib/config-win32.h
-@REM mode=dll for DLL
-nmake -f Makefile.vc mode=static ENABLE_WINSSL=yes ENABLE_IDN=no ENABLE_IPV6=no
+@IF NOT x%USE_SHARED%==x (
+	@SET mode=dll
+) ELSE (
+	@SET mode=static
+)
+@IF NOT x%USE_64BIT%==x (
+	@SET machine=x64
+) ELSE (
+	@SET machine=x86
+)
+nmake -f Makefile.vc mode=%mode% ENABLE_WINSSL=yes ENABLE_IDN=no ENABLE_IPV6=no MACHINE=%machine%
 @IF ERRORLEVEL 1 GOTO error
 GOTO end_curl
 
@@ -252,7 +274,12 @@ IF %EXPAT_VERSION% LSS 2.3.0 (
 cd Source
 @REM Only expat_static is needed
 @REM vcbuild expat.sln "Release|Win32"
-msbuild /p:Configuration=Release /p:Platform=Win32 /t:expat_static expat.sln
+@IF NOT x%USE_SHARED%==x (
+	@SET target=expat
+) ELSE (
+	@SET target=expat_static
+)
+msbuild /p:Configuration=Release /p:Platform=Win32 /t:%target% expat.sln
 @IF ERRORLEVEL 1 GOTO error
 copy /y win32\bin\Release\libexpatMT.lib ..\Bin\libexpat.lib
 @IF ERRORLEVEL 1 GOTO error
@@ -269,17 +296,22 @@ cd zlib-1.2.8
 cmake -G "%VS_GENERATOR%" -B build -S .
 @IF ERRORLEVEL 1 GOTO error
 cd build
+@IF NOT x%USE_SHARED%==x (
+	@SET project=zlib
+) ELSE (
+	@SET project=zlibstatic
+)
 @IF %VS_RELEASE%==2008 (
-	msbuild /p:Configuration=Debug zlibstatic.vcproj
+	msbuild /p:Configuration=Debug %project%.vcproj
 	@IF ERRORLEVEL 1 GOTO error
-	msbuild /p:Configuration=Release zlibstatic.vcproj
+	msbuild /p:Configuration=Release %project%.vcproj
 	@IF ERRORLEVEL 1 GOTO error
 ) ELSE (
 	@REM msbuild /p:Configuration=Debug ALL_BUILD.vcxproj
-	msbuild /p:Configuration=Debug zlibstatic.vcxproj
+	msbuild /p:Configuration=Debug %project%.vcxproj
 	@IF ERRORLEVEL 1 GOTO error
 	@REM msbuild /p:Configuration=Release ALL_BUILD.vcxproj
-	msbuild /p:Configuration=Release zlibstatic.vcxproj
+	msbuild /p:Configuration=Release %project%.vcxproj
 	@IF ERRORLEVEL 1 GOTO error
 )
 copy /y zconf.h ..
