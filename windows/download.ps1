@@ -55,15 +55,27 @@ if($env:wxWidgets_VERSION) {
 	$wxWidgetsDefault = $env:wxWidgets_VERSION
 }
 
-#"https://curl.se/download/curl-7.87.0.tar.gz"
-#"https://sourceforge.net/projects/expat/files/expat_win32/2.5.0/expat-win32bin-2.5.0.zip/download"
-$dependencies = @(
-	@{
+$curlVersions = @{
+	"7.39.0" = @{
 		Name = "cURL";
 		File = "curl-7.39.0.tar.gz";
 		Url  = "https://curl.se/download/curl-7.39.0.tar.gz";
 		Hash = "A3A7C2B9E7416C728469EB4CB5B61E9161335DF4278329E1D9CC3C194E25D795";
-	},
+	};
+	"7.81.0" = @{
+		Name = "cURL";
+		File = "curl-7.81.0.tar.gz";
+		Url  = "https://curl.se/download/curl-7.81.0.tar.gz";
+		Hash = "AC8E1087711084548D788EF18B9B732C8DE887457B81F616FC681D1044B32F98";
+	};
+}
+$curlDefault = "7.81.0"
+if($env:curl_VERSION) {
+	$curlDefault = $env:curl_VERSION
+}
+
+#"https://sourceforge.net/projects/expat/files/expat_win32/2.5.0/expat-win32bin-2.5.0.zip/download"
+$dependencies = @(
 	@{
 		Name = "Expat";
 		File = "expat-win32bin-2.1.0.exe";
@@ -93,6 +105,11 @@ if(-not($wxWidgetsVersions[$wxWidgetsDefault])) {
 	throw "Can't find wxWidgets version $wxWidgetsDefault"
 }
 $dependencies += $wxWidgetsVersions[$wxWidgetsDefault]
+
+if(-not($curlVersions[$curlDefault])) {
+	throw "Can't find cURL version $curlDefault"
+}
+$dependencies += $curlVersions[$curlDefault]
 
 $dependencies | ForEach-Object {
 	Download-File @_
