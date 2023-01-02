@@ -5,6 +5,31 @@ $VerboseActionPreference = "Continue"
 
 Import-Module -Name (Join-Path $PSScriptRoot "common.psm1") -DisableNameChecking
 
+$opensslVersions = @{
+	"1.0.1e" = @{
+		Name = "OpenSSL";
+		File = "openssl-1.0.1e.tar.gz";
+		Url  = "https://www.openssl.org/source/openssl-1.0.1e.tar.gz";
+		Hash = "F74F15E8C8FF11AA3D5BB5F276D202EC18D7246E95F961DB76054199C69C1AE3";
+	};
+	"1.0.1u" = @{
+		Name = "OpenSSL";
+		File = "openssl-1.0.1u.tar.gz";
+		Url  = "https://www.openssl.org/source/openssl-1.0.1u.tar.gz";
+		Hash = "4312B4CA1215B6F2C97007503D80DB80D5157F76F8F7D3FEBBE6B4C56FF26739";
+	};
+	"1.1.1m" = @{
+		Name = "OpenSSL";
+		File = "openssl-1.1.1m.tar.gz";
+		Url  = "https://www.openssl.org/source/openssl-1.1.1m.tar.gz";
+		Hash = "F89199BE8B23CA45FC7CB9F1D8D3EE67312318286AD030F5316ACA6462DB6C96";
+	};
+}
+$opensslDefault = "1.1.1m"
+if($env:openssl_VERSION) {
+	$opensslDefault = $env:openssl_VERSION
+}
+
 $wxWidgetsVersions = @{
 	"2.8.12" = @{
 		Name = "wxWidgets 2.8";
@@ -34,12 +59,6 @@ if($env:wxWidgets_VERSION) {
 #"https://sourceforge.net/projects/expat/files/expat_win32/2.5.0/expat-win32bin-2.5.0.zip/download"
 $dependencies = @(
 	@{
-		Name = "OpenSSL";
-		File = "openssl-1.0.1u.tar.gz";
-		Url  = "https://www.openssl.org/source/openssl-1.0.1u.tar.gz";
-		Hash = "4312B4CA1215B6F2C97007503D80DB80D5157F76F8F7D3FEBBE6B4C56FF26739";
-	},
-	@{
 		Name = "cURL";
 		File = "curl-7.39.0.tar.gz";
 		Url  = "https://curl.se/download/curl-7.39.0.tar.gz";
@@ -64,6 +83,12 @@ $dependencies = @(
 		Hash = "140731D64DA8B7E4DDF1C5FD52ED3C41DFE08E00857D48DC41BBEF2795FD6A16";
 	}
 )
+
+if(-not($opensslVersions[$opensslDefault])) {
+	throw "Can't find openssl version $opensslDefault"
+}
+$dependencies += $opensslVersions[$opensslDefault]
+
 if(-not($wxWidgetsVersions[$wxWidgetsDefault])) {
 	throw "Can't find wxWidgets version $wxWidgetsDefault"
 }

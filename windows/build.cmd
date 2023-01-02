@@ -14,8 +14,8 @@ SET ROOT=%~dp0
 
 @IF x%OPENSSL_VERSION%==x (
 	@REM SET OPENSSL_VERSION=1.0.1e
-	@SET OPENSSL_VERSION=1.0.1u
-	@REM SET OPENSSL_VERSION=1.1.1m
+	@REM SET OPENSSL_VERSION=1.0.1u
+	@SET OPENSSL_VERSION=1.1.1m
 )
 
 @IF x%WXWIDGETS_VERSION%==x (
@@ -127,21 +127,35 @@ GOTO success
 @rmdir /s/q openssl-%OPENSSL_VERSION% 2>NUL
 @7z x "downloads\openssl-%OPENSSL_VERSION%.tar.gz" -so | 7z x -aoa -si -ttar
 cd openssl-%OPENSSL_VERSION%
-perl Configure VC-WIN32 --prefix=%ROOT%openssl
-@IF ERRORLEVEL 1 GOTO error
-call ms\do_nasm
-@IF ERRORLEVEL 1 GOTO error
-@REM Use ntdll.mak for DLL
-nmake -f ms\nt.mak
-@IF ERRORLEVEL 1 GOTO error
-nmake -f ms\nt.mak test
-@IF ERRORLEVEL 1 GOTO error
-nmake -f ms\nt.mak install
-@IF ERRORLEVEL 1 GOTO error
-cd ..\openssl\lib
-@mkdir VC
-move *.lib VC/
-@IF ERRORLEVEL 1 GOTO error
+IF %OPENSSL_VERSION% LEQ 1.0 (
+	perl Configure VC-WIN32 --prefix=%ROOT%openssl
+	@IF ERRORLEVEL 1 GOTO error
+	call ms\do_nasm
+	@IF ERRORLEVEL 1 GOTO error
+	@REM Use ntdll.mak for DLL
+	nmake -f ms\nt.mak
+	@IF ERRORLEVEL 1 GOTO error
+	nmake -f ms\nt.mak test
+	@IF ERRORLEVEL 1 GOTO error
+	nmake -f ms\nt.mak install
+	@IF ERRORLEVEL 1 GOTO error
+) ELSE (
+	perl Configure VC-WIN32 no-shared no-capieng no-async --prefix=%ROOT%openssl --openssldir=%ROOT%openssl\bin\
+	@IF ERRORLEVEL 1 GOTO error
+	nmake
+	@IF ERRORLEVEL 1 GOTO error
+	@REM Currently broken on 1.1.1m
+	@REM nmake test
+	@REM IF ERRORLEVEL 1 GOTO error
+	nmake install
+	@IF ERRORLEVEL 1 GOTO error
+)
+@IF NOT %VS_RELEASE%==2008 (
+	cd ..\openssl\lib
+	@mkdir VC
+	move *.lib VC/
+	@IF ERRORLEVEL 1 GOTO error
+)
 GOTO end_openssl
 
 
