@@ -74,14 +74,32 @@ if($env:curl_VERSION) {
 	$curlDefault = $env:curl_VERSION
 }
 
-#"https://sourceforge.net/projects/expat/files/expat_win32/2.5.0/expat-win32bin-2.5.0.zip/download"
-$dependencies = @(
-	@{
+$expatVersions = @{
+	"2.1.0" = @{
 		Name = "Expat";
 		File = "expat-win32bin-2.1.0.exe";
 		Url  = "https://sourceforge.net/projects/expat/files/expat_win32/2.1.0/expat-win32bin-2.1.0.exe/download";
 		Hash = "FC264700310B882290D69695E576CC75479F3B0D9E144B6CB816864BBA0C2F33";
-	},
+	};
+	"2.1.1" = @{
+		Name = "Expat";
+		File = "expat-win32bin-2.1.1.exe";
+		Url  = "https://sourceforge.net/projects/expat/files/expat_win32/2.1.1/expat-win32bin-2.1.1.exe/download";
+		Hash = "EBF438297B52CA617BF0E00D264CC7A998A50534D023466AD66F4BD66359B534";
+	};
+	"2.5.0" = @{
+		Name = "Expat";
+		File = "expat-win32bin-2.5.0.zip";
+		Url  = "https://sourceforge.net/projects/expat/files/expat_win32/2.5.0/expat-win32bin-2.5.0.zip/download"
+		Hash = "5A4E79500B0919FC29D83A72DD75B19A373DB62248D1DC3F6388D8127BAB1C1F";
+	};
+}
+$expatDefault = "2.1.1"
+if($env:expat_VERSION) {
+	$expatDefault = $env:expat_VERSION
+}
+
+$dependencies = @(
 	@{
 		Name = "zlib";
 		File = "zlib-1.2.8.tar.gz";
@@ -110,6 +128,11 @@ if(-not($curlVersions[$curlDefault])) {
 	throw "Can't find cURL version $curlDefault"
 }
 $dependencies += $curlVersions[$curlDefault]
+
+if(-not($expatVersions[$expatDefault])) {
+	throw "Can't find Expat version $expatDefault"
+}
+$dependencies += $expatVersions[$expatDefault]
 
 $dependencies | ForEach-Object {
 	Download-File @_

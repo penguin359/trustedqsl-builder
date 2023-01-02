@@ -29,6 +29,12 @@ SET ROOT=%~dp0
 	@SET CURL_VERSION=7.81.0
 )
 
+@IF x%EXPAT_VERSION%==x (
+	@SET EXPAT_VERSION=2.1.0
+	@REM SET EXPAT_VERSION=2.1.1
+	@REM SET EXPAT_VERSION=2.5.0
+)
+
 @IF %VS_RELEASE%==2008 (
 	SET VS_VERSION=9.0
 	SET VS_GENERATOR=Visual Studio 9 2008
@@ -212,11 +218,17 @@ GOTO end_curl
 :expat
 @ECHO Building Expat...
 @cd %ROOT%
-@del /s/q expat-2.1.0 2>NUL
-@rmdir /s/q expat-2.1.0 2>NUL
-@start /w .\downloads\expat-win32bin-2.1.0.exe /VERYSILENT /SUPPRESSMSGBOXES /NORESTART /SP- /VERYSILENT /SUPPRESSMSGBOXES /NORESTART /SP- /DIR="expat-2.1.0"
-cd expat-2.1.0
-@7z x ../expat-vc2008.zip -aoa 
+@del /s/q expat-%EXPAT_VERSION% 2>NUL
+@rmdir /s/q expat-%EXPAT_VERSION% 2>NUL
+IF %EXPAT_VERSION% LSS 2.3.0 (
+	@start /w .\downloads\expat-win32bin-%EXPAT_VERSION%.exe /VERYSILENT /SUPPRESSMSGBOXES /NORESTART /SP- /VERYSILENT /SUPPRESSMSGBOXES /NORESTART /SP- /DIR="expat-%EXPAT_VERSION%"
+	cd expat-%EXPAT_VERSION%
+) ELSE (
+	@mkdir expat-%EXPAT_VERSION%
+	cd expat-%EXPAT_VERSION%
+	@7z x "..\downloads\expat-win32bin-%EXPAT_VERSION%.zip" -aoa 
+)
+@7z x ../expat-vc2008-%EXPAT_VERSION%.zip -aoa 
 cd Source
 @REM Only expat_static is needed
 @REM vcbuild expat.sln "Release|Win32"
@@ -331,8 +343,8 @@ GOTO end_lmdb
 cd tqsl
 @del /s/q build 2>NUL
 @rmdir /s/q build 2>NUL
-@REM cmake -DCMAKE_LIBRARY_PATH="%ROOT%expat-2.1.0\Bin" -DCMAKE_INCLUDE_PATH="%ROOT%expat-2.1.0\Source\lib" -DwxWidgets_ROOT_DIR="%ROOT%wxWidgets-%WXWIDGETS_VERSION%" -DBDB_INCLUDE_DIR="%ROOT%db-6.0.20.NC\build_windows" -DBDB_LIBRARY="%ROOT%db-6.0.20.NC\build_windows\Win32\Static_Release\libdb60s.lib" -DOPENSSL_ROOT_DIR=%ROOT%openssl -DCURL_LIBRARY=%ROOT%curl-%CURL_VERSION%\builds\libcurl-vc-x86-release-static-sspi-winssl\lib\libcurl_a.lib -DCURL_INCLUDE_DIR=%ROOT%curl-%CURL_VERSION%\builds\libcurl-vc-x86-release-static-sspi-winssl\include -DwxWidgets_LIB_DIR=%ROOT%wxWidgets-%WXWIDGETS_VERSION%\lib\vc_lib -DZLIB_LIBRARY_REL=%ROOT%zlib-1.2.8\build\Release\zlibstatic.lib -DZLIB_INCLUDE_DIR=%ROOT%zlib-1.2.8 -G "%VS_GENERATOR%" -A Win32 -B build -S .
-cmake -DCMAKE_LIBRARY_PATH="%ROOT%expat-2.1.0\Bin" -DCMAKE_INCLUDE_PATH="%ROOT%expat-2.1.0\Source\lib" -DwxWidgets_ROOT_DIR="%ROOT%wxWidgets-%WXWIDGETS_VERSION%" -DBDB_INCLUDE_DIR="%ROOT%db-6.0.20.NC\build_windows" -DBDB_LIBRARY="%ROOT%db-6.0.20.NC\build_windows\Win32\Static_Release\libdb60s.lib" -DOPENSSL_ROOT_DIR="%ROOT%openssl" -DCURL_LIBRARY="%ROOT%curl-%CURL_VERSION%\builds\libcurl-vc-x86-release-static-sspi-winssl\lib\libcurl_a.lib" -DCURL_INCLUDE_DIR="%ROOT%curl-%CURL_VERSION%\builds\libcurl-vc-x86-release-static-sspi-winssl\include" -G "%VS_GENERATOR%" -A Win32 -B build -S .
+@REM cmake -DCMAKE_LIBRARY_PATH="%ROOT%expat-%EXPAT_VERSION%\Bin" -DCMAKE_INCLUDE_PATH="%ROOT%expat-%EXPAT_VERSION%\Source\lib" -DwxWidgets_ROOT_DIR="%ROOT%wxWidgets-%WXWIDGETS_VERSION%" -DBDB_INCLUDE_DIR="%ROOT%db-6.0.20.NC\build_windows" -DBDB_LIBRARY="%ROOT%db-6.0.20.NC\build_windows\Win32\Static_Release\libdb60s.lib" -DOPENSSL_ROOT_DIR=%ROOT%openssl -DCURL_LIBRARY=%ROOT%curl-%CURL_VERSION%\builds\libcurl-vc-x86-release-static-sspi-winssl\lib\libcurl_a.lib -DCURL_INCLUDE_DIR=%ROOT%curl-%CURL_VERSION%\builds\libcurl-vc-x86-release-static-sspi-winssl\include -DwxWidgets_LIB_DIR=%ROOT%wxWidgets-%WXWIDGETS_VERSION%\lib\vc_lib -DZLIB_LIBRARY_REL=%ROOT%zlib-1.2.8\build\Release\zlibstatic.lib -DZLIB_INCLUDE_DIR=%ROOT%zlib-1.2.8 -G "%VS_GENERATOR%" -A Win32 -B build -S .
+cmake -DCMAKE_LIBRARY_PATH="%ROOT%expat-%EXPAT_VERSION%\Bin" -DCMAKE_INCLUDE_PATH="%ROOT%expat-%EXPAT_VERSION%\Source\lib" -DwxWidgets_ROOT_DIR="%ROOT%wxWidgets-%WXWIDGETS_VERSION%" -DBDB_INCLUDE_DIR="%ROOT%db-6.0.20.NC\build_windows" -DBDB_LIBRARY="%ROOT%db-6.0.20.NC\build_windows\Win32\Static_Release\libdb60s.lib" -DOPENSSL_ROOT_DIR="%ROOT%openssl" -DCURL_LIBRARY="%ROOT%curl-%CURL_VERSION%\builds\libcurl-vc-x86-release-static-sspi-winssl\lib\libcurl_a.lib" -DCURL_INCLUDE_DIR="%ROOT%curl-%CURL_VERSION%\builds\libcurl-vc-x86-release-static-sspi-winssl\include" -G "%VS_GENERATOR%" -A Win32 -B build -S .
 @IF ERRORLEVEL 1 GOTO error
 @REM cmake --build build
 cd build
