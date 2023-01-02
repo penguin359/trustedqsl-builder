@@ -40,21 +40,21 @@ SET ROOT=%~dp0
 	SET VS_GENERATOR=Visual Studio 9 2008
 	SET VS_PLATFORMSET=v90
 ) ELSE IF %VS_RELEASE%==2012 (
-		SET VS_VERSION=11.0
-		SET VS_GENERATOR=Visual Studio 11 2012
-		SET VS_PLATFORMSET=v110
+	SET VS_VERSION=11.0
+	SET VS_GENERATOR=Visual Studio 11 2012
+	SET VS_PLATFORMSET=v110
 ) ELSE IF %VS_RELEASE%==2013 (
-		SET VS_VERSION=12.0
-		SET VS_GENERATOR=Visual Studio 12 2013
-		SET VS_PLATFORMSET=v120
+	SET VS_VERSION=12.0
+	SET VS_GENERATOR=Visual Studio 12 2013
+	SET VS_PLATFORMSET=v120
 ) ELSE IF %VS_RELEASE%==2015 (
-		SET VS_VERSION=14.0
-		SET VS_GENERATOR=Visual Studio 14 2015
-		SET VS_PLATFORMSET=v140
+	SET VS_VERSION=14.0
+	SET VS_GENERATOR=Visual Studio 14 2015
+	SET VS_PLATFORMSET=v140
 ) ELSE IF %VS_RELEASE%==2019 (
-		SET VS_VERSION=16.0
-		SET VS_GENERATOR=Visual Studio 16 2019
-		SET VS_PLATFORMSET=v142
+	SET VS_VERSION=16.0
+	SET VS_GENERATOR=Visual Studio 16 2019
+	SET VS_PLATFORMSET=v142
 ) ELSE (
 	@ECHO Unrecognized Visual Studio release: %VS_RELEASE% >&2
 	exit /b 1
@@ -68,40 +68,47 @@ SET ROOT=%~dp0
 @SET BUILD_BDB=
 @SET BUILD_LMDB=
 @IF NOT x%USE_BDB%==x (
-	@SET BUILD_BDB=y
-	@SET LMDB_DIR=
+	SET BUILD_BDB=y
+	SET LMDB_DIR=
 ) ELSE (
-	@SET BUILD_LMDB=y
-	@SET LMDB_DIR=%ROOT%lmdb
+	SET BUILD_LMDB=y
+	SET LMDB_DIR=%ROOT%lmdb
 )
 @SET BUILD_TQSL=y
 @IF NOT x%1==x (
-	@SET BUILD_OPENSSL=
-	@SET BUILD_WXWIDGETS=
-	@SET BUILD_CURL=
-	@SET BUILD_EXPAT=
-	@SET BUILD_ZLIB=
-	@SET BUILD_BDB=
-	@SET BUILD_LMDB=
-	@SET BUILD_TQSL=
-:opt_loop
-	REM weird syntax error breaking command after label?
-	@IF x%1==xopenssl SET BUILD_OPENSSL=y
-	@IF x%1==xwxwidgets SET BUILD_WXWIDGETS=y
-	@IF x%1==xcurl SET BUILD_CURL=y
-	@IF x%1==xexpat SET BUILD_EXPAT=y
-	@IF x%1==xzlib SET BUILD_ZLIB=y
-	@IF x%1==xbdb SET BUILD_BDB=y
-	@IF x%1==xlmdb SET BUILD_LMDB=y
-	@IF x%1==xtqsl SET BUILD_TQSL=y
-	@SHIFT
-	@IF NOT x%1==x GOTO opt_loop
+	SET BUILD_OPENSSL=
+	SET BUILD_WXWIDGETS=
+	SET BUILD_CURL=
+	SET BUILD_EXPAT=
+	SET BUILD_ZLIB=
+	SET BUILD_BDB=
+	SET BUILD_LMDB=
+	SET BUILD_TQSL=
 )
+:opt_loop
+@IF x%1==xopenssl (SET BUILD_OPENSSL=y) ELSE ^
+IF x%1==xwxwidgets (SET BUILD_WXWIDGETS=y) ELSE ^
+IF x%1==xcurl (SET BUILD_CURL=y) ELSE ^
+IF x%1==xexpat (SET BUILD_EXPAT=y) ELSE ^
+IF x%1==xzlib (SET BUILD_ZLIB=y) ELSE ^
+IF x%1==xbdb (SET BUILD_BDB=y) ELSE ^
+IF x%1==xlmdb (SET BUILD_LMDB=y) ELSE ^
+IF x%1==xtqsl (SET BUILD_TQSL=y) ELSE (
+	ECHO Unrecognized option %1 1>&2
+	exit /b 1
+)
+@SHIFT
+@IF NOT x%1==x GOTO opt_loop
 
-@IF %VS_RELEASE%==2019 (
-	call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Auxiliary\Build\vcvarsall.bat" x86
+@IF NOT x%USE_64BIT%==x (
+	SET target=x86_amd64
 ) ELSE (
-	call "C:\Program Files (x86)\Microsoft Visual Studio %VS_VERSION%\VC\vcvarsall.bat" x86
+	SET target=x86
+)
+@IF %VS_RELEASE%==2019 (
+	call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Auxiliary\Build\vcvarsall.bat" %target%
+) ELSE (
+	call "C:\Program Files (x86)\Microsoft Visual Studio %VS_VERSION%\VC\vcvarsall.bat" %target%
 )
 
 @REM Change to the correct drive
