@@ -283,14 +283,14 @@ cd Source
 	SET crt_suffix=MD
 ) ELSE (
 	SET crt_opt=ON
-	SET crt_suffix=
+	SET crt_suffix=MT
 )
 @IF NOT x%USE_SHARED%==x (
 	SET target=expat
 	IF %EXPAT_VERSION% LSS 2.2.8 (
 		SET libfile=libexpat.lib
 	) ELSE (
-		SET libfile=expat%crt_suffix%.lib
+		SET libfile=expat.lib
 	)
 	SET shared_opt=ON
 ) ELSE (
@@ -310,7 +310,8 @@ IF %EXPAT_VERSION% LSS 2.2.8 (
 ) ELSE (
 	REM CMake requires these missing files
 	ECHO _ >> Changes
-	cmake -G "%VS_GENERATOR%" -A %platform% -B build -S . -DEXPAT_SHARED_LIBS=%shared_opt% -DEXPAT_SHARED_LIBS=%crt_opt% -DEXPAT_BUILD_TOOLS=OFF -DEXPAT_BUILD_EXAMPLES=OFF -DEXPAT_BUILD_TESTS=OFF
+	echo cmake -G "%VS_GENERATOR%" -A %platform% -B build -S . -DEXPAT_SHARED_LIBS=%shared_opt% -DEXPAT_MSVC_STATIC_CRT=%crt_opt% -DEXPAT_BUILD_TOOLS=OFF -DEXPAT_BUILD_EXAMPLES=OFF -DEXPAT_BUILD_TESTS=OFF
+	cmake -G "%VS_GENERATOR%" -A %platform% -B build -S . -DEXPAT_SHARED_LIBS=%shared_opt% -DEXPAT_MSVC_STATIC_CRT=%crt_opt% -DEXPAT_BUILD_TOOLS=OFF -DEXPAT_BUILD_EXAMPLES=OFF -DEXPAT_BUILD_TESTS=OFF
 	@IF ERRORLEVEL 1 GOTO error
 	cd build
 	msbuild /p:Configuration=Release /t:expat expat.sln
