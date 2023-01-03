@@ -329,7 +329,7 @@ GOTO end_expat
 @rmdir /s/q zlib-1.2.8 2>NUL
 @7z x "downloads\zlib-1.2.8.tar.gz" -so | 7z x -aoa -si -ttar
 cd zlib-1.2.8
-cmake -G "%VS_GENERATOR%" -B build -S .
+cmake -G "%VS_GENERATOR%" -A %platform% -B build -S .
 @IF ERRORLEVEL 1 GOTO error
 cd build
 @IF NOT x%USE_SHARED%==x (
@@ -360,28 +360,35 @@ GOTO end_zlib
 @cd %ROOT%
 @del /s/q db-6.0.20.NC 2>NUL
 @rmdir /s/q db-6.0.20.NC 2>NUL
-@7z x "downloads\db-6.0.20.NC.zip" -aoa 
+@7z x "downloads\db-6.0.20.NC.zip" -aoa
 cd db-6.0.20.NC\build_windows
 @IF %VS_RELEASE%==2008 (
-	vcbuild /upgrade Berkeley_DB.sln "Debug|Win32"
+	vcbuild /upgrade Berkeley_DB.sln "Debug|%platform%"
 	@IF ERRORLEVEL 1 GOTO error
-	vcbuild /upgrade Berkeley_DB.sln "Static Debug|Win32"
+	@IF x%USE_SHARED%==x (
+		vcbuild /upgrade Berkeley_DB.sln "Static Debug|%platform%"
+		@IF ERRORLEVEL 1 GOTO error
+	)
+	vcbuild /upgrade Berkeley_DB.sln "Release|%platform%"
 	@IF ERRORLEVEL 1 GOTO error
-	vcbuild /upgrade Berkeley_DB.sln "Release|Win32"
-	@IF ERRORLEVEL 1 GOTO error
-	vcbuild /upgrade Berkeley_DB.sln "Static Release|Win32"
-	@IF ERRORLEVEL 1 GOTO error
+	@IF x%USE_SHARED%==x (
+		vcbuild /upgrade Berkeley_DB.sln "Static Release|%platform%"
+		@IF ERRORLEVEL 1 GOTO error
+	)
 ) ELSE (
-	@REM msbuild /p:Configuration="Debug" /p:Platform=Win32 /t:db /p:PlatformToolSet=%VS_PLATFORMSET% Berkeley_DB_vs2010.sln
-	@REM @IF ERRORLEVEL 1 GOTO error
-	msbuild /p:Configuration="Static Debug" /p:Platform=Win32 /t:db /p:PlatformToolSet=%VS_PLATFORMSET% Berkeley_DB_vs2010.sln
-	@IF ERRORLEVEL 1 GOTO error
-	@REM msbuild /p:Configuration="Release" /p:Platform=Win32 /t:db /p:PlatformToolSet=%VS_PLATFORMSET% Berkeley_DB_vs2010.sln
-	@REM @IF ERRORLEVEL 1 GOTO error
-	msbuild /p:Configuration="Static Release" /p:Platform=Win32 /t:db /p:PlatformToolSet=%VS_PLATFORMSET% Berkeley_DB_vs2010.sln
-	@IF ERRORLEVEL 1 GOTO error
-	move "Win32\Static Debug" "Win32\Static_Debug"
-	move "Win32\Static Release" "Win32\Static_Release"
+	@IF x%USE_SHARED%==x (
+		msbuild /p:Configuration="Static Debug" /p:Platform=%platform% /t:db /p:PlatformToolSet=%VS_PLATFORMSET% Berkeley_DB_vs2010.sln
+		@IF ERRORLEVEL 1 GOTO error
+		msbuild /p:Configuration="Static Release" /p:Platform=%platform% /t:db /p:PlatformToolSet=%VS_PLATFORMSET% Berkeley_DB_vs2010.sln
+		@IF ERRORLEVEL 1 GOTO error
+		move "%platform%\Static Debug" "%platform%\Static_Debug"
+		move "%platform%\Static Release" "%platform%\Static_Release"
+	) ELSE (
+		msbuild /p:Configuration="Debug" /p:Platform=%platform% /t:db /p:PlatformToolSet=%VS_PLATFORMSET% Berkeley_DB_vs2010.sln
+		@IF ERRORLEVEL 1 GOTO error
+		msbuild /p:Configuration="Release" /p:Platform=%platform% /t:db /p:PlatformToolSet=%VS_PLATFORMSET% Berkeley_DB_vs2010.sln
+		@IF ERRORLEVEL 1 GOTO error
+	)
 )
 GOTO end_bdb
 
