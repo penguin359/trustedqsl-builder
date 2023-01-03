@@ -335,14 +335,21 @@ GOTO end_expat
 @rmdir /s/q zlib-1.2.8 2>NUL
 @7z x "downloads\zlib-1.2.8.tar.gz" -so | 7z x -aoa -si -ttar
 cd zlib-1.2.8
-cmake -G "%VS_GENERATOR%" -A %platform% -B build -S .
-@IF ERRORLEVEL 1 GOTO error
-cd build
 @IF NOT x%USE_SHARED%==x (
 	@SET project=zlib
 ) ELSE (
 	@SET project=zlibstatic
 )
+@IF NOT x%USE_DYNAMIC_CRT%==x (
+	SET release_flags=/MD
+	SET debug_flags=/MDd
+) ELSE (
+	SET release_flags=/MT
+	SET debug_flags=/MTd
+)
+cmake -G "%VS_GENERATOR%" -A %platform% -B build -S . -DCMAKE_C_FLAGS_DEBUG="%debug_flags% /Zi /Ob0 /Od /RTC1" -DCMAKE_C_FLAGS_RELEASE="%release_flags% /O2 /Ob2 /DNDEBUG"
+@IF ERRORLEVEL 1 GOTO error
+cd build
 @IF %VS_RELEASE%==2008 (
 	msbuild /p:Configuration=Debug %project%.vcproj
 	@IF ERRORLEVEL 1 GOTO error
