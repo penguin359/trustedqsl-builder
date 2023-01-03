@@ -445,17 +445,22 @@ cd tqsl
 @del /s/q build 2>NUL
 @rmdir /s/q build 2>NUL
 @REM TODO Not sure why it changes to schannel from winssl on 64-bit
+IF %CURL_VERSION% LSS 7.81.0 (
+	SET curl_build=winssl
+) ELSE (
+	SET curl_build=schannel
+)
 @IF NOT x%USE_DYNAMIC_CRT%==x (
 	SET crt_opt=OFF
 ) ELSE (
 	SET crt_opt=ON
 )
 @IF NOT x%USE_64BIT%==x (
-	SET curl_path=libcurl-vc-x64-release-static-sspi-schannel
+	SET curl_machine=x64
 ) ELSE (
-	SET curl_path=libcurl-vc-x86-release-static-sspi-winssl
+	SET curl_machine=x86
 )
-cmake -DCMAKE_LIBRARY_PATH="%ROOT%expat-%EXPAT_VERSION%\Bin" -DCMAKE_INCLUDE_PATH="%ROOT%expat-%EXPAT_VERSION%\Source\lib" -DwxWidgets_ROOT_DIR="%ROOT%wxWidgets-%WXWIDGETS_VERSION%" -DBDB_INCLUDE_DIR="%ROOT%db-6.0.20.NC\build_windows" -DBDB_LIBRARY="%ROOT%db-6.0.20.NC\build_windows\%platform%\Static_Release\libdb60s.lib" -DOPENSSL_ROOT_DIR="%ROOT%openssl" -DCURL_LIBRARY="%ROOT%curl-%CURL_VERSION%\builds\%curl_path%\lib\libcurl_a.lib" -DCURL_INCLUDE_DIR="%ROOT%curl-%CURL_VERSION%\builds\%curl_path%\include" -DUSE_STATIC_MSVCRT=%crt_opt% -G "%VS_GENERATOR%" -A %platform% -B build -S .
+cmake -DCMAKE_LIBRARY_PATH="%ROOT%expat-%EXPAT_VERSION%\Bin" -DCMAKE_INCLUDE_PATH="%ROOT%expat-%EXPAT_VERSION%\Source\lib" -DwxWidgets_ROOT_DIR="%ROOT%wxWidgets-%WXWIDGETS_VERSION%" -DBDB_INCLUDE_DIR="%ROOT%db-6.0.20.NC\build_windows" -DBDB_LIBRARY="%ROOT%db-6.0.20.NC\build_windows\%platform%\Static_Release\libdb60s.lib" -DOPENSSL_ROOT_DIR="%ROOT%openssl" -DCURL_LIBRARY="%ROOT%curl-%CURL_VERSION%\builds\libcurl-vc-%curl_machine%-release-static-sspi-%curl_build%\lib\libcurl_a.lib" -DCURL_INCLUDE_DIR="%ROOT%curl-%CURL_VERSION%\builds\libcurl-vc-%curl_machine%-release-static-sspi-%curl_build%\include" -DUSE_STATIC_MSVCRT=%crt_opt% -G "%VS_GENERATOR%" -A %platform% -B build -S .
 @IF ERRORLEVEL 1 GOTO error
 @REM cmake --build build
 cd build
