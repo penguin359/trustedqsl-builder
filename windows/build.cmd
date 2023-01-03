@@ -444,27 +444,32 @@ GOTO end_lmdb
 cd tqsl
 @del /s/q build 2>NUL
 @rmdir /s/q build 2>NUL
-@REM cmake -DCMAKE_LIBRARY_PATH="%ROOT%expat-%EXPAT_VERSION%\Bin" -DCMAKE_INCLUDE_PATH="%ROOT%expat-%EXPAT_VERSION%\Source\lib" -DwxWidgets_ROOT_DIR="%ROOT%wxWidgets-%WXWIDGETS_VERSION%" -DBDB_INCLUDE_DIR="%ROOT%db-6.0.20.NC\build_windows" -DBDB_LIBRARY="%ROOT%db-6.0.20.NC\build_windows\Win32\Static_Release\libdb60s.lib" -DOPENSSL_ROOT_DIR=%ROOT%openssl -DCURL_LIBRARY=%ROOT%curl-%CURL_VERSION%\builds\libcurl-vc-x86-release-static-sspi-winssl\lib\libcurl_a.lib -DCURL_INCLUDE_DIR=%ROOT%curl-%CURL_VERSION%\builds\libcurl-vc-x86-release-static-sspi-winssl\include -DwxWidgets_LIB_DIR=%ROOT%wxWidgets-%WXWIDGETS_VERSION%\lib\vc_lib -DZLIB_LIBRARY_REL=%ROOT%zlib-1.2.8\build\Release\zlibstatic.lib -DZLIB_INCLUDE_DIR=%ROOT%zlib-1.2.8 -G "%VS_GENERATOR%" -A Win32 -B build -S .
-cmake -DCMAKE_LIBRARY_PATH="%ROOT%expat-%EXPAT_VERSION%\Bin" -DCMAKE_INCLUDE_PATH="%ROOT%expat-%EXPAT_VERSION%\Source\lib" -DwxWidgets_ROOT_DIR="%ROOT%wxWidgets-%WXWIDGETS_VERSION%" -DBDB_INCLUDE_DIR="%ROOT%db-6.0.20.NC\build_windows" -DBDB_LIBRARY="%ROOT%db-6.0.20.NC\build_windows\Win32\Static_Release\libdb60s.lib" -DOPENSSL_ROOT_DIR="%ROOT%openssl" -DCURL_LIBRARY="%ROOT%curl-%CURL_VERSION%\builds\libcurl-vc-x86-release-static-sspi-winssl\lib\libcurl_a.lib" -DCURL_INCLUDE_DIR="%ROOT%curl-%CURL_VERSION%\builds\libcurl-vc-x86-release-static-sspi-winssl\include" -G "%VS_GENERATOR%" -A Win32 -B build -S .
+@REM TODO Not sure why it changes to schannel from winssl on 64-bit
+@IF NOT x%USE_64BIT%==x (
+	SET curl_path=libcurl-vc-x64-release-static-sspi-schannel
+) ELSE (
+	SET curl_path=libcurl-vc-x86-release-static-sspi-winssl
+)
+cmake -DCMAKE_LIBRARY_PATH="%ROOT%expat-%EXPAT_VERSION%\Bin" -DCMAKE_INCLUDE_PATH="%ROOT%expat-%EXPAT_VERSION%\Source\lib" -DwxWidgets_ROOT_DIR="%ROOT%wxWidgets-%WXWIDGETS_VERSION%" -DBDB_INCLUDE_DIR="%ROOT%db-6.0.20.NC\build_windows" -DBDB_LIBRARY="%ROOT%db-6.0.20.NC\build_windows\%platform%\Static_Release\libdb60s.lib" -DOPENSSL_ROOT_DIR="%ROOT%openssl" -DCURL_LIBRARY="%ROOT%curl-%CURL_VERSION%\builds\%curl_path%\lib\libcurl_a.lib" -DCURL_INCLUDE_DIR="%ROOT%curl-%CURL_VERSION%\builds\%curl_path%\include" -G "%VS_GENERATOR%" -A %platform% -B build -S .
 @IF ERRORLEVEL 1 GOTO error
 @REM cmake --build build
 cd build
 @REM Building tests currently has build failures
-@REM msbuild /p:Configuration=Release /p:Platform=Win32 TrustedQSL.sln
+@REM msbuild /p:Configuration=Release /p:Platform=%platform% TrustedQSL.sln
 @REM @IF ERRORLEVEL 1 GOTO error
-msbuild /p:Configuration=Release /p:Platform=Win32 /p:CharacterSet=Unicode /t:tqsllib2 TrustedQSL.sln
+msbuild /p:Configuration=Release /p:Platform=%platform% /p:CharacterSet=Unicode /t:tqsllib2 TrustedQSL.sln
 @IF ERRORLEVEL 1 GOTO error
-msbuild /p:Configuration=Release /p:Platform=Win32 /p:CharacterSet=Unicode /t:tqslupdater TrustedQSL.sln
+msbuild /p:Configuration=Release /p:Platform=%platform% /p:CharacterSet=Unicode /t:tqslupdater TrustedQSL.sln
 @IF ERRORLEVEL 1 GOTO error
-msbuild /p:Configuration=Release /p:Platform=Win32 /p:CharacterSet=Unicode /t:tqsl TrustedQSL.sln
+msbuild /p:Configuration=Release /p:Platform=%platform% /p:CharacterSet=Unicode /t:tqsl TrustedQSL.sln
 @IF ERRORLEVEL 1 GOTO error
-@REM msbuild /p:Configuration=Debug /p:Platform=Win32 TrustedQSL.sln
+@REM msbuild /p:Configuration=Debug /p:Platform=%platform% TrustedQSL.sln
 @REM @IF ERRORLEVEL 1 GOTO error
-msbuild /p:Configuration=Debug /p:Platform=Win32 /p:CharacterSet=Unicode /t:tqsllib2 TrustedQSL.sln
+msbuild /p:Configuration=Debug /p:Platform=%platform% /p:CharacterSet=Unicode /t:tqsllib2 TrustedQSL.sln
 @IF ERRORLEVEL 1 GOTO error
-msbuild /p:Configuration=Debug /p:Platform=Win32 /p:CharacterSet=Unicode /t:tqslupdater TrustedQSL.sln
+msbuild /p:Configuration=Debug /p:Platform=%platform% /p:CharacterSet=Unicode /t:tqslupdater TrustedQSL.sln
 @IF ERRORLEVEL 1 GOTO error
-msbuild /p:Configuration=Debug /p:Platform=Win32 /p:CharacterSet=Unicode /t:tqsl TrustedQSL.sln
+msbuild /p:Configuration=Debug /p:Platform=%platform% /p:CharacterSet=Unicode /t:tqsl TrustedQSL.sln
 @IF ERRORLEVEL 1 GOTO error
 GOTO end_tqsl
 
