@@ -5,34 +5,34 @@ SET ROOT=%~dp0
 
 
 @IF x%VS_RELEASE%==x (
-	@SET VS_RELEASE=2008
-	@REM SET VS_RELEASE=2012
-	@REM SET VS_RELEASE=2013
-	@REM SET VS_RELEASE=2015
-	@REM SET VS_RELEASE=2019
+	SET VS_RELEASE=2008
+	REM SET VS_RELEASE=2012
+	REM SET VS_RELEASE=2013
+	REM SET VS_RELEASE=2015
+	REM SET VS_RELEASE=2019
 )
 
 @IF x%OPENSSL_VERSION%==x (
-	@REM SET OPENSSL_VERSION=1.0.1e
-	@REM SET OPENSSL_VERSION=1.0.1u
-	@SET OPENSSL_VERSION=1.1.1m
+	REM SET OPENSSL_VERSION=1.0.1e
+	REM SET OPENSSL_VERSION=1.0.1u
+	SET OPENSSL_VERSION=1.1.1m
 )
 
 @IF x%WXWIDGETS_VERSION%==x (
-	@REM SET WXWIDGETS_VERSION=2.8.12
-	@SET WXWIDGETS_VERSION=3.0.5
-	@REM SET WXWIDGETS_VERSION=3.2.0
+	REM SET WXWIDGETS_VERSION=2.8.12
+	SET WXWIDGETS_VERSION=3.0.5
+	REM SET WXWIDGETS_VERSION=3.2.0
 )
 
 @IF x%CURL_VERSION%==x (
-	@REM SET CURL_VERSION=7.39.0
-	@SET CURL_VERSION=7.81.0
+	REM SET CURL_VERSION=7.39.0
+	SET CURL_VERSION=7.81.0
 )
 
 @IF x%EXPAT_VERSION%==x (
-	@SET EXPAT_VERSION=2.1.0
-	@REM SET EXPAT_VERSION=2.1.1
-	@REM SET EXPAT_VERSION=2.5.0
+	SET EXPAT_VERSION=2.1.0
+	REM SET EXPAT_VERSION=2.1.1
+	REM SET EXPAT_VERSION=2.5.0
 )
 
 @IF %VS_RELEASE%==2008 (
@@ -102,8 +102,10 @@ IF x%1==xtqsl (SET BUILD_TQSL=y) ELSE (
 
 @IF NOT x%USE_64BIT%==x (
 	SET target=x86_amd64
+	SET platform=x64
 ) ELSE (
 	SET target=x86
+	SET platform=Win32
 )
 @IF %VS_RELEASE%==2019 (
 	call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Auxiliary\Build\vcvarsall.bat" %target%
@@ -196,7 +198,7 @@ GOTO end_openssl
 @del /s/q wxWidgets-%WXWIDGETS_VERSION% 2>NUL
 @rmdir /s/q wxWidgets-%WXWIDGETS_VERSION% 2>NUL
 IF %WXWIDGETS_VERSION% LSS 3.0 (
-	@7z x "downloads\wxWidgets-%WXWIDGETS_VERSION%.zip" -aoa 
+	@7z x "downloads\wxWidgets-%WXWIDGETS_VERSION%.zip" -aoa
 	move wxMSW-%WXWIDGETS_VERSION% wxWidgets-%WXWIDGETS_VERSION%
 	cd wxWidgets-%WXWIDGETS_VERSION%
 	@REM Needed for VS 2012 and newer
@@ -204,7 +206,7 @@ IF %WXWIDGETS_VERSION% LSS 3.0 (
 ) ELSE (
 	@mkdir wxWidgets-%WXWIDGETS_VERSION%
 	cd wxWidgets-%WXWIDGETS_VERSION%
-	@7z x "..\downloads\wxWidgets-%WXWIDGETS_VERSION%.7z" -aoa 
+	@7z x "..\downloads\wxWidgets-%WXWIDGETS_VERSION%.7z" -aoa
 )
 @IF NOT x%USE_SHARED%==x (
 	@SET shared=1
@@ -268,21 +270,54 @@ IF %EXPAT_VERSION% LSS 2.3.0 (
 ) ELSE (
 	@mkdir expat-%EXPAT_VERSION%
 	cd expat-%EXPAT_VERSION%
-	@7z x "..\downloads\expat-win32bin-%EXPAT_VERSION%.zip" -aoa 
+	@7z x "..\downloads\expat-win32bin-%EXPAT_VERSION%.zip" -aoa
 )
-@7z x ../expat-vc2008-%EXPAT_VERSION%.zip -aoa 
+IF %EXPAT_VERSION% LSS 2.2.8 (
+	@7z x ../expat-vc2008-%EXPAT_VERSION%.zip -aoa
+)
 cd Source
 @REM Only expat_static is needed
-@REM vcbuild expat.sln "Release|Win32"
-@IF NOT x%USE_SHARED%==x (
-	@SET target=expat
+@REM vcbuild expat.sln "Release|%platform%"
+@IF NOT x%USE_DYNAMIC_CRT%==x (
+	SET crt_opt=OFF
+	SET crt_suffix=MD
 ) ELSE (
-	@SET target=expat_static
+	SET crt_opt=ON
+	SET crt_suffix=
 )
-msbuild /p:Configuration=Release /p:Platform=Win32 /t:%target% expat.sln
-@IF ERRORLEVEL 1 GOTO error
-copy /y win32\bin\Release\libexpatMT.lib ..\Bin\libexpat.lib
-@IF ERRORLEVEL 1 GOTO error
+@IF NOT x%USE_SHARED%==x (
+	SET target=expat
+	IF %EXPAT_VERSION% LSS 2.2.8 (
+		SET libfile=libexpat.lib
+	) ELSE (
+		SET libfile=expat%crt_suffix%.lib
+	)
+	SET shared_opt=ON
+) ELSE (
+	SET target=expat_static
+	IF %EXPAT_VERSION% LSS 2.2.8 (
+		SET libfile=libexpatMT.lib
+	) ELSE (
+		SET libfile=expat%crt_suffix%.lib
+	)
+	SET shared_opt=OFF
+)
+IF %EXPAT_VERSION% LSS 2.2.8 (
+	msbuild /p:Configuration=Release /p:Platform=%platform% /t:%target% expat.sln
+	@IF ERRORLEVEL 1 GOTO error
+	copy /y win32\bin\Release\%libfile% ..\Bin\libexpat.lib
+	@IF ERRORLEVEL 1 GOTO error
+) ELSE (
+	REM CMake requires these missing files
+	ECHO _ >> Changes
+	cmake -G "%VS_GENERATOR%" -A %platform% -B build -S . -DEXPAT_SHARED_LIBS=%shared_opt% -DEXPAT_SHARED_LIBS=%crt_opt% -DEXPAT_BUILD_TOOLS=OFF -DEXPAT_BUILD_EXAMPLES=OFF -DEXPAT_BUILD_TESTS=OFF
+	@IF ERRORLEVEL 1 GOTO error
+	cd build
+	msbuild /p:Configuration=Release /t:expat expat.sln
+	@IF ERRORLEVEL 1 GOTO error
+	copy /y Release\%libfile% ..\..\Bin\libexpat.lib
+	@IF ERRORLEVEL 1 GOTO error
+)
 GOTO end_expat
 
 

@@ -87,6 +87,12 @@ $expatVersions = @{
 		Url  = "https://sourceforge.net/projects/expat/files/expat_win32/2.1.1/expat-win32bin-2.1.1.exe/download";
 		Hash = "EBF438297B52CA617BF0E00D264CC7A998A50534D023466AD66F4BD66359B534";
 	};
+	"2.2.8" = @{
+		Name = "Expat";
+		File = "expat-win32bin-2.2.8.exe";
+		Url  = "https://sourceforge.net/projects/expat/files/expat_win32/2.2.8/expat-win32bin-2.2.8.exe/download";
+		Hash = "48DAEC6F027411C4B8D04499366CBD724C05AAA4F09D02B5A822A3FE41FA9335";
+	};
 	"2.5.0" = @{
 		Name = "Expat";
 		File = "expat-win32bin-2.5.0.zip";
