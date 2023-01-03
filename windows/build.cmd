@@ -93,7 +93,8 @@ IF x%1==xexpat (SET BUILD_EXPAT=y) ELSE ^
 IF x%1==xzlib (SET BUILD_ZLIB=y) ELSE ^
 IF x%1==xbdb (SET BUILD_BDB=y) ELSE ^
 IF x%1==xlmdb (SET BUILD_LMDB=y) ELSE ^
-IF x%1==xtqsl (SET BUILD_TQSL=y) ELSE (
+IF x%1==xtqsl (SET BUILD_TQSL=y) ELSE ^
+IF NOT x%1==x (
 	ECHO Unrecognized option %1 1>&2
 	exit /b 1
 )
@@ -249,12 +250,17 @@ cd curl-%CURL_VERSION%\winbuild
 ) ELSE (
 	@SET mode=static
 )
+@IF NOT x%USE_DYNAMIC_CRT%==x (
+	@SET crt=dll
+) ELSE (
+	@SET crt=static
+)
 @IF NOT x%USE_64BIT%==x (
 	@SET machine=x64
 ) ELSE (
 	@SET machine=x86
 )
-nmake -f Makefile.vc mode=%mode% ENABLE_WINSSL=yes ENABLE_IDN=no ENABLE_IPV6=no MACHINE=%machine%
+nmake -f Makefile.vc mode=%mode% ENABLE_WINSSL=yes ENABLE_IDN=no ENABLE_IPV6=no MACHINE=%machine% RTLIBCFG=%crt%
 @IF ERRORLEVEL 1 GOTO error
 GOTO end_curl
 
