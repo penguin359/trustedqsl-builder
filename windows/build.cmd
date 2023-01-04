@@ -103,10 +103,10 @@ IF NOT x%1==x (
 
 @IF NOT x%USE_64BIT%==x (
 	SET target=x86_amd64
-	SET platform=x64
+	SET build_platform=x64
 ) ELSE (
 	SET target=x86
-	SET platform=Win32
+	SET build_platform=Win32
 )
 @IF %VS_RELEASE%==2019 (
 	call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Auxiliary\Build\vcvarsall.bat" %target%
@@ -283,7 +283,7 @@ IF %EXPAT_VERSION% LSS 2.2.8 (
 )
 cd Source
 @REM Only expat_static is needed
-@REM vcbuild expat.sln "Release|%platform%"
+@REM vcbuild expat.sln "Release|%build_platform%"
 @IF NOT x%USE_DYNAMIC_CRT%==x (
 	SET crt_opt=OFF
 	SET crt_suffix=MD
@@ -309,15 +309,15 @@ cd Source
 	SET shared_opt=OFF
 )
 IF %EXPAT_VERSION% LSS 2.2.8 (
-	msbuild /p:Configuration=Release /p:Platform=%platform% /t:%target% expat.sln
+	msbuild /p:Configuration=Release /p:Platform=%build_platform% /t:%target% expat.sln
 	@IF ERRORLEVEL 1 GOTO error
 	copy /y win32\bin\Release\%libfile% ..\Bin\libexpat.lib
 	@IF ERRORLEVEL 1 GOTO error
 ) ELSE (
 	REM CMake requires these missing files
 	ECHO _ >> Changes
-	echo cmake -G "%VS_GENERATOR%" -A %platform% -B build -S . -DEXPAT_SHARED_LIBS=%shared_opt% -DEXPAT_MSVC_STATIC_CRT=%crt_opt% -DEXPAT_BUILD_TOOLS=OFF -DEXPAT_BUILD_EXAMPLES=OFF -DEXPAT_BUILD_TESTS=OFF
-	cmake -G "%VS_GENERATOR%" -A %platform% -B build -S . -DEXPAT_SHARED_LIBS=%shared_opt% -DEXPAT_MSVC_STATIC_CRT=%crt_opt% -DEXPAT_BUILD_TOOLS=OFF -DEXPAT_BUILD_EXAMPLES=OFF -DEXPAT_BUILD_TESTS=OFF
+	echo cmake -G "%VS_GENERATOR%" -A %build_platform% -B build -S . -DEXPAT_SHARED_LIBS=%shared_opt% -DEXPAT_MSVC_STATIC_CRT=%crt_opt% -DEXPAT_BUILD_TOOLS=OFF -DEXPAT_BUILD_EXAMPLES=OFF -DEXPAT_BUILD_TESTS=OFF
+	cmake -G "%VS_GENERATOR%" -A %build_platform% -B build -S . -DEXPAT_SHARED_LIBS=%shared_opt% -DEXPAT_MSVC_STATIC_CRT=%crt_opt% -DEXPAT_BUILD_TOOLS=OFF -DEXPAT_BUILD_EXAMPLES=OFF -DEXPAT_BUILD_TESTS=OFF
 	@IF ERRORLEVEL 1 GOTO error
 	cd build
 	msbuild /p:Configuration=Release /t:expat expat.sln
@@ -347,7 +347,7 @@ cd zlib-1.2.8
 	SET release_flags=/MT
 	SET debug_flags=/MTd
 )
-cmake -G "%VS_GENERATOR%" -A %platform% -B build -S . -DCMAKE_C_FLAGS_DEBUG="%debug_flags% /Zi /Ob0 /Od /RTC1" -DCMAKE_C_FLAGS_RELEASE="%release_flags% /O2 /Ob2 /DNDEBUG"
+cmake -G "%VS_GENERATOR%" -A %build_platform% -B build -S . -DCMAKE_C_FLAGS_DEBUG="%debug_flags% /Zi /Ob0 /Od /RTC1" -DCMAKE_C_FLAGS_RELEASE="%release_flags% /O2 /Ob2 /DNDEBUG"
 @IF ERRORLEVEL 1 GOTO error
 cd build
 @IF %VS_RELEASE%==2008 (
@@ -376,30 +376,30 @@ GOTO end_zlib
 @7z x "downloads\db-6.0.20.NC.zip" -aoa
 cd db-6.0.20.NC\build_windows
 @IF %VS_RELEASE%==2008 (
-	vcbuild /upgrade Berkeley_DB.sln "Debug|%platform%"
+	vcbuild /upgrade Berkeley_DB.sln "Debug|%build_platform%"
 	@IF ERRORLEVEL 1 GOTO error
 	@IF x%USE_SHARED%==x (
-		vcbuild /upgrade Berkeley_DB.sln "Static Debug|%platform%"
+		vcbuild /upgrade Berkeley_DB.sln "Static Debug|%build_platform%"
 		@IF ERRORLEVEL 1 GOTO error
 	)
-	vcbuild /upgrade Berkeley_DB.sln "Release|%platform%"
+	vcbuild /upgrade Berkeley_DB.sln "Release|%build_platform%"
 	@IF ERRORLEVEL 1 GOTO error
 	@IF x%USE_SHARED%==x (
-		vcbuild /upgrade Berkeley_DB.sln "Static Release|%platform%"
+		vcbuild /upgrade Berkeley_DB.sln "Static Release|%build_platform%"
 		@IF ERRORLEVEL 1 GOTO error
 	)
 ) ELSE (
 	@IF x%USE_SHARED%==x (
-		msbuild /p:Configuration="Static Debug" /p:Platform=%platform% /t:db /p:PlatformToolSet=%VS_PLATFORMSET% Berkeley_DB_vs2010.sln
+		msbuild /p:Configuration="Static Debug" /p:Platform=%build_platform% /t:db /p:PlatformToolSet=%VS_PLATFORMSET% Berkeley_DB_vs2010.sln
 		@IF ERRORLEVEL 1 GOTO error
-		msbuild /p:Configuration="Static Release" /p:Platform=%platform% /t:db /p:PlatformToolSet=%VS_PLATFORMSET% Berkeley_DB_vs2010.sln
+		msbuild /p:Configuration="Static Release" /p:Platform=%build_platform% /t:db /p:PlatformToolSet=%VS_PLATFORMSET% Berkeley_DB_vs2010.sln
 		@IF ERRORLEVEL 1 GOTO error
-		move "%platform%\Static Debug" "%platform%\Static_Debug"
-		move "%platform%\Static Release" "%platform%\Static_Release"
+		move "%build_platform%\Static Debug" "%build_platform%\Static_Debug"
+		move "%build_platform%\Static Release" "%build_platform%\Static_Release"
 	) ELSE (
-		msbuild /p:Configuration="Debug" /p:Platform=%platform% /t:db /p:PlatformToolSet=%VS_PLATFORMSET% Berkeley_DB_vs2010.sln
+		msbuild /p:Configuration="Debug" /p:Platform=%build_platform% /t:db /p:PlatformToolSet=%VS_PLATFORMSET% Berkeley_DB_vs2010.sln
 		@IF ERRORLEVEL 1 GOTO error
-		msbuild /p:Configuration="Release" /p:Platform=%platform% /t:db /p:PlatformToolSet=%VS_PLATFORMSET% Berkeley_DB_vs2010.sln
+		msbuild /p:Configuration="Release" /p:Platform=%build_platform% /t:db /p:PlatformToolSet=%VS_PLATFORMSET% Berkeley_DB_vs2010.sln
 		@IF ERRORLEVEL 1 GOTO error
 	)
 )
@@ -467,26 +467,26 @@ IF %CURL_VERSION% LSS 7.81.0 (
 ) ELSE (
 	SET curl_machine=x86
 )
-cmake -DCMAKE_LIBRARY_PATH="%ROOT%expat-%EXPAT_VERSION%\Bin" -DCMAKE_INCLUDE_PATH="%ROOT%expat-%EXPAT_VERSION%\Source\lib" -DwxWidgets_ROOT_DIR="%ROOT%wxWidgets-%WXWIDGETS_VERSION%" -DBDB_INCLUDE_DIR="%ROOT%db-6.0.20.NC\build_windows" -DBDB_LIBRARY="%ROOT%db-6.0.20.NC\build_windows\%platform%\Static_Release\libdb60s.lib" -DOPENSSL_ROOT_DIR="%ROOT%openssl" -DCURL_LIBRARY="%ROOT%curl-%CURL_VERSION%\builds\libcurl-vc-%curl_machine%-release-static-sspi-%curl_build%\lib\libcurl_a.lib" -DCURL_INCLUDE_DIR="%ROOT%curl-%CURL_VERSION%\builds\libcurl-vc-%curl_machine%-release-static-sspi-%curl_build%\include" -DUSE_STATIC_MSVCRT=%crt_opt% -G "%VS_GENERATOR%" -A %platform% -B build -S .
+cmake -DCMAKE_LIBRARY_PATH="%ROOT%expat-%EXPAT_VERSION%\Bin" -DCMAKE_INCLUDE_PATH="%ROOT%expat-%EXPAT_VERSION%\Source\lib" -DwxWidgets_ROOT_DIR="%ROOT%wxWidgets-%WXWIDGETS_VERSION%" -DBDB_INCLUDE_DIR="%ROOT%db-6.0.20.NC\build_windows" -DBDB_LIBRARY="%ROOT%db-6.0.20.NC\build_windows\%build_platform%\Static_Release\libdb60s.lib" -DOPENSSL_ROOT_DIR="%ROOT%openssl" -DCURL_LIBRARY="%ROOT%curl-%CURL_VERSION%\builds\libcurl-vc-%curl_machine%-release-static-sspi-%curl_build%\lib\libcurl_a.lib" -DCURL_INCLUDE_DIR="%ROOT%curl-%CURL_VERSION%\builds\libcurl-vc-%curl_machine%-release-static-sspi-%curl_build%\include" -DUSE_STATIC_MSVCRT=%crt_opt% -G "%VS_GENERATOR%" -A %build_platform% -B build -S .
 @IF ERRORLEVEL 1 GOTO error
 @REM cmake --build build
 cd build
 @REM Building tests currently has build failures
-@REM msbuild /p:Configuration=Release /p:Platform=%platform% TrustedQSL.sln
+@REM msbuild /p:Configuration=Release /p:Platform=%build_platform% TrustedQSL.sln
 @REM @IF ERRORLEVEL 1 GOTO error
-msbuild /p:Configuration=Release /p:Platform=%platform% /p:CharacterSet=Unicode /t:tqsllib2 TrustedQSL.sln
+msbuild /p:Configuration=Release /p:Platform=%build_platform% /p:CharacterSet=Unicode /t:tqsllib2 TrustedQSL.sln
 @IF ERRORLEVEL 1 GOTO error
-msbuild /p:Configuration=Release /p:Platform=%platform% /p:CharacterSet=Unicode /t:tqslupdater TrustedQSL.sln
+msbuild /p:Configuration=Release /p:Platform=%build_platform% /p:CharacterSet=Unicode /t:tqslupdater TrustedQSL.sln
 @IF ERRORLEVEL 1 GOTO error
-msbuild /p:Configuration=Release /p:Platform=%platform% /p:CharacterSet=Unicode /t:tqsl TrustedQSL.sln
+msbuild /p:Configuration=Release /p:Platform=%build_platform% /p:CharacterSet=Unicode /t:tqsl TrustedQSL.sln
 @IF ERRORLEVEL 1 GOTO error
-@REM msbuild /p:Configuration=Debug /p:Platform=%platform% TrustedQSL.sln
+@REM msbuild /p:Configuration=Debug /p:Platform=%build_platform% TrustedQSL.sln
 @REM @IF ERRORLEVEL 1 GOTO error
-msbuild /p:Configuration=Debug /p:Platform=%platform% /p:CharacterSet=Unicode /t:tqsllib2 TrustedQSL.sln
+msbuild /p:Configuration=Debug /p:Platform=%build_platform% /p:CharacterSet=Unicode /t:tqsllib2 TrustedQSL.sln
 @IF ERRORLEVEL 1 GOTO error
-msbuild /p:Configuration=Debug /p:Platform=%platform% /p:CharacterSet=Unicode /t:tqslupdater TrustedQSL.sln
+msbuild /p:Configuration=Debug /p:Platform=%build_platform% /p:CharacterSet=Unicode /t:tqslupdater TrustedQSL.sln
 @IF ERRORLEVEL 1 GOTO error
-msbuild /p:Configuration=Debug /p:Platform=%platform% /p:CharacterSet=Unicode /t:tqsl TrustedQSL.sln
+msbuild /p:Configuration=Debug /p:Platform=%build_platform% /p:CharacterSet=Unicode /t:tqsl TrustedQSL.sln
 @IF ERRORLEVEL 1 GOTO error
 GOTO end_tqsl
 
