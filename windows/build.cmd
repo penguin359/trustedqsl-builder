@@ -281,6 +281,7 @@ IF %EXPAT_VERSION% LSS 2.3.0 (
 IF %EXPAT_VERSION% LSS 2.2.8 (
 	@7z x ../expat-vc2008-%EXPAT_VERSION%.zip -aoa
 )
+@del /s/q Bin\*.* 2>NUL
 cd Source
 @REM Only expat_static is needed
 @REM vcbuild expat.sln "Release|%build_platform%"
