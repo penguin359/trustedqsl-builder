@@ -125,9 +125,13 @@ IF NOT x%1==x (
 	)
 )
 
-@IF %EXPAT_VERSION% LSS 2.2.8 (
-	IF NOT x%USE_64BIT%==x (
+@IF NOT x%USE_64BIT%==x (
+	@IF %EXPAT_VERSION% LSS 2.2.8 (
 		ECHO Expat %EXPAT_VERSION% does not support 64-bit builds, 2.2.8 is minimum required 1>&2
+		exit /b 1
+	)
+	@IF %VS_RELEASE% LSS 2012 (
+		ECHO Visual Studio %VS_RELEASE% is not supported for 64-bit builds 1>&2
 		exit /b 1
 	)
 )
