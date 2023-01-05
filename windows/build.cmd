@@ -114,6 +114,34 @@ IF NOT x%1==x (
 	call "C:\Program Files (x86)\Microsoft Visual Studio %VS_VERSION%\VC\vcvarsall.bat" %target%
 )
 
+@IF NOT %EXPAT_VERSION% LSS 2.5.0 (
+	IF %VS_RELEASE% LSS 2013 (
+		ECHO Expat %EXPAT_VERSION% not supported on Visual Studio before 2013 1>&2
+		exit /b 1
+	)
+)
+
+@IF %EXPAT_VERSION% LSS 2.2.8 (
+	IF NOT x%USE_64BIT%==x (
+		ECHO Expat %EXPAT_VERSION% does not support 64-bit builds, 2.2.8 is minimum required 1>&2
+		exit /b 1
+	)
+)
+
+@IF %OPENSSL_VERSION% LSS 1.0.1u (
+	IF NOT %VS_RELEASE% LSS 2015 (
+		ECHO OpenSSL %EXPAT_VERSION% not supported on Visual Studio %VS_RELEASE%, 1.0.1u is minimum required 1>&2
+		exit /b 1
+	)
+)
+
+@IF %VS_RELEASE% == 2012 (
+	IF x%USE_BDB%==x (
+		ECHO LMDB is not currently supported on Visual Studio %VS_RELEASE%, USE_BDB=y is needed 1>&2
+		exit /b 1
+	)
+)
+
 @REM Change to the correct drive
 %~d0
 cd %ROOT%
