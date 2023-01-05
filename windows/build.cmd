@@ -35,6 +35,10 @@ SET ROOT=%~dp0
 	REM SET EXPAT_VERSION=2.5.0
 )
 
+@IF x%LMDB_VERSION%==x (
+	SET LMDB_VERSION=0.9.29
+)
+
 @IF %VS_RELEASE%==2008 (
 	SET VS_VERSION=9.0
 	SET VS_GENERATOR=Visual Studio 9 2008
@@ -444,6 +448,10 @@ IF NOT EXIST lib mkdir lib
 cd libraries\liblmdb
 @del /s/q *.obj 2>NUL
 @del /s/q *.lib 2>NUL
+git reset --hard
+@IF ERRORLEVEL 1 GOTO error
+git checkout "tags/LMDB_%LMDB_VERSION%"
+@IF ERRORLEVEL 1 GOTO error
 SET CFLAGS=/c /O2 /DWIN32
 @IF %VS_RELEASE%==2008 GOTO apply_fixup
 @IF %VS_RELEASE%==2010 GOTO apply_fixup
@@ -454,9 +462,7 @@ GOTO skip_fixup
 SET CFLAGS=%CFLAGS% /I..\..\..\lmdb-include
 copy /Y ..\..\..\lmdb-include\inttypes.h ..\..\include
 @IF ERRORLEVEL 1 GOTO error
-git reset --hard origin/mdb.master
-@IF ERRORLEVEL 1 GOTO error
-git am ..\..\..\lmdb-vs2008-vs2012.patch
+REM git am ..\..\..\lmdb-vs2008-vs2012.patch
 @IF ERRORLEVEL 1 GOTO error
 
 :skip_fixup
