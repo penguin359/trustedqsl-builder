@@ -292,3 +292,48 @@ $env:Path = ($env:Path -split ";" | ?{ $_ -ne "C:\Strawberry\c\bin" }) -join ";"
 
 
 warning LNK4098: defaultlib 'MSVCRT' conflicts with use of other libs; use /NODEFAULTLIB:library
+
+Fix -verbose and other handling on download ps1 and bat scripts
+
+Successfully compiled LMDB with your help. Used Git for patching and header file.
+
+
+
+$env:USE_BDB = "y"
+$env:VS_RELEASE = "2012"
+$env:WindowsSdkDir = "C:\Program Files (x86)\Microsoft SDKs\Windows\v7.1A\"
+$env:USE_64BIT = "y"
+$env:USE_DYNAMIC_CRT = $null
+$env:USE_SHARED = $null
+$env:USE_ANSI = $null
+$env:CURL_VERSION = "7.39.0"
+$env:EXPAT_VERSION = "2.2.8"
+
+
+$env:USE_BDB = "y"
+$env:CURL_VERSION = "7.39.0"
+$env:EXPAT_VERSION = "2.5.0"
+
+
+
+OpenSSL 1.1.1m fails a test, disabled
+OpenSSL 1.1.x doesn't work on Win2K
+
+cURL include is schannel instead of winssl on 64-bit builds?
+It's libexpat.lib, not expat.lib?
+
+zlib compiles with static crt /MD unless editing cmake cache
+curl as well
+
+Crypt32.lib
+Wldap32.lib
+Ws2_32.lib
+
+64-bit support requires Expat 2.2.8+ and VS2012+
+OpenSSL hard-codes MD/MT based on shared libs
+cURL additional dependencies are not passing through
+LMDB version not following tag
+VS2012 requires BDB
+
+GTest in VS2019 has warnings with tr1 being treated as errors.
+Tests missing dependency on tqsllib2 project

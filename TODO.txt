@@ -20,3 +20,11 @@ OpenSSL 1.1.1 doesn't run on Win2K. Offer build option to use 1.0.1u (or
 1.0.1e) which does.
 
 Make CMake find modules independent of version
+
+Make a branch switching to Boost Test
+
+Enable zlib in OpenSSL
+Enable zlib in cURL
+
+GTest tests are linking with wrong tqsllib
+GTest does not respect Use STATIC MSVC being disabled
