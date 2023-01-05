@@ -144,14 +144,16 @@ $dependencies | ForEach-Object {
 	Download-File @_
 }
 
-if(-not(Test-Path -Path "lmdb")) {
+$lmdbDir = Join-Path $PSScriptRoot "lmdb"
+if(-not(Test-Path -Path $lmdbDir)) {
 	echo "Downloading LMDB..."
-	git clone -b LMDB_0.9.29 https://github.com/LMDB/lmdb.git
+	git clone -b LMDB_0.9.29 https://github.com/LMDB/lmdb.git $lmdbDir
 }
 
-if(-not(Test-Path -Path "tqsl")) {
+$tqslDir = Join-Path $PSScriptRoot "tqsl"
+if(-not(Test-Path -Path $tqslDir)) {
 	echo "Downloading Trusted QSL..."
-	git clone https://git.code.sf.net/p/trustedqsl/tqsl tqsl
+	git clone https://git.code.sf.net/p/trustedqsl/tqsl $tqslDir
 	cd tqsl
 	git remote add penguin359 https://penguin359@git.code.sf.net/u/penguin359/trustedqsl
 	git remote set-url --push penguin359 ssh://penguin359@git.code.sf.net/u/penguin359/trustedqsl
