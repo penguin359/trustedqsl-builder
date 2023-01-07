@@ -98,7 +98,8 @@ $downloads = @{
 		Files = @{
 			"1.2.8" = @{
 				File = "zlib-1.2.8.tar.gz";
-				Url  = "http://www.north-winds.org/tqsl/zlib-1.2.8.tar.gz";
+				#Url  = "http://www.north-winds.org/tqsl/zlib-1.2.8.tar.gz";
+				Url  = "https://www.zlib.net/fossils/zlib-1.2.8.tar.gz";
 				Hash = "36658CB768A54C1D4DEC43C3116C27ED893E88B02ECFCB44F2166F9C0B7F2A0D";
 			};
 		};
@@ -180,7 +181,8 @@ $tqslDir = Join-Path $PSScriptRoot "tqsl"
 if(-not(Test-Path -Path $tqslDir)) {
 	echo "Downloading Trusted QSL..."
 	#git clone https://git.code.sf.net/p/trustedqsl/tqsl $tqslDir
-	git clone -b $branch git://git.code.sf.net/u/penguin359/trustedqsl $tqslDir
+	#git clone -b $branch git://git.code.sf.net/u/penguin359/trustedqsl $tqslDir
+	git clone -b $branch https://penguin359@git.code.sf.net/u/penguin359/trustedqsl $tqslDir
 	if(-not($?)) {
 		throw "Can't clone Trusted QSL"
 	}
