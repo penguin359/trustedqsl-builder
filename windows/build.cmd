@@ -237,6 +237,12 @@ IF NOT x%1==x (
 	)
 )
 
+@IF NOT %VS_RELEASE% LSS 2010 GOTO skip_net35_fixup
+@set PATH=C:\Windows\Microsoft.NET\Framework\v3.5\;%PATH%
+@powershell -Command "$env:Path -split ';'"
+@powershell -command "Get-Command MSBuild,cl,nmake | fl"
+:skip_net35_fixup
+
 @REM Change to the correct drive
 %~d0
 cd %ROOT%
