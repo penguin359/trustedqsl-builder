@@ -105,18 +105,17 @@ if($env:expat_VERSION) {
 	$expatDefault = $env:expat_VERSION
 }
 
+$lmdbDefault = "0.9.29"
+if($env:lmdb_VERSION) {
+	$lmdbDefault = $env:lmdb_VERSION
+}
+
 $dependencies = @(
 	@{
 		Name = "zlib";
 		File = "zlib-1.2.8.tar.gz";
 		Url  = "https://www.zlib.net/fossils/zlib-1.2.8.tar.gz";
 		Hash = "36658CB768A54C1D4DEC43C3116C27ED893E88B02ECFCB44F2166F9C0B7F2A0D";
-	},
-	@{
-		Name = "Berkeley DB";
-		File = "db-6.0.20.NC.zip";
-		Url  = "http://download.oracle.com/berkeley-db/db-6.0.20.NC.zip";
-		Hash = "140731D64DA8B7E4DDF1C5FD52ED3C41DFE08E00857D48DC41BBEF2795FD6A16";
 	}
 )
 
@@ -140,20 +139,37 @@ if(-not($expatVersions[$expatDefault])) {
 }
 $dependencies += $expatVersions[$expatDefault]
 
+if($env:USE_BDB) {
+	$dependencies += @{
+		Name = "Berkeley DB";
+		File = "db-6.0.20.NC.zip";
+		Url  = "http://download.oracle.com/berkeley-db/db-6.0.20.NC.zip";
+		Hash = "140731D64DA8B7E4DDF1C5FD52ED3C41DFE08E00857D48DC41BBEF2795FD6A16";
+	}
+}
+
 $dependencies | ForEach-Object {
 	Download-File @_
 }
 
-$lmdbDir = Join-Path $PSScriptRoot "lmdb"
-if(-not(Test-Path -Path $lmdbDir)) {
-	echo "Downloading LMDB..."
-	git clone -b LMDB_0.9.29 https://github.com/LMDB/lmdb.git $lmdbDir
+if(-not($env:USE_BDB)) {
+	$lmdbDir = Join-Path $PSScriptRoot "lmdb"
+	if(-not(Test-Path -Path $lmdbDir)) {
+		echo "Downloading LMDB..."
+		git clone -b "LMDB_$lmdbDefault" https://github.com/LMDB/lmdb.git $lmdbDir
+		if(-not($?)) {
+			throw "Can't clone LMDB version $lmdbDefault"
+		}
+	}
 }
 
 $tqslDir = Join-Path $PSScriptRoot "tqsl"
 if(-not(Test-Path -Path $tqslDir)) {
 	echo "Downloading Trusted QSL..."
 	git clone https://git.code.sf.net/p/trustedqsl/tqsl $tqslDir
+	if(-not($?)) {
+		throw "Can't clone Trusted QSL"
+	}
 	cd tqsl
 	git remote add penguin359 https://penguin359@git.code.sf.net/u/penguin359/trustedqsl
 	git remote set-url --push penguin359 ssh://penguin359@git.code.sf.net/u/penguin359/trustedqsl
