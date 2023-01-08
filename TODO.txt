@@ -28,3 +28,12 @@ Enable zlib in cURL
 
 GTest tests are linking with wrong tqsllib
 GTest does not respect Use STATIC MSVC being disabled
+
+Fix or drop special test target
+Fix test fixture environment variable
+Fix static CRT builds on VS2019
+Fix LMBD...
+Fix broken cabrillo tests
+Fix need to manually add ws2_32.dll
+Fix cURL 7.81.0
+Use updated build docs for cURL from TQSL upstream

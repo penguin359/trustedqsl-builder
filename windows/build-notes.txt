@@ -314,6 +314,8 @@ $env:USE_BDB = "y"
 $env:CURL_VERSION = "7.39.0"
 $env:EXPAT_VERSION = "2.5.0"
 
+$env:EXPAT_VERSION = "2.1.0"
+
 
 
 OpenSSL 1.1.1m fails a test, disabled
