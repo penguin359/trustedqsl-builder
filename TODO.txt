@@ -37,3 +37,7 @@ Fix broken cabrillo tests
 Fix need to manually add ws2_32.dll
 Fix cURL 7.81.0
 Use updated build docs for cURL from TQSL upstream
+Fix auto-locating correct cURL libs
+Fix mixtures of debug and release CRTs
+Fix Expat 2.5.0
+Use vcbuild for VS2008 builds?

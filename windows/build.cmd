@@ -6,10 +6,13 @@ SET ROOT=%~dp0
 
 @IF x%VS_RELEASE%==x (
 	SET VS_RELEASE=2008
+	REM SET VS_RELEASE=2010
 	REM SET VS_RELEASE=2012
 	REM SET VS_RELEASE=2013
 	REM SET VS_RELEASE=2015
+	REM SET VS_RELEASE=2017
 	REM SET VS_RELEASE=2019
+	REM SET VS_RELEASE=2022
 )
 
 @IF x%OPENSSL_VERSION%==x (
@@ -43,6 +46,10 @@ SET ROOT=%~dp0
 	SET VS_VERSION=9.0
 	SET VS_GENERATOR=Visual Studio 9 2008
 	SET VS_PLATFORMSET=v90
+) ELSE IF %VS_RELEASE%==2010 (
+	SET VS_VERSION=10.0
+	SET VS_GENERATOR=Visual Studio 10 2010
+	SET VS_PLATFORMSET=v100
 ) ELSE IF %VS_RELEASE%==2012 (
 	SET VS_VERSION=11.0
 	SET VS_GENERATOR=Visual Studio 11 2012
@@ -55,10 +62,18 @@ SET ROOT=%~dp0
 	SET VS_VERSION=14.0
 	SET VS_GENERATOR=Visual Studio 14 2015
 	SET VS_PLATFORMSET=v140
+) ELSE IF %VS_RELEASE%==2017 (
+	REM SET VS_VERSION=14.1
+	SET VS_GENERATOR=Visual Studio 15 2017
+	SET VS_PLATFORMSET=v141
 ) ELSE IF %VS_RELEASE%==2019 (
-	SET VS_VERSION=16.0
+	REM SET VS_VERSION=16.0
 	SET VS_GENERATOR=Visual Studio 16 2019
 	SET VS_PLATFORMSET=v142
+) ELSE IF %VS_RELEASE%==2022 (
+	REM SET VS_VERSION=17.0
+	SET VS_GENERATOR=Visual Studio 17 2022
+	SET VS_PLATFORMSET=v143
 ) ELSE (
 	@ECHO Unrecognized Visual Studio release: %VS_RELEASE% >&2
 	exit /b 1
@@ -106,14 +121,20 @@ IF NOT x%1==x (
 @IF NOT x%1==x GOTO opt_loop
 
 @IF NOT x%USE_64BIT%==x (
-	SET target=x86_amd64
+	IF NOT %VS_RELEASE% LSS 2022 (
+		SET target=amd64
+	) ELSE (
+		SET target=x86_amd64
+	)
 	SET build_platform=x64
 ) ELSE (
 	SET target=x86
 	SET build_platform=Win32
 )
-@IF %VS_RELEASE%==2019 (
-	call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Auxiliary\Build\vcvarsall.bat" %target%
+@IF NOT %VS_RELEASE% LSS 2022 (
+	call "C:\Program Files\Microsoft Visual Studio\%VS_RELEASE%\Community\VC\Auxiliary\Build\vcvarsall.bat" %target%
+) ELSE IF NOT %VS_RELEASE% LSS 2017 (
+	call "C:\Program Files (x86)\Microsoft Visual Studio\%VS_RELEASE%\Community\VC\Auxiliary\Build\vcvarsall.bat" %target%
 ) ELSE (
 	call "C:\Program Files (x86)\Microsoft Visual Studio %VS_VERSION%\VC\vcvarsall.bat" %target%
 )
@@ -138,7 +159,7 @@ IF NOT x%1==x (
 
 @IF %OPENSSL_VERSION% LSS 1.0.1u (
 	IF NOT %VS_RELEASE% LSS 2015 (
-		ECHO OpenSSL %EXPAT_VERSION% not supported on Visual Studio %VS_RELEASE%, 1.0.1u is minimum required 1>&2
+		ECHO OpenSSL %OPENSSL_VERSION% not supported on Visual Studio %VS_RELEASE%, 1.0.1u is minimum required 1>&2
 		exit /b 1
 	)
 )
@@ -353,8 +374,12 @@ IF %EXPAT_VERSION% LSS 2.2.8 (
 ) ELSE (
 	REM CMake requires these missing files
 	ECHO _ >> Changes
-	echo cmake -G "%VS_GENERATOR%" -A %build_platform% -B build -S . -DEXPAT_SHARED_LIBS=%shared_opt% -DEXPAT_MSVC_STATIC_CRT=%crt_opt% -DEXPAT_BUILD_TOOLS=OFF -DEXPAT_BUILD_EXAMPLES=OFF -DEXPAT_BUILD_TESTS=OFF
-	cmake -G "%VS_GENERATOR%" -A %build_platform% -B build -S . -DEXPAT_SHARED_LIBS=%shared_opt% -DEXPAT_MSVC_STATIC_CRT=%crt_opt% -DEXPAT_BUILD_TOOLS=OFF -DEXPAT_BUILD_EXAMPLES=OFF -DEXPAT_BUILD_TESTS=OFF
+	cmake -G "%VS_GENERATOR%" -A %build_platform% -B build -S . ^
+	    -DEXPAT_SHARED_LIBS=%shared_opt% ^
+	    -DEXPAT_MSVC_STATIC_CRT=%crt_opt% ^
+	    -DEXPAT_BUILD_TOOLS=OFF ^
+	    -DEXPAT_BUILD_EXAMPLES=OFF ^
+	    -DEXPAT_BUILD_TESTS=OFF
 	@IF ERRORLEVEL 1 GOTO error
 	cd build
 	msbuild /p:Configuration=Release /t:expat expat.sln
@@ -384,7 +409,9 @@ cd zlib-1.2.8
 	SET release_flags=/MT
 	SET debug_flags=/MTd
 )
-cmake -G "%VS_GENERATOR%" -A %build_platform% -B build -S . -DCMAKE_C_FLAGS_DEBUG="%debug_flags% /Zi /Ob0 /Od /RTC1" -DCMAKE_C_FLAGS_RELEASE="%release_flags% /O2 /Ob2 /DNDEBUG"
+cmake -G "%VS_GENERATOR%" -A %build_platform% -B build -S . ^
+    -DCMAKE_C_FLAGS_DEBUG="%debug_flags% /Zi /Ob0 /Od /RTC1" ^
+    -DCMAKE_C_FLAGS_RELEASE="%release_flags% /O2 /Ob2 /DNDEBUG"
 @IF ERRORLEVEL 1 GOTO error
 cd build
 @IF %VS_RELEASE%==2008 (
@@ -506,7 +533,16 @@ IF %CURL_VERSION% LSS 7.81.0 (
 ) ELSE (
 	SET curl_machine=x86
 )
-cmake -DCMAKE_LIBRARY_PATH="%ROOT%expat-%EXPAT_VERSION%\Bin" -DCMAKE_INCLUDE_PATH="%ROOT%expat-%EXPAT_VERSION%\Source\lib" -DwxWidgets_ROOT_DIR="%ROOT%wxWidgets-%WXWIDGETS_VERSION%" -DBDB_INCLUDE_DIR="%ROOT%db-6.0.20.NC\build_windows" -DBDB_LIBRARY="%ROOT%db-6.0.20.NC\build_windows\%build_platform%\Static_Release\libdb60s.lib" -DOPENSSL_ROOT_DIR="%ROOT%openssl" -DCURL_LIBRARY="%ROOT%curl-%CURL_VERSION%\builds\libcurl-vc-%curl_machine%-release-static-sspi-%curl_build%\lib\libcurl_a.lib" -DCURL_INCLUDE_DIR="%ROOT%curl-%CURL_VERSION%\builds\libcurl-vc-%curl_machine%-release-static-sspi-%curl_build%\include" -DUSE_STATIC_MSVCRT=%crt_opt% -G "%VS_GENERATOR%" -A %build_platform% -B build -S .
+cmake -G "%VS_GENERATOR%" -A %build_platform% -B build -S . ^
+    -DCMAKE_LIBRARY_PATH="%ROOT%expat-%EXPAT_VERSION%\Bin" ^
+    -DCMAKE_INCLUDE_PATH="%ROOT%expat-%EXPAT_VERSION%\Source\lib" ^
+    -DwxWidgets_ROOT_DIR="%ROOT%wxWidgets-%WXWIDGETS_VERSION%" ^
+    -DBDB_INCLUDE_DIR="%ROOT%db-6.0.20.NC\build_windows" ^
+    -DBDB_LIBRARY="%ROOT%db-6.0.20.NC\build_windows\%build_platform%\Static_Release\libdb60s.lib" ^
+    -DOPENSSL_ROOT_DIR="%ROOT%openssl" ^
+    -DCURL_LIBRARY="%ROOT%curl-%CURL_VERSION%\builds\libcurl-vc-%curl_machine%-release-static-sspi-%curl_build%\lib\libcurl_a.lib" ^
+    -DCURL_INCLUDE_DIR="%ROOT%curl-%CURL_VERSION%\builds\libcurl-vc-%curl_machine%-release-static-sspi-%curl_build%\include" ^
+    -DUSE_STATIC_MSVCRT=%crt_opt%
 @IF ERRORLEVEL 1 GOTO error
 @REM cmake --build build
 cd build

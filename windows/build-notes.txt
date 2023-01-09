@@ -339,3 +339,54 @@ VS2012 requires BDB
 
 GTest in VS2019 has warnings with tr1 being treated as errors.
 Tests missing dependency on tqsllib2 project
+
+
+
+cmake -DCMAKE_TOOLCHAIN_FILE=C:/Users/loren/vcpkg/scripts/buildsystems/vcpkg.cmake -DUSE_STATIC_MSVCRT=ON -B build64 -A x64 -S .
+
+
+
+
+Homebrew:
+  cmake (can't be bottled)
+  nasm (can't be bottled)
+  jpeg-turbo (can't be bottled)
+    Build: cmake ✘, nasm ✘
+  libpng (can't be bottled)
+  lz4 (can't be bottled)
+  xz (can't be bottled)
+  zstd (can't be bottled)
+    Build: cmake ✘
+    Required: lz4 ✔, xz ✘
+  libtiff (can't be bottled)
+    Required: jpeg-turbo ✔, zstd ✔
+  pcre2 (can't be bottled)
+  pkg-config
+  wxwidgets
+    Build: pkg-config ✔
+    Required: jpeg-turbo ✔, libpng ✘, libtiff ✔, pcre2 ✘
+  berkeley-db@5
+  ca-certificates
+  openssl@1.1
+    Required: ca-certificates ✔
+  lmdb
+  zlib
+  expat
+  brotli
+    Build: cmake ✘
+  gettext
+  libunistring
+  libidn2
+    Build: pkg-config ✔
+    Required: gettext ✔, libunistring ✘
+  libnghttp2
+    Build: pkg-config ✔
+  libssh2
+    Required: openssl@1.1 ✔
+  openldap
+    Required: openssl@1.1 ✔
+  rtmpdump
+    Required: openssl@1.1 ✔
+  curl
+    Build: pkg-config ✔
+    Required: brotli ✔, libidn2 ✘, libnghttp2 ✘, libssh2 ✘, openldap ✘, openssl@1.1 ✔, rtmpdump ✘, zstd ✔
