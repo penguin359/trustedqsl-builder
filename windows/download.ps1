@@ -167,7 +167,7 @@ if(-not(Test-Path -Path $tqslDir)) {
 	if(-not($?)) {
 		throw "Can't clone Trusted QSL"
 	}
-	cd tqsl
+	cd $tqslDir
 	git remote add penguin359 https://penguin359@git.code.sf.net/u/penguin359/trustedqsl
 	git remote set-url --push penguin359 ssh://penguin359@git.code.sf.net/u/penguin359/trustedqsl
 	git remote update penguin359
