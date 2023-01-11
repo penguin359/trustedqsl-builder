@@ -130,6 +130,11 @@ IF NOT x%1==x (
 @SHIFT
 @IF NOT x%1==x GOTO opt_loop
 
+@REM If user explicitly asked for Berkeley DB, use it
+@IF NOT x%BUILD_BDB%==x (
+	SET USE_BDB=y
+)
+
 @IF NOT x%USE_64BIT%==x (
 	IF NOT %VS_RELEASE% LSS 2022 (
 		SET target=amd64
@@ -148,6 +153,11 @@ IF NOT x%1==x (
 ) ELSE (
 	call "C:\Program Files (x86)\Microsoft Visual Studio %VS_VERSION%\VC\vcvarsall.bat" %target%
 )
+
+
+@REM 
+@REM  Validate that the selected build configuration makes sense
+@REM
 
 @IF NOT %EXPAT_VERSION% LSS 2.5.0 (
 	IF %VS_RELEASE% LSS 2013 (
@@ -184,6 +194,13 @@ IF NOT x%1==x (
 @IF %VS_RELEASE% == 2012 (
 	IF x%USE_BDB%==x (
 		ECHO LMDB is not currently supported on Visual Studio %VS_RELEASE%, USE_BDB=y is needed 1>&2
+		exit /b 1
+	)
+)
+
+@IF NOT x%USE_BDB%==x (
+	IF NOT %VS_RELEASE% LSS 2019 (
+		ECHO Visual Studio %VS_RELEASE% is not supported for compiling Berkeley DB 1>&2
 		exit /b 1
 	)
 )
@@ -451,36 +468,49 @@ GOTO end_zlib
 
 :bdb
 @ECHO Building Berkeley DB...
+
+@IF %VS_RELEASE% LSS 2010 (
+	SET solution=Berkeley_DB.sln
+) ELSE IF %VS_RELEASE% LSS 2012 (
+	SET solution=Berkeley_DB_vs2010.sln
+) ELSE (
+	IF %BDB_VERSION% LSS 6.2.23 (
+		SET solution=Berkeley_DB_vs2010.sln
+	) ELSE (
+		SET solution=Berkeley_DB_vs2012.sln
+	)
+)
+
 @cd %ROOT%
 @del /s/q db-%BDB_VERSION%.NC 2>NUL
 @rmdir /s/q db-%BDB_VERSION%.NC 2>NUL
 @7z x "downloads\db-%BDB_VERSION%.NC.zip" -aoa
 cd db-%BDB_VERSION%.NC\build_windows
 @IF %VS_RELEASE%==2008 (
-	vcbuild /upgrade Berkeley_DB.sln "Debug|%build_platform%"
+	vcbuild /upgrade %solution% "Debug|%build_platform%"
 	@IF ERRORLEVEL 1 GOTO error
 	@IF x%USE_SHARED%==x (
-		vcbuild /upgrade Berkeley_DB.sln "Static Debug|%build_platform%"
+		vcbuild /upgrade %solution% "Static Debug|%build_platform%"
 		@IF ERRORLEVEL 1 GOTO error
 	)
-	vcbuild /upgrade Berkeley_DB.sln "Release|%build_platform%"
+	vcbuild /upgrade %solution% "Release|%build_platform%"
 	@IF ERRORLEVEL 1 GOTO error
 	@IF x%USE_SHARED%==x (
-		vcbuild /upgrade Berkeley_DB.sln "Static Release|%build_platform%"
+		vcbuild /upgrade %solution% "Static Release|%build_platform%"
 		@IF ERRORLEVEL 1 GOTO error
 	)
 ) ELSE (
 	@IF x%USE_SHARED%==x (
-		msbuild /p:Configuration="Static Debug" /p:Platform=%build_platform% /t:db /p:PlatformToolSet=%VS_PLATFORMSET% Berkeley_DB_vs2010.sln
+		msbuild /p:Configuration="Static Debug" /p:Platform=%build_platform% /t:db /p:PlatformToolSet=%VS_PLATFORMSET% %solution%
 		@IF ERRORLEVEL 1 GOTO error
-		msbuild /p:Configuration="Static Release" /p:Platform=%build_platform% /t:db /p:PlatformToolSet=%VS_PLATFORMSET% Berkeley_DB_vs2010.sln
+		msbuild /p:Configuration="Static Release" /p:Platform=%build_platform% /t:db /p:PlatformToolSet=%VS_PLATFORMSET% %solution%
 		@IF ERRORLEVEL 1 GOTO error
 		move "%build_platform%\Static Debug" "%build_platform%\Static_Debug"
 		move "%build_platform%\Static Release" "%build_platform%\Static_Release"
 	) ELSE (
-		msbuild /p:Configuration="Debug" /p:Platform=%build_platform% /t:db /p:PlatformToolSet=%VS_PLATFORMSET% Berkeley_DB_vs2010.sln
+		msbuild /p:Configuration="Debug" /p:Platform=%build_platform% /t:db /p:PlatformToolSet=%VS_PLATFORMSET% %solution%
 		@IF ERRORLEVEL 1 GOTO error
-		msbuild /p:Configuration="Release" /p:Platform=%build_platform% /t:db /p:PlatformToolSet=%VS_PLATFORMSET% Berkeley_DB_vs2010.sln
+		msbuild /p:Configuration="Release" /p:Platform=%build_platform% /t:db /p:PlatformToolSet=%VS_PLATFORMSET% %solution%
 		@IF ERRORLEVEL 1 GOTO error
 	)
 )
