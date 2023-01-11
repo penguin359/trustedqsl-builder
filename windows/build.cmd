@@ -416,7 +416,7 @@ IF %EXPAT_VERSION% LSS 2.2.8 (
 	    -DEXPAT_BUILD_TESTS=OFF
 	@IF ERRORLEVEL 1 GOTO error
 	cd build
-	msbuild /p:Configuration=Release /t:expat expat.sln
+	msbuild /p:Configuration=Release /p:Platform=%build_platform% /t:expat expat.sln
 	@IF ERRORLEVEL 1 GOTO error
 	copy /y Release\%libfile% ..\..\Bin\libexpat.lib
 	@IF ERRORLEVEL 1 GOTO error
