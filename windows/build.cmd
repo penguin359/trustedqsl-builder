@@ -591,11 +591,10 @@ cmake -G "%VS_GENERATOR%" -A %build_platform% -B build -S . ^
     -DCURL_INCLUDE_DIR="%ROOT%curl-%CURL_VERSION%\builds\libcurl-vc-%curl_machine%-release-static-sspi-%curl_build%\include" ^
     -DUSE_STATIC_MSVCRT=%crt_opt%
 @IF ERRORLEVEL 1 GOTO error
-@REM cmake --build build
+IF NOT %VS_RELEASE% LSS 2013 GOTO full_build_tqsl
+
 cd build
-@REM Building tests currently has build failures
-@REM msbuild /p:Configuration=Release /p:Platform=%build_platform% TrustedQSL.sln
-@REM @IF ERRORLEVEL 1 GOTO error
+@REM Building tests currently has build failures on old VS
 msbuild /p:Configuration=Release /p:Platform=%build_platform% /p:CharacterSet=Unicode /t:tqsllib2 TrustedQSL.sln
 @IF ERRORLEVEL 1 GOTO error
 msbuild /p:Configuration=Release /p:Platform=%build_platform% /p:CharacterSet=Unicode /t:tqslupdater TrustedQSL.sln
@@ -609,6 +608,11 @@ msbuild /p:Configuration=Debug /p:Platform=%build_platform% /p:CharacterSet=Unic
 msbuild /p:Configuration=Debug /p:Platform=%build_platform% /p:CharacterSet=Unicode /t:tqslupdater TrustedQSL.sln
 @IF ERRORLEVEL 1 GOTO error
 msbuild /p:Configuration=Debug /p:Platform=%build_platform% /p:CharacterSet=Unicode /t:tqsl TrustedQSL.sln
+@IF ERRORLEVEL 1 GOTO error
+GOTO end_tqsl
+
+:full_build_tqsl
+cmake --build build
 @IF ERRORLEVEL 1 GOTO error
 GOTO end_tqsl
 
