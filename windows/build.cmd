@@ -612,7 +612,9 @@ msbuild /p:Configuration=Debug /p:Platform=%build_platform% /p:CharacterSet=Unic
 GOTO end_tqsl
 
 :full_build_tqsl
-cmake --build build
+cmake --build build --config Release
+@IF ERRORLEVEL 1 GOTO error
+cmake --build build --config Debug
 @IF ERRORLEVEL 1 GOTO error
 GOTO end_tqsl
 

@@ -314,8 +314,32 @@ $env:USE_BDB = "y"
 $env:CURL_VERSION = "7.39.0"
 $env:EXPAT_VERSION = "2.5.0"
 
+# Oldest combo on VS 2008:
+$env:OPENSSL_VERSION = "1.0.1e"
+$env:WXWIDGETS_VERSION = "2.8.12"
+$env:CURL_VERSION = "7.39.0"
 $env:EXPAT_VERSION = "2.1.0"
+$env:ZLIB_VERSION = "1.2.8"
+$env:USB_BDB = "y"
+$env:USE_DYNAMIC_CRT = "y"
+$env:VS_RELEASE = "2008"
 
+# Newest combo on VS 2008
+$env:EXPAT_VERSION = "2.2.8"
+$env:WXWIDGETS_VERSION = "3.2.0"
+# Latest cURL missing dependencies
+#$env:CURL_VERSION = "7.81.0"
+$env:OPENSSL_VERSION = "1.1.1m"
+
+# Oldest combo on VS 2019:
+$env:OPENSSL_VERSION = "1.0.1u"
+$env:WXWIDGETS_VERSION = "2.8.12"
+$env:CURL_VERSION = "7.39.0"
+$env:EXPAT_VERSION = "2.2.8"
+$env:ZLIB_VERSION = "1.2.8"
+$env:USB_BDB = ""
+$env:USE_DYNAMIC_CRT = "y"
+$env:VS_RELEASE = "2019"
 
 
 OpenSSL 1.1.1m fails a test, disabled
@@ -390,3 +414,52 @@ Homebrew:
   curl
     Build: pkg-config ✔
     Required: brotli ✔, libidn2 ✘, libnghttp2 ✘, libssh2 ✘, openldap ✘, openssl@1.1 ✔, rtmpdump ✘, zstd ✔
+
+
+brew install lmdb wxwidgets
+cmake -B build -S .
+cmake --build build
+
+
+
+C:\Users\loren\vcpkg\installed\x86-windows\include
+C:\Users\loren\vcpkg\installed\x86-windows\debug\lib\libssl.lib
+C:\Users\loren\vcpkg\installed\x86-windows\debug\lib\libcrypto.lib
+C:\Users\loren\vcpkg\installed\x86-windows\debug\lib\libexpatd.lib
+C:\Users\loren\vcpkg\installed\x86-windows\debug\lib\zlibd.lib
+C:\Users\loren\vcpkg\installed\x86-windows\lib\libdb48.lib
+
+C:\Users\loren\vcpkg\installed\x86-windows\debug\lib\wxmsw32ud_core.lib
+C:\Users\loren\vcpkg\installed\x86-windows\debug\lib\wxbase32ud.lib
+C:\Users\loren\vcpkg\installed\x86-windows\debug\lib\wxmsw32ud_adv.lib
+C:\Users\loren\vcpkg\installed\x86-windows\debug\lib\wxmsw32ud_html.lib
+C:\Users\loren\vcpkg\installed\x86-windows\debug\lib\libcurl-d.lib
+
+
+
+C:\AC\windows\openssl\include
+C:\AC\windows\zlib-1.2.8
+C:\AC\windows\expat-2.2.8\Source\lib
+C:\AC\windows\db-6.0.20.NC\build_windows
+
+C:\AC\windows\openssl\lib\VC\libssl.lib
+C:\AC\windows\openssl\lib\VC\libcrypto.lib
+C:\AC\windows\expat-2.2.8\Bin\libexpat.lib
+C:\AC\windows\zlib-1.2.8\build\Debug\zlibstaticd.lib
+C:\AC\windows\db-6.0.20.NC\build_windows\x64\Static_Release\libdb60s.lib
+
+C:\AC\windows\curl-7.39.0\builds\libcurl-vc-x64-release-static-sspi-winssl\include
+C:\AC\windows\wxWidgets-3.0.5\lib\vc_x64_lib\mswu
+C:\AC\windows\wxWidgets-3.0.5\include
+
+C:\AC\windows\wxWidgets-3.0.5\lib\vc_x64_lib\wxmsw30ud_core.lib
+C:\AC\windows\wxWidgets-3.0.5\lib\vc_x64_lib\wxbase30ud.lib
+C:\AC\windows\wxWidgets-3.0.5\lib\vc_x64_lib\wxmsw30ud_adv.lib
+C:\AC\windows\wxWidgets-3.0.5\lib\vc_x64_lib\wxmsw30ud_html.lib
+C:\AC\windows\wxWidgets-3.0.5\lib\vc_x64_lib\wxpngd.lib
+C:\AC\windows\wxWidgets-3.0.5\lib\vc_x64_lib\wxtiffd.lib
+C:\AC\windows\wxWidgets-3.0.5\lib\vc_x64_lib\wxjpegd.lib
+C:\AC\windows\wxWidgets-3.0.5\lib\vc_x64_lib\wxzlibd.lib
+C:\AC\windows\wxWidgets-3.0.5\lib\vc_x64_lib\wxregexud.lib
+C:\AC\windows\wxWidgets-3.0.5\lib\vc_x64_lib\wxexpatd.lib
+C:\AC\windows\curl-7.39.0\builds\libcurl-vc-x64-release-static-sspi-winssl\lib\libcurl_a.lib
