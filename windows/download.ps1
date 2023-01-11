@@ -115,6 +115,11 @@ if($env:USE_BDB) {
 				Url  = "http://download.oracle.com/berkeley-db/db-6.0.20.NC.zip";
 				Hash = "140731D64DA8B7E4DDF1C5FD52ED3C41DFE08E00857D48DC41BBEF2795FD6A16";
 			};
+			"6.2.23" = @{
+				File = "db-6.2.23.NC.zip";
+				Url  = "http://download.oracle.com/berkeley-db/db-6.2.23.NC.zip";
+				Hash = "9A904C5A6A7905311861184E3B048320DC015E3C7818643AAAA6DDE02F2C8E04";
+			};
 		};
 	}
 }

@@ -39,6 +39,15 @@ SET ROOT=%~dp0
 	REM SET EXPAT_VERSION=2.5.0
 )
 
+@IF x%ZLIB_VERSION%==x (
+	SET ZLIB_VERSION=1.2.8
+)
+
+@IF x%BDB_VERSION%==x (
+	SET BDB_VERSION=6.0.20
+	REM SET BDB_VERSION=6.2.23
+)
+
 @IF x%LMDB_VERSION%==x (
 	SET LMDB_VERSION=0.9.29
 )
@@ -401,10 +410,10 @@ GOTO end_expat
 :zlib
 @ECHO Building zlib...
 @cd %ROOT%
-@del /s/q zlib-1.2.8 2>NUL
-@rmdir /s/q zlib-1.2.8 2>NUL
-@7z x "downloads\zlib-1.2.8.tar.gz" -so | 7z x -aoa -si -ttar
-cd zlib-1.2.8
+@del /s/q zlib-%ZLIB_VERSION% 2>NUL
+@rmdir /s/q zlib-%ZLIB_VERSION% 2>NUL
+@7z x "downloads\zlib-%ZLIB_VERSION%.tar.gz" -so | 7z x -aoa -si -ttar
+cd zlib-%ZLIB_VERSION%
 @IF NOT x%USE_SHARED%==x (
 	@SET project=zlib
 ) ELSE (
@@ -443,10 +452,10 @@ GOTO end_zlib
 :bdb
 @ECHO Building Berkeley DB...
 @cd %ROOT%
-@del /s/q db-6.0.20.NC 2>NUL
-@rmdir /s/q db-6.0.20.NC 2>NUL
-@7z x "downloads\db-6.0.20.NC.zip" -aoa
-cd db-6.0.20.NC\build_windows
+@del /s/q db-%BDB_VERSION%.NC 2>NUL
+@rmdir /s/q db-%BDB_VERSION%.NC 2>NUL
+@7z x "downloads\db-%BDB_VERSION%.NC.zip" -aoa
+cd db-%BDB_VERSION%.NC\build_windows
 @IF %VS_RELEASE%==2008 (
 	vcbuild /upgrade Berkeley_DB.sln "Debug|%build_platform%"
 	@IF ERRORLEVEL 1 GOTO error
@@ -545,8 +554,8 @@ cmake -G "%VS_GENERATOR%" -A %build_platform% -B build -S . ^
     -DCMAKE_LIBRARY_PATH="%ROOT%expat-%EXPAT_VERSION%\Bin" ^
     -DCMAKE_INCLUDE_PATH="%ROOT%expat-%EXPAT_VERSION%\Source\lib" ^
     -DwxWidgets_ROOT_DIR="%ROOT%wxWidgets-%WXWIDGETS_VERSION%" ^
-    -DBDB_INCLUDE_DIR="%ROOT%db-6.0.20.NC\build_windows" ^
-    -DBDB_LIBRARY="%ROOT%db-6.0.20.NC\build_windows\%build_platform%\Static_Release\libdb60s.lib" ^
+    -DBDB_INCLUDE_DIR="%ROOT%db-%BDB_VERSION%.NC\build_windows" ^
+    -DBDB_LIBRARY="%ROOT%db-%BDB_VERSION%.NC\build_windows\%build_platform%\Static_Release\libdb60s.lib" ^
     -DOPENSSL_ROOT_DIR="%ROOT%openssl" ^
     -DCURL_LIBRARY="%ROOT%curl-%CURL_VERSION%\builds\libcurl-vc-%curl_machine%-release-static-sspi-%curl_build%\lib\libcurl_a.lib" ^
     -DCURL_INCLUDE_DIR="%ROOT%curl-%CURL_VERSION%\builds\libcurl-vc-%curl_machine%-release-static-sspi-%curl_build%\include" ^
