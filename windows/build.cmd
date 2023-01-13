@@ -187,6 +187,20 @@ IF NOT x%1==x (
 )
 
 
+SET openssl_root=%ROOT%openssl
+@IF NOT x%USE_64BIT%==x (
+	IF EXIST C:\OpenSSL-v111-Win64 (
+		SET openssl_root=C:\OpenSSL-v111-Win64
+		SET BUILD_OPENSSL=
+	)
+) ELSE (
+	IF EXIST C:\OpenSSL-v111-Win32 (
+		SET openssl_root=C:\OpenSSL-v111-Win32
+		SET BUILD_OPENSSL=
+	)
+)
+
+
 @REM 
 @REM  Validate that the selected build configuration makes sense
 @REM
@@ -679,7 +693,7 @@ cmake -G "%VS_GENERATOR%" -A %build_platform% -B build -S . ^
     -DBDB_LIBRARY="%ROOT%db-%BDB_VERSION%.NC\build_windows\%build_platform%\Static_Release\libdb60s.lib" ^
     -DSQLite3_INCLUDE_DIR="%ROOT%sqlite-amalgamation-%SQLITE3_VERSION%" ^
     -DSQLite3_LIBRARY="%ROOT%sqlite-amalgamation-%SQLITE3_VERSION%\sqlite3.lib" ^
-    -DOPENSSL_ROOT_DIR="%ROOT%openssl" ^
+    -DOPENSSL_ROOT_DIR="%openssl_root%" ^
     -DCURL_LIBRARY="%ROOT%curl-%CURL_VERSION%\builds\libcurl-vc-%curl_machine%-release-static-sspi-%curl_build%\lib\libcurl_a.lib" ^
     -DCURL_INCLUDE_DIR="%ROOT%curl-%CURL_VERSION%\builds\libcurl-vc-%curl_machine%-release-static-sspi-%curl_build%\include" ^
     -DUSE_STATIC_MSVCRT=%crt_opt%
