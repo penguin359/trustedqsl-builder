@@ -7,7 +7,7 @@ dir %VS90COMNTOOLS%
 
 SET ROOT=%~dp0
 @REM SET PATH=C:\Program Files\NASM;C:\Strawberry\perl\bin;C:\Program Files\CMake\bin;%PATH%
-SET PATH=C:\Program Files\NASM;%PATH%
+SET PATH=C:\Strawberry\perl\bin;C:\Program Files\NASM;%PATH%
 
 
 @IF x%VS_RELEASE%==x (
