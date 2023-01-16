@@ -572,3 +572,15 @@ The code execution cannot proceed because libcrypto-1_1-x64.dll was not found. R
 ---------------------------
 OK   
 ---------------------------
+
+
+
+Failing to build with build scripts' OpenSSL due to linking errors for debug libs on VS 2019+
+
+        _VALIDATE_CLEAR_OSSERR_RETURN((fh >= 0 && (unsigned)fh < (unsigned)_nhandle), EBADF, -1);
+
+On call to open() insize gz_load()
+
+
+DATADIR=C:\projects\trustedqsl-builder\windows\tqsl\tests\fixtures
+TQSLDIR=C:\projects\trustedqsl-builder\windows\tqsl\build\tests\tqsl

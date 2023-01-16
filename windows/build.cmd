@@ -353,11 +353,46 @@ cd curl-%CURL_VERSION%\winbuild
 )
 nmake -f Makefile.vc mode=%mode% ENABLE_WINSSL=yes ENABLE_IDN=no ENABLE_IPV6=no MACHINE=%machine% RTLIBCFG=%crt%
 @IF ERRORLEVEL 1 GOTO error
+nmake -f Makefile.vc mode=%mode% ENABLE_WINSSL=yes ENABLE_IDN=no ENABLE_IPV6=no MACHINE=%machine% RTLIBCFG=%crt% DEBUG=yes
+@IF ERRORLEVEL 1 GOTO error
 GOTO end_curl
 
 
 :expat
 @ECHO Building Expat...
+
+@IF NOT x%USE_DYNAMIC_CRT%==x (
+	SET crt_opt=OFF
+	SET crt_suffix=MD
+) ELSE (
+	SET crt_opt=ON
+	SET crt_suffix=MT
+)
+@IF NOT x%USE_SHARED%==x (
+	SET target=expat
+	IF %EXPAT_VERSION% LSS 2.2.8 (
+		SET libfile=libexpat.lib
+		SET libfiled=libexpatd.lib
+	) ELSE (
+		SET libfile=expat.lib
+		SET libfiled=expatd.lib
+	)
+	SET shared_opt=ON
+) ELSE (
+	SET target=expat_static
+	IF %EXPAT_VERSION% LSS 2.2.8 (
+		SET libfile=libexpatMT.lib
+		SET libfiled=libexpatMT.lib
+	) ELSE IF %EXPAT_VERSION% LSS 2.5.0 (
+		SET libfile=expat%crt_suffix%.lib
+		SET libfiled=expatd%crt_suffix%.lib
+	) ELSE (
+		SET libfile=libexpat%crt_suffix%.lib
+		SET libfiled=libexpatd%crt_suffix%.lib
+	)
+	SET shared_opt=OFF
+)
+
 @cd %ROOT%
 @del /s/q expat-%EXPAT_VERSION% 2>NUL
 @rmdir /s/q expat-%EXPAT_VERSION% 2>NUL
@@ -376,51 +411,39 @@ IF %EXPAT_VERSION% LSS 2.2.8 (
 cd Source
 @REM Only expat_static is needed
 @REM vcbuild expat.sln "Release|%build_platform%"
-@IF NOT x%USE_DYNAMIC_CRT%==x (
-	SET crt_opt=OFF
-	SET crt_suffix=MD
-) ELSE (
-	SET crt_opt=ON
-	SET crt_suffix=MT
-)
-@IF NOT x%USE_SHARED%==x (
-	SET target=expat
-	IF %EXPAT_VERSION% LSS 2.2.8 (
-		SET libfile=libexpat.lib
-	) ELSE (
-		SET libfile=expat.lib
-	)
-	SET shared_opt=ON
-) ELSE (
-	SET target=expat_static
-	IF %EXPAT_VERSION% LSS 2.2.8 (
-		SET libfile=libexpatMT.lib
-	) ELSE (
-		SET libfile=expat%crt_suffix%.lib
-	)
-	SET shared_opt=OFF
-)
-IF %EXPAT_VERSION% LSS 2.2.8 (
-	msbuild /p:Configuration=Release /p:Platform=%build_platform% /t:%target% expat.sln
-	@IF ERRORLEVEL 1 GOTO error
-	copy /y win32\bin\Release\%libfile% ..\Bin\libexpat.lib
-	@IF ERRORLEVEL 1 GOTO error
-) ELSE (
-	REM CMake requires these missing files
-	ECHO _ >> Changes
-	cmake -G "%VS_GENERATOR%" -A %build_platform% -B build -S . ^
-	    -DEXPAT_SHARED_LIBS=%shared_opt% ^
-	    -DEXPAT_MSVC_STATIC_CRT=%crt_opt% ^
-	    -DEXPAT_BUILD_TOOLS=OFF ^
-	    -DEXPAT_BUILD_EXAMPLES=OFF ^
-	    -DEXPAT_BUILD_TESTS=OFF
-	@IF ERRORLEVEL 1 GOTO error
-	cd build
-	msbuild /p:Configuration=Release /p:Platform=%build_platform% /t:expat expat.sln
-	@IF ERRORLEVEL 1 GOTO error
-	copy /y Release\%libfile% ..\..\Bin\libexpat.lib
-	@IF ERRORLEVEL 1 GOTO error
-)
+
+@IF NOT %EXPAT_VERSION% LSS 2.2.8 GOTO new_build_expat
+msbuild /p:Configuration=Release /p:Platform=%build_platform% /t:%target% expat.sln
+@IF ERRORLEVEL 1 GOTO error
+copy /y win32\bin\Release\%libfile% ..\Bin\libexpat.lib
+@IF ERRORLEVEL 1 GOTO error
+msbuild /p:Configuration=Debug /p:Platform=%build_platform% /t:%target% expat.sln
+@IF ERRORLEVEL 1 GOTO error
+copy /y win32\bin\Debug\%libfiled% ..\Bin\libexpatd.lib
+@IF ERRORLEVEL 1 GOTO error
+GOTO end_expat
+
+:new_build_expat
+REM CMake requires these missing files
+ECHO _ >> Changes
+cmake -G "%VS_GENERATOR%" -A %build_platform% -B build -S . ^
+    -DEXPAT_SHARED_LIBS=%shared_opt% ^
+    -DEXPAT_MSVC_STATIC_CRT=%crt_opt% ^
+    -DEXPAT_BUILD_TOOLS=OFF ^
+    -DEXPAT_BUILD_EXAMPLES=OFF ^
+    -DEXPAT_BUILD_TESTS=OFF
+@IF ERRORLEVEL 1 GOTO error
+
+cd build
+msbuild /p:Configuration=Release /p:Platform=%build_platform% /t:expat expat.sln
+@IF ERRORLEVEL 1 GOTO error
+copy /y Release\%libfile% ..\..\Bin\libexpat.lib
+
+@IF ERRORLEVEL 1 GOTO error
+msbuild /p:Configuration=Debug /p:Platform=%build_platform% /t:expat expat.sln
+@IF ERRORLEVEL 1 GOTO error
+copy /y Debug\%libfiled% ..\..\Bin\libexpatd.lib
+@IF ERRORLEVEL 1 GOTO error
 GOTO end_expat
 
 
