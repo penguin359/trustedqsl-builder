@@ -177,6 +177,7 @@ $branch = "other-fixes"
 if($env:TQSL_BRANCH) {
 	$branch = $env:TQSL_BRANCH
 }
+echo "Building branch: $branch"
 $tqslDir = Join-Path $PSScriptRoot "tqsl"
 if(-not(Test-Path -Path $tqslDir)) {
 	echo "Downloading Trusted QSL..."
@@ -186,7 +187,8 @@ if(-not(Test-Path -Path $tqslDir)) {
 	if(-not($?)) {
 		throw "Can't clone Trusted QSL"
 	}
-	#cd $tqslDir
+	cd $tqslDir
+	git describe
 	#git remote add penguin359 https://penguin359@git.code.sf.net/u/penguin359/trustedqsl
 	#git remote add penguin359 git://git.code.sf.net/u/penguin359/trustedqsl
 	#git remote set-url --push penguin359 ssh://penguin359@git.code.sf.net/u/penguin359/trustedqsl
