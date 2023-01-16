@@ -188,15 +188,17 @@ IF NOT x%1==x (
 
 
 SET openssl_root=%ROOT%openssl
-@IF NOT x%USE_64BIT%==x (
-	IF EXIST C:\OpenSSL-v111-Win64 (
-		SET openssl_root=C:\OpenSSL-v111-Win64
-		SET BUILD_OPENSSL=
-	)
-) ELSE (
-	IF EXIST C:\OpenSSL-v111-Win32 (
-		SET openssl_root=C:\OpenSSL-v111-Win32
-		SET BUILD_OPENSSL=
+@IF NOT x%USE_SYSTEM_OPENSSL%==x (
+	IF NOT x%USE_64BIT%==x (
+		IF EXIST C:\OpenSSL-v111-Win64 (
+			SET openssl_root=C:\OpenSSL-v111-Win64
+			SET BUILD_OPENSSL=
+		)
+	) ELSE (
+		IF EXIST C:\OpenSSL-v111-Win32 (
+			SET openssl_root=C:\OpenSSL-v111-Win32
+			SET BUILD_OPENSSL=
+		)
 	)
 )
 
