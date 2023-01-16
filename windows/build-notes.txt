@@ -463,3 +463,112 @@ C:\AC\windows\wxWidgets-3.0.5\lib\vc_x64_lib\wxzlibd.lib
 C:\AC\windows\wxWidgets-3.0.5\lib\vc_x64_lib\wxregexud.lib
 C:\AC\windows\wxWidgets-3.0.5\lib\vc_x64_lib\wxexpatd.lib
 C:\AC\windows\curl-7.39.0\builds\libcurl-vc-x64-release-static-sspi-winssl\lib\libcurl_a.lib
+
+
+ $env:OPENSSL_MODULES = "C:\Users\loren\vcpkg\installed\x86-windows\bin"
+ rm -fo -r build; cmake -DCMAKE_TOOLCHAIN_FILE="C:\Users\loren\vcpkg\scripts\buildsystems\vcpkg.cmake" -DBDB_INCLUDE_DIR="C:\Users\loren\vcpkg\installed\x86-windows\include" -DBDB_LIBRARY_RELEASE="C:\Users\loren\vcpkg\installed\x86-windows\lib\libdb48.lib" -DBDB_LIBRARY_DEBUG="C:\Users\loren\vcpkg\installed\x86-windows\debug\lib\libdb48.lib" -G "Visual Studio 16 2019" -A Win32 -T "v142,host=x86" -S . -B "build"
+cmake --build build --config Release
+cmake --build build --config Debug
+ctest -V --test-dir build --build-config Release
+ctest -V --test-dir build --build-config Debug
+copy .\apps\cab_modes.dat,.\apps\ca-bundle.crt,.\src\config.xml .\build\bin\Debug\
+
+
+vcpkg install wxwidgets expat curl zlib berkeleydb
+cmake -DCMAKE_TOOLCHAIN_FILE="C:\Tools\vcpkg\scripts\buildsystems\vcpkg.cmake" -DBDB_INCLUDE_DIR="C:\Tools\vcpkg\installed\x86-windows\include" -DBDB_LIBRARY="C:\Tools\vcpkg\installed\x86-windows\lib\libdb48.lib" -A Win32 .
+cmake --build . --config Release
+ctest -V -C Release
+cd C:\projects\trustedqsl-builder\windows\tqsl\
+move .\cmakemodules\FindZLIB.cmake
+
+
+
+
+[Window Title]
+wxWidgets Debug Alert
+
+[Main Instruction]
+A debugging check in this application has failed.
+
+[Content]
+C:\Users\loren\vcpkg\buildtrees\wxwidgets\src\bf34ced496-9eb33ff5f4.clean\src\common\sizer.cpp(2271): assert "CheckSizerFlags(!((flags) & (wxALIGN_RIGHT)))" failed in wxBoxSizer::DoInsert(): wxALIGN_RIGHT will be ignored in this sizer: only vertical alignment flags can be used in horizontal sizers
+
+DO NOT PANIC !!
+
+If you're an end user running a program not developed by you, please ignore this message, it is harmless, and please try reporting the problem to the program developers.
+
+You may also set WXSUPPRESS_SIZER_FLAGS_CHECK environment variable to suppress all such checks when running this program.
+
+If you're the developer, simply remove this flag from your code to avoid getting this message. You can also call wxSizerFlags::DisableConsistencyChecks() to globally disable all such checks, but this is strongly not recommended.
+
+[V] See details  [ ] Don't show this dialog again  [Stop] [Continue]
+
+[Expanded Information]
+[01] wxString::iterator::iterator            
+[02] wxStaticBox::Create                     
+[03] wxString::iterator::iterator            
+[04] wxString::iterator::iterator            
+[05] wxString::iterator::iterator            
+[06] wxString::iterator::iterator            
+[07] wxStaticBox::Create                     
+[08] wxStaticBox::Create                     
+[09] wxStaticBox::Create                     
+[10] wxStaticBox::Create                     
+[11] Preferences::Preferences                   C:\Users\loren\source\repos\trustedqsl-tqsl\apps\tqsl_prefs.cpp:62
+[12] MyFrame::OnPreferences                     C:\Users\loren\source\repos\trustedqsl-tqsl\apps\tqsl.cpp:4490
+[13] wxString::iterator::iterator            
+[14] wxString::iterator::iterator            
+[15] wxString::iterator::iterator            
+[16] wxString::iterator::iterator            
+[17] wxString::iterator::iterator            
+[18] wxString::iterator::iterator            
+[19] wxString::iterator::iterator            
+[20] wxString::iterator::iterator            
+[21] wxStaticBox::Create                     
+
+
+
+
+
+[Window Title]
+wxWidgets Debug Alert
+
+[Main Instruction]
+A debugging check in this application has failed.
+
+[Content]
+C:\Users\loren\vcpkg\buildtrees\wxwidgets\src\bf34ced496-9eb33ff5f4.clean\src\generic\choicdgg.cpp(458): assert ""sel >= 0 && (unsigned)sel < m_listbox->GetCount()"" failed in wxSingleChoiceDialog::SetSelection(): Invalid initial selection
+
+[^] Hide details  [ ] Don't show this dialog again  [Stop] [Continue]
+
+[Expanded Information]
+[01] wxString::iterator::iterator            
+[02] wxStaticBox::Create                     
+[03] wxString::iterator::iterator            
+[04] wxString::iterator::iterator            
+[05] wxString::iterator::iterator            
+[06] wxString::iterator::iterator            
+[07] wxStaticBox::Create                     
+[08] wxStaticBox::Create                     
+[09] wxStaticBox::Create                     
+[10] MyFrame::OnChooseLanguage                  C:\Users\loren\source\repos\trustedqsl-tqsl\apps\tqsl.cpp:6950
+[11] wxString::iterator::iterator            
+[12] wxString::iterator::iterator            
+[13] wxString::iterator::iterator            
+[14] wxString::iterator::iterator            
+[15] wxString::iterator::iterator            
+[16] wxString::iterator::iterator            
+[17] wxString::iterator::iterator            
+[18] wxString::iterator::iterator            
+[19] wxStaticBox::Create                     
+[20] wxString::iterator::iterator            
+[21] wxString::iterator::iterator            
+
+
+---------------------------
+adifTest.exe - System Error
+---------------------------
+The code execution cannot proceed because libcrypto-1_1-x64.dll was not found. Reinstalling the program may fix this problem. 
+---------------------------
+OK   
+---------------------------

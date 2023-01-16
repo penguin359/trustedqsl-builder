@@ -160,6 +160,10 @@ if(-not($env:USE_BDB)) {
 	}
 }
 
+$branch = "other-fixes"
+if($env:TQSL_BRANCH) {
+	$branch = $env:TQSL_BRANCH
+}
 $tqslDir = Join-Path $PSScriptRoot "tqsl"
 if(-not(Test-Path -Path $tqslDir)) {
 	echo "Downloading Trusted QSL..."
@@ -172,5 +176,5 @@ if(-not(Test-Path -Path $tqslDir)) {
 	git remote set-url --push penguin359 ssh://penguin359@git.code.sf.net/u/penguin359/trustedqsl
 	git remote update penguin359
 	git config remote.pushDefault penguin359
-	git switch other-fixes
+	git switch $branch
 }
