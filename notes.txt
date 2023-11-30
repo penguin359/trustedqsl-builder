@@ -39,6 +39,7 @@ g++ -ggdb getpassword.cpp wxutil.cpp test.cpp $(wx-config --cppflags --cxxflags 
 cmake -B ~/raw/tqsl/build -S ~/raw/tqsl && cmake --build ~/raw/tqsl/build && ctest --test-dir ~/raw/tqsl/build/tests/ -V
 
 cmake -B ../tqsl-build -S . && cmake --build ../tqsl-build && ctest --test-dir ../tqsl-build/tests/ -V
+mkdir -p build && cd build && cmake .. && make && make test
 git -c user.name='Loren M. Lang' -c user.email='lorenl@north-winds.org' commit -av
 
 build error on warning

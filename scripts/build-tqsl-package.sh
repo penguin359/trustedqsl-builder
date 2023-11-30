@@ -149,7 +149,9 @@ sudo dpkg -i trustedqsl_*_amd64.deb
 tqsl --version 2>&1 | grep --color 'TQSL Version 2\..*'
 dscverify trustedqsl_*_source.changes
 dput -ol trustedqsl trustedqsl_*_source.changes
-dput --debug -l trustedqsl trustedqsl_*_source.changes
+if [ "$1" = "-u" ]; then
+	dput --debug -l trustedqsl trustedqsl_*_source.changes
+fi
 cp --preserve=timestamps trustedqsl_* /output/deb/
 echo "Success!"
 cd

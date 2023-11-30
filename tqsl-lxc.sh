@@ -1,9 +1,8 @@
 #!/usr/bin/env bash
 
-container="tqsl"
 base="$(dirname "$(readlink -f "$0")")"
 
-args=$(getopt --name "$0" --options 'hn:' --longoptions 'help,name:' --shell sh -- "$@")
+args=$(getopt --name "$0" --options 'hn:u' --longoptions 'help,name:,upload' --shell sh -- "$@")
 if [ $? -ne 0 ]; then
 	echo >&2
 	echo "Invalid options, use -h for help." >&2
@@ -11,6 +10,8 @@ if [ $? -ne 0 ]; then
 fi
 eval set -- "$args"
 
+container="tqsl"
+upload=
 while [ $# -gt 0 ]; do
 	case "$1" in
 		-h|--help)
@@ -20,6 +21,9 @@ while [ $# -gt 0 ]; do
 		-n|--name)
 			container="$2"
 			shift
+			;;
+		-u|--upload)
+			upload=-u
 			;;
 		--)
 			shift
@@ -116,7 +120,7 @@ build() {
 	echo
 	lxc file push -r scripts/* "$container""$home"/
 	echo "===> Starting build script..."
-	lxc exec "$container" -- sudo -u "$user" -i "./build-tqsl-package.sh"
+	lxc exec "$container" -- sudo -u "$user" -i "./build-tqsl-package.sh" $upload
 	lxc exec "$container" -- sudo -u "$user" -i "./build-tqsl-tarball.sh"
 	lxc exec "$container" -- sudo -u "$user" -i "./build-tqsl-appimage.sh"
 	rm -fr "$outputdir"/
