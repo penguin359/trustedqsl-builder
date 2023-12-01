@@ -44,7 +44,7 @@ sudo apt update
 sudo DEBIAN_FRONTEND=noninteractive apt upgrade -qy
 sudo DEBIAN_FRONTEND=noninteractive apt install -y wget gcc g++ cmake libssl-dev libsqlite3-dev libexpat1-dev zlib1g-dev libcurl4-gnutls-dev "$gtk_package"
 # Install some development tools
-sudo DEBIAN_FRONTEND=noninteractive apt install -y inotify-tools doxygen vim-gtk3 wdiff colordiff tmux valgrind
+sudo DEBIAN_FRONTEND=noninteractive apt install -y inotify-tools doxygen vim-gtk3 wdiff colordiff tmux valgrind || true
 rm -fr ~/raw
 mkdir ~/raw
 cd ~/raw
