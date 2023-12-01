@@ -2,7 +2,7 @@
 
 base="$(dirname "$(readlink -f "$0")")"
 
-args=$(getopt --name "$0" --options 'hn:u' --longoptions 'help,name:,upload' --shell sh -- "$@")
+args=$(getopt --name "$0" --options 'hn:utap' --longoptions 'help,name:,upload,tarball,appimage,package' --shell sh -- "$@")
 if [ $? -ne 0 ]; then
 	echo >&2
 	echo "Invalid options, use -h for help." >&2
@@ -12,6 +12,10 @@ eval set -- "$args"
 
 container="tqsl"
 upload=
+tarball=
+appimage=
+package=
+all=y
 while [ $# -gt 0 ]; do
 	case "$1" in
 		-h|--help)
@@ -19,6 +23,9 @@ while [ $# -gt 0 ]; do
 			echo "  -h | --help        Help" >&2
 			echo "  -n | --name NAME   Container name" >&2
 			echo "  -u | --upload      Upload signed package" >&2
+			echo "  -t | --tarball     Only build tarball" >&2
+			echo "  -a | --appimage    Only build AppImage" >&2
+			echo "  -p | --package     Only build Debian package" >&2
 			echo "  tag...             Ubuntu version(s) to build for" >&2
 			exit 0
 			;;
@@ -28,6 +35,18 @@ while [ $# -gt 0 ]; do
 			;;
 		-u|--upload)
 			upload=-u
+			;;
+		-t|--tarball)
+			tarball=y
+			all=
+			;;
+		-a|--appimage)
+			appimage=y
+			all=
+			;;
+		-p|--package)
+			package=y
+			all=
 			;;
 		--)
 			shift
@@ -43,22 +62,18 @@ done
 
 set -e
 
+if [ -n "$all" ]; then
+	tarball=y
+	appimage=y
+	package=y
+fi
+
 cd "$base"
 
 declare -a tags=($@)
 
 if [ "${#tags[@]}" -eq 0 ]; then
-	#tags=("14.04")
-	#tags=("16.04")
-	#tags=("18.04")
-	#tags=("20.04")
-	#tags=("20.10")
-	#tags=("21.04")
-	#tags=("21.10")
 	tags=("22.04")
-	#tags=("22.10")
-	#tags=("23.04")
-	#tags=("devel")
 fi
 
 build() {
@@ -128,15 +143,22 @@ build() {
 	echo
 	lxc file push -r scripts/* "$container""$home"/
 	echo "===> Starting build script..."
-	lxc exec "$container" -- sudo -u "$user" -i "./build-tqsl-package.sh" $upload
-	lxc exec "$container" -- sudo -u "$user" -i "./build-tqsl-tarball.sh"
-	lxc exec "$container" -- sudo -u "$user" -i "./build-tqsl-appimage.sh"
+	if [ -n "$tarball" ]; then
+		lxc exec "$container" -- sudo -u "$user" -i "./build-tqsl-tarball.sh"
+	fi
+	if [ -n "$appimage" ]; then
+		lxc exec "$container" -- sudo -u "$user" -i "./build-tqsl-appimage.sh"
+	fi
+	if [ -n "$package" ]; then
+		lxc exec "$container" -- sudo -u "$user" -i "./build-tqsl-package.sh" $upload
+	fi
 	rm -fr "$outputdir"/
 	lxc file pull -r "$container/output/" "$outputdir"/
 	mv "$outputdir"/output/* "$outputdir"/
 	rmdir "$outputdir"/output/
 	lxc stop "$container"
 	lxc delete "$container"
+
 	echo "===> Done."
 }
 

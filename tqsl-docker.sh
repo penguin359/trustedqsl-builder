@@ -2,7 +2,7 @@
 
 base="$(dirname "$(readlink -f "$0")")"
 
-args=$(getopt --name "$0" --options 'hn:u' --longoptions 'help,name:,upload' --shell sh -- "$@")
+args=$(getopt --name "$0" --options 'hn:utap' --longoptions 'help,name:,upload,tarball,appimage,package' --shell sh -- "$@")
 if [ $? -ne 0 ]; then
 	echo >&2
 	echo "Invalid options, use -h for help." >&2
@@ -12,6 +12,10 @@ eval set -- "$args"
 
 container="tqsl"
 upload=
+tarball=
+appimage=
+package=
+all=y
 while [ $# -gt 0 ]; do
 	case "$1" in
 		-h|--help)
@@ -19,6 +23,9 @@ while [ $# -gt 0 ]; do
 			echo "  -h | --help        Help" >&2
 			echo "  -n | --name NAME   Container name" >&2
 			echo "  -u | --upload      Upload signed package" >&2
+			echo "  -t | --tarball     Only build tarball" >&2
+			echo "  -a | --appimage    Only build AppImage" >&2
+			echo "  -p | --package     Only build Debian package" >&2
 			echo "  tag...             Ubuntu version(s) to build for" >&2
 			exit 0
 			;;
@@ -28,6 +35,18 @@ while [ $# -gt 0 ]; do
 			;;
 		-u|--upload)
 			upload=-u
+			;;
+		-t|--tarball)
+			tarball=y
+			all=
+			;;
+		-a|--appimage)
+			appimage=y
+			all=
+			;;
+		-p|--package)
+			package=y
+			all=
 			;;
 		--)
 			shift
@@ -42,6 +61,12 @@ while [ $# -gt 0 ]; do
 done
 
 set -e
+
+if [ -n "$all" ]; then
+	tarball=y
+	appimage=y
+	package=y
+fi
 
 cd "$base"
 
@@ -61,7 +86,9 @@ build() {
 	rm -fr "$outputdir"/
 	mkdir -p "$outputdir"/
 
-	docker build --build-arg tag="${tag}" --tag "tqsl-${tag}" .
+	if ! docker image inspect "tqsl-${tag}" &>/dev/null; then
+		docker build --build-arg tag="${tag}" --tag "tqsl-${tag}" .
+	fi
 
 	local host_socket="$(gpgconf --list-dir agent-extra-socket)"
 	local container_socket="$(docker run --rm "tqsl-${tag}" gpgconf --list-dir | grep '^agent-socket:' | cut -d: -f2)"
@@ -72,26 +99,32 @@ build() {
 	echo "x11_socket=$x11_socket"
 	echo
 	echo "===> Starting build script..."
-	docker container run -it --rm \
-		-v "${SSH_AUTH_SOCK}:/tmp/ssh-agent.sock" \
-		-v "${x11_socket}:/tmp/.X11-unix/X0" \
-		-v "${host_socket}:${container_socket}" \
-		-v "${outputdir}:/output" \
-		--name "$container" "tqsl-${tag}" ./build-tqsl-package.sh $upload
-		#-v "${HOME}/.gnupg:/home/ubuntu/.gnupg" \
-		#-v /tmp/.X11-unix:/tmp/.X11-unix \
-		#-e DISPLAY="$DISPLAY" \
-	docker container run -it --rm \
-		-v "${x11_socket}:/tmp/.X11-unix/X0" \
-		-v "${outputdir}:/output" \
-		--name "$container" "tqsl-${tag}" ./build-tqsl-tarball.sh
-	docker container run -it --rm \
-		-v "${x11_socket}:/tmp/.X11-unix/X0" \
-		-v "${outputdir}:/output" \
-		--device /dev/fuse \
-		--cap-add SYS_ADMIN \
-		--security-opt apparmor:unconfined \
-		--name "$container" "tqsl-${tag}" ./build-tqsl-appimage.sh
+	if [ -n "$tarball" ]; then
+		docker container run -it --rm \
+			-v "${x11_socket}:/tmp/.X11-unix/X0" \
+			-v "${outputdir}:/output" \
+			--name "${container}-${tag}" "tqsl-${tag}" ./build-tqsl-tarball.sh
+	fi
+	if [ -n "$appimage" ]; then
+		docker container run -it --rm \
+			-v "${x11_socket}:/tmp/.X11-unix/X0" \
+			-v "${outputdir}:/output" \
+			--device /dev/fuse \
+			--cap-add SYS_ADMIN \
+			--security-opt apparmor:unconfined \
+			--name "${container}-${tag}" "tqsl-${tag}" ./build-tqsl-appimage.sh
+	fi
+	if [ -n "$package" ]; then
+		docker container run -it --rm \
+			-v "${SSH_AUTH_SOCK}:/tmp/ssh-agent.sock" \
+			-v "${x11_socket}:/tmp/.X11-unix/X0" \
+			-v "${host_socket}:${container_socket}" \
+			-v "${outputdir}:/output" \
+			--name "${container}-${tag}" "tqsl-${tag}" ./build-tqsl-package.sh $upload
+			#-v "${HOME}/.gnupg:/home/ubuntu/.gnupg" \
+			#-v /tmp/.X11-unix:/tmp/.X11-unix \
+			#-e DISPLAY="$DISPLAY" \
+	fi
 
 	echo "===> Done."
 }
