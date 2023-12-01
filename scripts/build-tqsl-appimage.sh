@@ -18,7 +18,7 @@ sudo chmod -R u=rwX,go=rX /output
 
 sudo apt update
 sudo DEBIAN_FRONTEND=noninteractive apt upgrade -qy
-sudo DEBIAN_FRONTEND=noninteractive apt install -y wget gcc cmake libssl-dev liblmdb-dev libexpat1-dev zlib1g-dev libcurl4-gnutls-dev libwxgtk3.0-gtk3-dev libfuse2 fuse3
+sudo DEBIAN_FRONTEND=noninteractive apt install -y wget gcc cmake libssl-dev libsqlite3-dev libexpat1-dev zlib1g-dev libcurl4-gnutls-dev libwxgtk3.2-dev libfuse2 fuse3
 rm -fr ~/appimage
 mkdir ~/appimage
 cd ~/appimage
