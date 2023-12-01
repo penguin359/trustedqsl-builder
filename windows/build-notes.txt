@@ -1,0 +1,574 @@
+#choco install -not-silent ActivePerl 7zip nasm
+vcpkg.exe install --triplet x86-windows berkeleydb curl expat lmdb openssl wxwidgets zlib
+vcpkg.exe install --triplet x64-windows berkeleydb curl expat lmdb openssl wxwidgets zlib
+vcpkg.exe install --triplet x64-windows-static berkeleydb curl expat lmdb openssl wxwidgets zlib
+
+The package curl:x86-windows provides CMake targets:
+
+    find_package(CURL CONFIG REQUIRED)
+    target_link_libraries(main PRIVATE CURL::libcurl)
+
+The package expat:x86-windows provides CMake targets:
+
+    find_package(expat CONFIG REQUIRED)
+    target_link_libraries(main PRIVATE expat::expat)
+
+The package openssl is compatible with built-in CMake targets:
+
+    find_package(OpenSSL REQUIRED)
+    target_link_libraries(main PRIVATE OpenSSL::SSL OpenSSL::Crypto)
+
+The package wxwidgets provides CMake integration:
+
+    find_package(wxWidgets REQUIRED)
+    target_include_directories(main PRIVATE ${wxWidgets_INCLUDE_DIRS})
+    target_link_libraries(main PRIVATE ${wxWidgets_LIBRARIES})
+
+The package zlib is compatible with built-in CMake targets:
+
+    find_package(ZLIB REQUIRED)
+    target_link_libraries(main PRIVATE ZLIB::ZLIB)
+
+
+del /s/q build32 build64
+cmake -DCMAKE_TOOLCHAIN_FILE=C:/Users/loren/vcpkg/scripts/buildsystems/vcpkg.cmake -G "Visual Studio 16 2019" -A Win32 -S . -B "build32"
+cmake -DCMAKE_TOOLCHAIN_FILE=C:/Users/loren/vcpkg/scripts/buildsystems/vcpkg.cmake -G "Visual Studio 16 2019" -A x64 -S . -B "build64"
+cmake --build build32 --config Release
+cmake --build build64 --config Release
+
+
+mkdir build32 & pushd build32
+cmake -G "Visual Studio 15 2017" \path_to_source\
+popd
+mkdir build64 & pushd build64
+cmake -G "Visual Studio 15 2017 Win64" \path_to_source\
+popd
+
+
+
+Download "Visual Studio Express 2012 for Windows Desktop"
+https://my.visualstudio.com/Downloads?q=visual%20studio%202012%20express%20for%20windows%20desktop&wt.mc_id=o~msft~vscom~older-downloads
+You will need to log in with a valid Microsoft account, but the download is free.
+
+reg add HKEY_CURRENT_USER\Software\Microsoft\WDExpress\11.0\General /v SuppressUppercaseConversion /t REG_DWORD /d 1 /f
+
+https://www.openssl.org/source/openssl-1.0.1e.tar.gz
+https://github.com/wxWidgets/wxWidgets/releases/download/v2.8.12/wxMSW-2.8.12.zip
+https://curl.se/download/curl-7.87.0.tar.gz
+https://curl.se/download/curl-7.39.0.tar.gz
+https://sourceforge.net/projects/expat/files/expat_win32/2.5.0/expat-win32bin-2.5.0.zip/download
+https://www.zlib.net/fossils/zlib-1.2.8.tar.gz
+http://download.oracle.com/berkeley-db/db-6.0.20.NC.zip
+
+https://chocolatey.org/install#individual
+
+#choco install -not-silent ActivePerl
+choco install nasm 7zip StrawberryPerl cmake git tortoisegit trustedqsl
+choco install -not-silent git tortoisegit
+
+#https://state-tool.s3.amazonaws.com/remote-installer/windows-amd64/state-remote-installer.exe
+#state activate --default ActiveState-Projects/ActiveState-Perl-5.36.0
+
+
+"C:\Program Files (x86)\Microsoft Visual Studio 9.0\VC\vcvarsall.bat" x86
+
+"C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\bin\vcvars32.bat"
+set PATH=C:\Program Files\NASM;C:\Strawberry\perl\bin;C:\Program Files\CMake\bin;%PATH%
+set PATH=C:\Program Files (x86)\Microsoft SDKs\Windows\v7.1A\Bin;C:\Program Files (x86)\MSBuild\12.0\Bin;C:\Program Files (x86)\MSBuild\12.0\Bin;C:\Program Files (x86)\Microsoft Visual Studio 9.0\VC\bin;C:\Program Files (x86)\Microsoft Visual Studio 9.0\Common7\IDE;%PATH%
+
+DevEnvDir=C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\Common7\IDE\
+
+set INCLUDE=C:\Program Files (x86)\Microsoft Visual Studio 9.0\VC\include;C:\Program Files (x86)\Microsoft SDKs\Windows\v7.1A\Include
+set INCLUDE=C:\Program Files (x86)\Microsoft Visual Studio 9.0\VC\include;C:\Program Files (x86)\Windows Kits\8.0\Include\shared;C:\Program Files (x86)\Windows Kits\8.0\Include\um;C:\Program Files (x86)\Windows Kits\8.0\Include\winrt
+set INCLUDE=C:\Program Files (x86)\Microsoft Visual Studio 9.0\VC\include;C:\Program Files (x86)\Windows Kits\8.1\Include\shared;C:\Program Files (x86)\Windows Kits\8.1\Include\um;C:\Program Files (x86)\Windows Kits\8.1\Include\winrt
+set INCLUDE=C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Tools\MSVC\14.29.30133\include;C:\Program Files (x86)\Windows Kits\10\include\10.0.19041.0\ucrt;C:\Program Files (x86)\Windows Kits\10\include\10.0.19041.0\shared;C:\Program Files (x86)\Windows Kits\10\include\10.0.19041.0\um;C:\Program Files (x86)\Windows Kits\10\include\10.0.19041.0\winrt;C:\Program Files (x86)\Windows Kits\10\include\10.0.19041.0\cppwinrt
+
+C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Tools\MSVC\14.29.30133\ATLMFC\include
+C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Tools\MSVC\14.29.30133\include
+C:\Program Files (x86)\Windows Kits\NETFXSDK\4.8\include\um
+C:\Program Files (x86)\Windows Kits\10\include\10.0.19041.0\ucrt
+C:\Program Files (x86)\Windows Kits\10\include\10.0.19041.0\shared
+C:\Program Files (x86)\Windows Kits\10\include\10.0.19041.0\um
+C:\Program Files (x86)\Windows Kits\10\include\10.0.19041.0\winrt
+C:\Program Files (x86)\Windows Kits\10\include\10.0.19041.0\cppwinrt
+
+set LIB=C:\Program Files (x86)\Microsoft Visual Studio 9.0\VC\lib;C:\Program Files (x86)\Microsoft SDKs\Windows\v7.1A\Lib
+set LIB=C:\Program Files (x86)\Microsoft Visual Studio 9.0\VC\lib;C:\Program Files (x86)\Windows Kits\8.0\Lib\win8\um\x86
+set LIB=C:\Program Files (x86)\Microsoft Visual Studio 9.0\VC\lib;C:\Program Files (x86)\Windows Kits\8.1\Lib\win8\um\x86
+set LIB=C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Tools\MSVC\14.29.30133\lib\x86;C:\Program Files (x86)\Windows Kits\NETFXSDK\4.8\lib\um\x86;C:\Program Files (x86)\Windows Kits\10\lib\10.0.19041.0\ucrt\x86;C:\Program Files (x86)\Windows Kits\10\lib\10.0.19041.0\um\x86
+
+C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Tools\MSVC\14.29.30133\ATLMFC\lib\x86
+C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Tools\MSVC\14.29.30133\lib\x86
+C:\Program Files (x86)\Windows Kits\NETFXSDK\4.8\lib\um\x86
+C:\Program Files (x86)\Windows Kits\10\lib\10.0.19041.0\ucrt\x86
+C:\Program Files (x86)\Windows Kits\10\lib\10.0.19041.0\um\x86
+
+LIBPATH=C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Tools\MSVC\14.29.30133\ATLMFC\lib\x86;C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Tools\MSVC\14.29.30133\lib\x86;C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Tools\MSVC\14.29.30133\lib\x86\store\references;C:\Program Files (x86)\Windows Kits\10\UnionMetadata\10.0.19041.0;C:\Program Files (x86)\Windows Kits\10\References\10.0.19041.0;C:\Windows\Microsoft.NET\Framework\v4.0.30319
+
+nasm --version
+perl --version
+cmake --version
+cl
+nmake /?
+
+cd \tqsl-build\openssl-1.0.1e
+perl Configure VC-WIN32 --prefix=c:\tqsl-build\openssl
+ms\do_nasm
+nmake -f ms\nt.mak
+nmake -f ms\nt.mak test
+nmake -f ms\nt.mak install
+cd ..\openssl\lib
+mkdir VC
+move *.lib VC
+
+cd \tqsl-build\wxWidgets-2.8.12\include\wx\msw
+copy setup0.h setup.h
+cd ..\..\..\src\msw
+gvim window.cpp
+cd ..\..\build\msw
+nmake -f makefile.vc BUILD=release SHARED=0
+echo %ERRORLEVEL%
+
+cd \tqsl-build\curl-7.39.0\winbuild
+nmake -f Makefile.vc mode=static ENABLE_WINSSL=yes
+
+cd \tqsl-build\zlib-1.2.8
+#cmake -G "Visual Studio 11 2012" .
+cmake -G "Visual Studio 9 2008" .
+msbuild /p:Configuration=Debug ALL_BUILD.vcxproj
+msbuild /p:Configuration=Release ALL_BUILD.vcxproj
+
+BerkeleyDB
+  Use Static Release and Static Debug to build it.
+
+LMDB
+git clone https://github.com/LMDB/lmdb.git
+cd lmdb\libraries\liblmdb
+"C:\Program Files\Git\usr\bin\sed.exe" -i -e "s/^\(\(CC\|AR\|W\|THREADS\)\>\)/#\1/" Makefile
+
+
+cd \tqsl-build
+git clone git://git.code.sf.net/p/trustedqsl/tqsl trustedqsl-tqsl
+cd trustedqsl-tqsl
+
+cmake . -DCMAKE_LIBRARY_PATH="C:\tqsl-build\expat-2.1.0\Bin" -DCMAKE_INCLUDE_PATH="C:\tqsl-build\expat-2.1.0\Source\lib" -DwxWidgets_ROOT_DIR="C:\tqsl-build\wxWidgets-2.8.12" -DBDB_INCLUDE_DIR="C:\tqsl-build\db-6.0.20.NC\build_windows" -DBDB_LIBRARY="C:\tqsl-build\db-6.0.20.NC\build_windows\Win32\Release\db.lib" -DOPENSSL_ROOT_DIR=C:\tqsl-build\openssl -DZLIB_LIBRARY_REL=C:\tqsl-build\zlib-1.2.8\Release -DZLIB_INCLUDE_DIR=C:\tqsl-build\zlib-1.2.8 -DCURL_LIBRARY=C:\tqsl-build\curl-7.39.0\builds\libcurl-vc-x86-release-static-ipv6-sspi-winssl\lib -DCURL_INCLUDE_DIR=C:\tqsl-build\curl-7.39.0\builds\libcurl-vc-x86-release-static-ipv6-sspi-winssl\include -DwxWidgets_ROOT_DIR=C:\tqsl-build\wxWidgets-2.8.12 -DwxWidgets_LIB_DIR=C:\tqsl-build\wxWidgets-2.8.12\lib\vc_lib -G "Visual Studio 11 2012"
+
+cmake . -DCMAKE_LIBRARY_PATH="C:\tqsl-build\expat-2.1.0\Bin" -DCMAKE_INCLUDE_PATH="C:\tqsl-build\expat-2.1.0\Source\lib" -DwxWidgets_ROOT_DIR="C:\tqsl-build\wxWidgets-2.8.12" -DBDB_INCLUDE_DIR="C:\tqsl-build\db-6.0.20.NC\build_windows" -DBDB_LIBRARY="C:\tqsl-build\db-6.0.20.NC\build_windows\Win32\Static_Release\db.lib" -DOPENSSL_ROOT_DIR=C:\tqsl-build\openssl -DCURL_LIBRARY=C:\tqsl-build\curl-7.39.0\builds\libcurl-vc-x86-release-static-ipv6-sspi-winssl\lib -DCURL_INCLUDE_DIR=C:\tqsl-build\curl-7.39.0\builds\libcurl-vc-x86-release-static-ipv6-sspi-winssl\include -DwxWidgets_ROOT_DIR=C:\tqsl-build\wxWidgets-2.8.12 -DwxWidgets_LIB_DIR=C:\tqsl-build\wxWidgets-2.8.12\lib\vc_lib -DZLIB_LIBRARY_REL=C:\tqsl-build\zlib-1.2.8\Release -DZLIB_INCLUDE_DIR=C:\tqsl-build\zlib-1.2.8 -G "Visual Studio 11 2012"
+
+cmake . -DCMAKE_LIBRARY_PATH="C:\tqsl-build\expat-2.1.0\Bin" -DCMAKE_INCLUDE_PATH="C:\tqsl-build\expat-2.1.0\Source\lib" -DwxWidgets_ROOT_DIR="C:\tqsl-build\wxWidgets-2.8.12" -DBDB_INCLUDE_DIR="C:\tqsl-build\db-6.0.20.NC\build_windows" -DBDB_LIBRARY="C:\tqsl-build\db-6.0.20.NC\build_windows\Win32\Release\db.lib" -DOPENSSL_ROOT_DIR=C:\tqsl-build\openssl -DCURL_LIBRARY=C:\tqsl-build\curl-7.39.0\builds\libcurl-vc-x86-release-static-ipv6-sspi-winssl\lib -DCURL_INCLUDE_DIR=C:\tqsl-build\curl-7.39.0\builds\libcurl-vc-x86-release-static-ipv6-sspi-winssl\include -DwxWidgets_ROOT_DIR=C:\tqsl-build\wxWidgets-2.8.12 -DwxWidgets_LIB_DIR=C:\tqsl-build\wxWidgets-2.8.12\lib\vc_lib -DZLIB_LIBRARY_REL=C:\tqsl-build\zlib-1.2.8\Release -DZLIB_INCLUDE_DIR=C:\tqsl-build\zlib-1.2.8 -G "Visual Studio 9 2008" -A Win32 -B build32-vs2008
+
+py -2 toolset-to-vc08.py
+
+# Manually need to add zlib.lib, why?
+C:\tqsl-build\zlib-1.2.8\Release\zlib.lib
+# Missing ws2_32.lib
+ws2_32.lib
+# define uint8_t in apps\tqsl.cpp, apps\tqslupdater.cpp
+#define uint8_t unsigned char
+# Manually add libcurl
+C:\tqsl-build\curl-7.39.0\builds\libcurl-vc-x86-release-static-ipv6-sspi-winssl\lib\libcurl_a.lib
+
+Did not select d libs for wxWidget in debug mode causing link errors
+
+getaddrinfo()  # need to disable IPv6 in cURL
+
+debug builds still not building with debug libs, probably a back invocation of cmake
+
+
+
+
+
+
+
+
+---------------------------
+wxWidgets Debug Alert
+---------------------------
+..\..\src\generic\odcombo.cpp(1004): assert "(n == (-1)) || IsValid(n)" failed in wxOwnerDrawnComboBox::Select(): invalid index in wxOwnerDrawnComboBox::Select
+
+Call stack:
+[00] wxGUIAppTraitsBase::ShowAssertDialog       c:\ab\wxmsw-2.8.12\src\common\appcmn.cpp:635
+[01] ShowAssertDialog                           c:\ab\wxmsw-2.8.12\src\common\appbase.cpp:836
+[02] wxAppConsole::OnAssertFailure              c:\ab\wxmsw-2.8.12\src\common\appbase.cpp:445
+[03] wxOnAssert                                 c:\ab\wxmsw-2.8.12\src\common\appbase.cpp:713
+[04] wxOwnerDrawnComboBox::Select               c:\ab\wxmsw-2.8.12\src\generic\odcombo.cpp:1004
+[05] wxOwnerDrawnComboBox::SetSelection         c:\ab\wxmsw-2.8.12\include\wx\odcombo.h:322
+[06] CRQ_CallsignPage::validate                 c:\ab\tqsl\apps\crqwiz.cpp:836
+[07] ExtWizard_Page::check_valid                c:\ab\tqsl\apps\extwizard.cpp:57
+[08] wxAppConsole::HandleEvent                  c:\ab\wxmsw-2.8.12\src\common\appbase.cpp:323
+[09] wxEvtHandler::ProcessEventIfMatches        c:\ab\wxmsw-2.8.12\src\common\event.cpp:1241
+[10] wxEventHashTable::HandleEvent              c:\ab\wxmsw-2.8.12\src\common\event.cpp:907
+[11] wxEvtHandler::ProcessEvent                 c:\ab\wxmsw-2.8.12\src\common\event.cpp:1301
+[12] wxWindowBase::TryParent                    c:\ab\wxmsw-2.8.12\src\common\wincmn.cpp:2661
+[13] wxEvtHandler::ProcessEvent                 c:\ab\wxmsw-2.8.12\src\common\event.cpp:1315
+[14] wxEvtHandler::ProcessPendingEvents         c:\ab\wxmsw-2.8.12\src\common\event.cpp:1197
+[15] wxAppConsole::ProcessPendingEvents         c:\ab\wxmsw-2.8.12\src\common\appbase.cpp:296
+[16] wxIdleWakeUpModule::MsgHookProc            c:\ab\wxmsw-2.8.12\src\msw\window.cpp:6845
+[17] TranslateAcceleratorW                   
+[18] Ordinal2712                             
+[19] Ordinal2712                             
+[20] KiUserCallbackDispatcher                
+Do you want to stop the program?
+You can also choose [Cancel] to suppress further warnings.
+---------------------------
+Yes   No   Cancel   
+---------------------------
+
+
+Debug: ..\..\src\generic\odcombo.cpp(1004): assert "(n == (-1)) || IsValid(n)" failed in wxOwnerDrawnComboBox::Select(): invalid index in wxOwnerDrawnComboBox::Select
+
+
+Debug: ..\..\src\generic\odcombo.cpp(1004): assert "(n == (-1)) || IsValid(n)" failed in wxOwnerDrawnComboBox::Select(): invalid index in wxOwnerDrawnComboBox::Select
+Debug: ..\..\src\msw\window.cpp(643): 'SetFocus' failed with error 0x00000057 (the parameter is incorrect.).
+
+
+Download Windows 11 Disk Image (ISO)
+Windows 11 (multi-edition ISO)
+https://www.microsoft.com/software-download/windows11
+
+
+VS 2008 Clean install
+http://download.microsoft.com/download/8/B/5/8B5804AD-4990-40D0-A6AA-CE894CBBB3DC/VS2008ExpressENUX1397868.iso
+
+
+https://chocolatey.org/install#individual
+
+Right-click on the Windows Start Menu and select "Windows PowerShell (admin)". Run the following command:
+
+Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; iex ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))
+
+choco feature enable -n=allowGlobalConfirmation
+choco install dotnet3.5
+
+Double-click on the ISO and look for Setup.exe on the CD image. Select "Microsoft Visual C++ 2008 Express Edition". You do not need to install any of the optional components.
+
+"C:\Program Files (x86)\Microsoft Visual Studio 9.0\VC\vcvarsall.bat" x86
+
+Need to run bootstrap from an elevated shell...
+
+
+dotnet add package WiX --version 3.7.0.1
+
+$VerbosePreference = "continue"
+
+Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; iex ((New-Object System.Net.WebClient).DownloadString('https://raw.githubusercontent.com/penguin359/trustedqsl-builder/main/windows/bootstrap-vs2008.ps1'))
+
+Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; iex ((New-Object System.Net.WebClient).DownloadString('http://localhost:8000/windows/bootstrap-vs2008.ps1'))
+
+
+Somehow, CMake found and added this to the INCLUDE path:
+C:\Strawberry\c\include
+That includes a db.h masking Berkeley DB's file and it depends on inttype.h
+which is missing breaking the build.
+
+Windows 7
+Windows PowerShell -> Run as administrator
+
+
+
+# Default is VS 2008
+$env:USE_BDB = $null
+$env:VS_RELEASE = $null
+$env:WindowsSdkDir = $null
+
+$env:USE_BDB = "y"
+$env:VS_RELEASE = "2012"
+$env:WindowsSdkDir = "C:\Program Files (x86)\Microsoft SDKs\Windows\v7.1A\"
+
+$env:USE_BDB = $null
+$env:VS_RELEASE = "2013"
+$env:WindowsSdkDir = "C:\Program Files (x86)\Microsoft SDKs\Windows\v8.1A\"
+
+$env:USE_BDB = $null
+$env:VS_RELEASE = "2015"
+$env:WindowsSdkDir = $null
+$env:Path = "C:\Program Files (x86)\Windows Kits\10\bin\10.0.19041.0\x86;${env:Path}"
+
+$env:USE_BDB = $null
+$env:VS_RELEASE = "2019"
+$env:WindowsSdkDir = $null
+
+$env:Path = ($env:Path -split ";" | ?{ $_ -ne "C:\Strawberry\c\bin" }) -join ";"
+
+
+warning LNK4098: defaultlib 'MSVCRT' conflicts with use of other libs; use /NODEFAULTLIB:library
+
+Fix -verbose and other handling on download ps1 and bat scripts
+
+Successfully compiled LMDB with your help. Used Git for patching and header file.
+
+
+
+$env:USE_BDB = "y"
+$env:VS_RELEASE = "2012"
+$env:WindowsSdkDir = "C:\Program Files (x86)\Microsoft SDKs\Windows\v7.1A\"
+$env:USE_64BIT = "y"
+$env:USE_DYNAMIC_CRT = $null
+$env:USE_SHARED = $null
+$env:USE_ANSI = $null
+$env:CURL_VERSION = "7.39.0"
+$env:EXPAT_VERSION = "2.2.8"
+
+
+$env:USE_BDB = "y"
+$env:CURL_VERSION = "7.39.0"
+$env:EXPAT_VERSION = "2.5.0"
+
+# Oldest combo on VS 2008:
+$env:OPENSSL_VERSION = "1.0.1e"
+$env:WXWIDGETS_VERSION = "2.8.12"
+$env:CURL_VERSION = "7.39.0"
+$env:EXPAT_VERSION = "2.1.0"
+$env:ZLIB_VERSION = "1.2.8"
+$env:USB_BDB = "y"
+$env:USE_DYNAMIC_CRT = "y"
+$env:VS_RELEASE = "2008"
+
+# Newest combo on VS 2008
+$env:EXPAT_VERSION = "2.2.8"
+$env:WXWIDGETS_VERSION = "3.2.0"
+# Latest cURL missing dependencies
+#$env:CURL_VERSION = "7.81.0"
+$env:OPENSSL_VERSION = "1.1.1m"
+
+# Oldest combo on VS 2019:
+$env:OPENSSL_VERSION = "1.0.1u"
+$env:WXWIDGETS_VERSION = "2.8.12"
+$env:CURL_VERSION = "7.39.0"
+$env:EXPAT_VERSION = "2.2.8"
+$env:ZLIB_VERSION = "1.2.8"
+$env:USB_BDB = ""
+$env:USE_DYNAMIC_CRT = "y"
+$env:VS_RELEASE = "2019"
+
+
+OpenSSL 1.1.1m fails a test, disabled
+OpenSSL 1.1.x doesn't work on Win2K
+
+cURL include is schannel instead of winssl on 64-bit builds?
+It's libexpat.lib, not expat.lib?
+
+zlib compiles with static crt /MD unless editing cmake cache
+curl as well
+
+Crypt32.lib
+Wldap32.lib
+Ws2_32.lib
+
+64-bit support requires Expat 2.2.8+ and VS2012+
+OpenSSL hard-codes MD/MT based on shared libs
+cURL additional dependencies are not passing through
+LMDB version not following tag
+VS2012 requires BDB
+
+GTest in VS2019 has warnings with tr1 being treated as errors.
+Tests missing dependency on tqsllib2 project
+
+
+
+cmake -DCMAKE_TOOLCHAIN_FILE=C:/Users/loren/vcpkg/scripts/buildsystems/vcpkg.cmake -DUSE_STATIC_MSVCRT=ON -B build64 -A x64 -S .
+
+
+
+
+Homebrew:
+  cmake (can't be bottled)
+  nasm (can't be bottled)
+  jpeg-turbo (can't be bottled)
+    Build: cmake ✘, nasm ✘
+  libpng (can't be bottled)
+  lz4 (can't be bottled)
+  xz (can't be bottled)
+  zstd (can't be bottled)
+    Build: cmake ✘
+    Required: lz4 ✔, xz ✘
+  libtiff (can't be bottled)
+    Required: jpeg-turbo ✔, zstd ✔
+  pcre2 (can't be bottled)
+  pkg-config
+  wxwidgets
+    Build: pkg-config ✔
+    Required: jpeg-turbo ✔, libpng ✘, libtiff ✔, pcre2 ✘
+  berkeley-db@5
+  ca-certificates
+  openssl@1.1
+    Required: ca-certificates ✔
+  lmdb
+  zlib
+  expat
+  brotli
+    Build: cmake ✘
+  gettext
+  libunistring
+  libidn2
+    Build: pkg-config ✔
+    Required: gettext ✔, libunistring ✘
+  libnghttp2
+    Build: pkg-config ✔
+  libssh2
+    Required: openssl@1.1 ✔
+  openldap
+    Required: openssl@1.1 ✔
+  rtmpdump
+    Required: openssl@1.1 ✔
+  curl
+    Build: pkg-config ✔
+    Required: brotli ✔, libidn2 ✘, libnghttp2 ✘, libssh2 ✘, openldap ✘, openssl@1.1 ✔, rtmpdump ✘, zstd ✔
+
+
+brew install lmdb wxwidgets
+cmake -B build -S .
+cmake --build build
+
+
+
+C:\Users\loren\vcpkg\installed\x86-windows\include
+C:\Users\loren\vcpkg\installed\x86-windows\debug\lib\libssl.lib
+C:\Users\loren\vcpkg\installed\x86-windows\debug\lib\libcrypto.lib
+C:\Users\loren\vcpkg\installed\x86-windows\debug\lib\libexpatd.lib
+C:\Users\loren\vcpkg\installed\x86-windows\debug\lib\zlibd.lib
+C:\Users\loren\vcpkg\installed\x86-windows\lib\libdb48.lib
+
+C:\Users\loren\vcpkg\installed\x86-windows\debug\lib\wxmsw32ud_core.lib
+C:\Users\loren\vcpkg\installed\x86-windows\debug\lib\wxbase32ud.lib
+C:\Users\loren\vcpkg\installed\x86-windows\debug\lib\wxmsw32ud_adv.lib
+C:\Users\loren\vcpkg\installed\x86-windows\debug\lib\wxmsw32ud_html.lib
+C:\Users\loren\vcpkg\installed\x86-windows\debug\lib\libcurl-d.lib
+
+
+
+C:\AC\windows\openssl\include
+C:\AC\windows\zlib-1.2.8
+C:\AC\windows\expat-2.2.8\Source\lib
+C:\AC\windows\db-6.0.20.NC\build_windows
+
+C:\AC\windows\openssl\lib\VC\libssl.lib
+C:\AC\windows\openssl\lib\VC\libcrypto.lib
+C:\AC\windows\expat-2.2.8\Bin\libexpat.lib
+C:\AC\windows\zlib-1.2.8\build\Debug\zlibstaticd.lib
+C:\AC\windows\db-6.0.20.NC\build_windows\x64\Static_Release\libdb60s.lib
+
+C:\AC\windows\curl-7.39.0\builds\libcurl-vc-x64-release-static-sspi-winssl\include
+C:\AC\windows\wxWidgets-3.0.5\lib\vc_x64_lib\mswu
+C:\AC\windows\wxWidgets-3.0.5\include
+
+C:\AC\windows\wxWidgets-3.0.5\lib\vc_x64_lib\wxmsw30ud_core.lib
+C:\AC\windows\wxWidgets-3.0.5\lib\vc_x64_lib\wxbase30ud.lib
+C:\AC\windows\wxWidgets-3.0.5\lib\vc_x64_lib\wxmsw30ud_adv.lib
+C:\AC\windows\wxWidgets-3.0.5\lib\vc_x64_lib\wxmsw30ud_html.lib
+C:\AC\windows\wxWidgets-3.0.5\lib\vc_x64_lib\wxpngd.lib
+C:\AC\windows\wxWidgets-3.0.5\lib\vc_x64_lib\wxtiffd.lib
+C:\AC\windows\wxWidgets-3.0.5\lib\vc_x64_lib\wxjpegd.lib
+C:\AC\windows\wxWidgets-3.0.5\lib\vc_x64_lib\wxzlibd.lib
+C:\AC\windows\wxWidgets-3.0.5\lib\vc_x64_lib\wxregexud.lib
+C:\AC\windows\wxWidgets-3.0.5\lib\vc_x64_lib\wxexpatd.lib
+C:\AC\windows\curl-7.39.0\builds\libcurl-vc-x64-release-static-sspi-winssl\lib\libcurl_a.lib
+
+
+ $env:OPENSSL_MODULES = "C:\Users\loren\vcpkg\installed\x86-windows\bin"
+ rm -fo -r build; cmake -DCMAKE_TOOLCHAIN_FILE="C:\Users\loren\vcpkg\scripts\buildsystems\vcpkg.cmake" -DBDB_INCLUDE_DIR="C:\Users\loren\vcpkg\installed\x86-windows\include" -DBDB_LIBRARY_RELEASE="C:\Users\loren\vcpkg\installed\x86-windows\lib\libdb48.lib" -DBDB_LIBRARY_DEBUG="C:\Users\loren\vcpkg\installed\x86-windows\debug\lib\libdb48.lib" -G "Visual Studio 16 2019" -A Win32 -T "v142,host=x86" -S . -B "build"
+cmake --build build --config Release
+cmake --build build --config Debug
+ctest -V --test-dir build --build-config Release
+ctest -V --test-dir build --build-config Debug
+copy .\apps\cab_modes.dat,.\apps\ca-bundle.crt,.\src\config.xml .\build\bin\Debug\
+
+
+vcpkg install wxwidgets expat curl zlib berkeleydb
+cmake -DCMAKE_TOOLCHAIN_FILE="C:\Tools\vcpkg\scripts\buildsystems\vcpkg.cmake" -DBDB_INCLUDE_DIR="C:\Tools\vcpkg\installed\x86-windows\include" -DBDB_LIBRARY="C:\Tools\vcpkg\installed\x86-windows\lib\libdb48.lib" -A Win32 .
+cmake --build . --config Release
+ctest -V -C Release
+cd C:\projects\trustedqsl-builder\windows\tqsl\
+move .\cmakemodules\FindZLIB.cmake
+
+
+
+
+[Window Title]
+wxWidgets Debug Alert
+
+[Main Instruction]
+A debugging check in this application has failed.
+
+[Content]
+C:\Users\loren\vcpkg\buildtrees\wxwidgets\src\bf34ced496-9eb33ff5f4.clean\src\common\sizer.cpp(2271): assert "CheckSizerFlags(!((flags) & (wxALIGN_RIGHT)))" failed in wxBoxSizer::DoInsert(): wxALIGN_RIGHT will be ignored in this sizer: only vertical alignment flags can be used in horizontal sizers
+
+DO NOT PANIC !!
+
+If you're an end user running a program not developed by you, please ignore this message, it is harmless, and please try reporting the problem to the program developers.
+
+You may also set WXSUPPRESS_SIZER_FLAGS_CHECK environment variable to suppress all such checks when running this program.
+
+If you're the developer, simply remove this flag from your code to avoid getting this message. You can also call wxSizerFlags::DisableConsistencyChecks() to globally disable all such checks, but this is strongly not recommended.
+
+[V] See details  [ ] Don't show this dialog again  [Stop] [Continue]
+
+[Expanded Information]
+[01] wxString::iterator::iterator            
+[02] wxStaticBox::Create                     
+[03] wxString::iterator::iterator            
+[04] wxString::iterator::iterator            
+[05] wxString::iterator::iterator            
+[06] wxString::iterator::iterator            
+[07] wxStaticBox::Create                     
+[08] wxStaticBox::Create                     
+[09] wxStaticBox::Create                     
+[10] wxStaticBox::Create                     
+[11] Preferences::Preferences                   C:\Users\loren\source\repos\trustedqsl-tqsl\apps\tqsl_prefs.cpp:62
+[12] MyFrame::OnPreferences                     C:\Users\loren\source\repos\trustedqsl-tqsl\apps\tqsl.cpp:4490
+[13] wxString::iterator::iterator            
+[14] wxString::iterator::iterator            
+[15] wxString::iterator::iterator            
+[16] wxString::iterator::iterator            
+[17] wxString::iterator::iterator            
+[18] wxString::iterator::iterator            
+[19] wxString::iterator::iterator            
+[20] wxString::iterator::iterator            
+[21] wxStaticBox::Create                     
+
+
+
+
+
+[Window Title]
+wxWidgets Debug Alert
+
+[Main Instruction]
+A debugging check in this application has failed.
+
+[Content]
+C:\Users\loren\vcpkg\buildtrees\wxwidgets\src\bf34ced496-9eb33ff5f4.clean\src\generic\choicdgg.cpp(458): assert ""sel >= 0 && (unsigned)sel < m_listbox->GetCount()"" failed in wxSingleChoiceDialog::SetSelection(): Invalid initial selection
+
+[^] Hide details  [ ] Don't show this dialog again  [Stop] [Continue]
+
+[Expanded Information]
+[01] wxString::iterator::iterator            
+[02] wxStaticBox::Create                     
+[03] wxString::iterator::iterator            
+[04] wxString::iterator::iterator            
+[05] wxString::iterator::iterator            
+[06] wxString::iterator::iterator            
+[07] wxStaticBox::Create                     
+[08] wxStaticBox::Create                     
+[09] wxStaticBox::Create                     
+[10] MyFrame::OnChooseLanguage                  C:\Users\loren\source\repos\trustedqsl-tqsl\apps\tqsl.cpp:6950
+[11] wxString::iterator::iterator            
+[12] wxString::iterator::iterator            
+[13] wxString::iterator::iterator            
+[14] wxString::iterator::iterator            
+[15] wxString::iterator::iterator            
+[16] wxString::iterator::iterator            
+[17] wxString::iterator::iterator            
+[18] wxString::iterator::iterator            
+[19] wxStaticBox::Create                     
+[20] wxString::iterator::iterator            
+[21] wxString::iterator::iterator            
+
+
+---------------------------
+adifTest.exe - System Error
+---------------------------
+The code execution cannot proceed because libcrypto-1_1-x64.dll was not found. Reinstalling the program may fix this problem. 
+---------------------------
+OK   
+---------------------------

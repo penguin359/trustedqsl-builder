@@ -1,0 +1,43 @@
+Build in ANSI and Unicode
+Build 32-bit and 64-bit
+Build in VS 2008, 2012, and 2015
+Build with Static and DLLs
+Build with Static and DLL runtime
+
+Fix dependency on getaddrinfo()
+
+Figure out how to automatically convert DSW to Solution
+
+Figure out how to only build specific projects for BDB, Expat
+
+Verify debug builds use debug libs where application
+
+Make all subprojects build in dedicated build folder
+
+Simplify cmake command to be closer to original from build notes
+
+OpenSSL 1.1.1 doesn't run on Win2K. Offer build option to use 1.0.1u (or
+1.0.1e) which does.
+
+Make CMake find modules independent of version
+
+Make a branch switching to Boost Test
+
+Enable zlib in OpenSSL
+Enable zlib in cURL
+
+GTest tests are linking with wrong tqsllib
+GTest does not respect Use STATIC MSVC being disabled
+
+Fix or drop special test target
+Fix test fixture environment variable
+Fix static CRT builds on VS2019
+Fix LMBD...
+Fix broken cabrillo tests
+Fix need to manually add ws2_32.dll
+Fix cURL 7.81.0
+Use updated build docs for cURL from TQSL upstream
+Fix auto-locating correct cURL libs
+Fix mixtures of debug and release CRTs
+Fix Expat 2.5.0
+Use vcbuild for VS2008 builds?

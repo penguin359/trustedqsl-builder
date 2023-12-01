@@ -1,4 +1,2 @@
-*.swp
 *~
-/output-docker/
-/output-lxc/
+*.swp
