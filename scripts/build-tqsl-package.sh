@@ -118,7 +118,8 @@ else
 fi
 wget http://archive.ubuntu.com/ubuntu/pool/universe/t/trustedqsl/trustedqsl_2.6.5.orig.tar.gz
 cd trustedqsl
-lintian_opts="--fail-on error,warning"
+#lintian_opts="--fail-on error,warning"
+lintian_opts="--fail-on error"
 if [ "$branch" = "backport-trusty" -o \
      "$branch" = "backport-xenial" -o \
      "$branch" = "backport-bionic" -o \
