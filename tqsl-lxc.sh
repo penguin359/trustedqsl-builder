@@ -99,11 +99,15 @@ build() {
 	local uid="$(lxc exec "$container" -- sudo -u "$user" -i id -u)"
 	local gid="$(lxc exec "$container" -- sudo -u "$user" -i id -g)"
 	local host_socket="$(gpgconf --list-dir agent-extra-socket)"
-	#local container_socket="$(lxc exec "$container" -- sudo -u "$user" -i gpgconf --list-dir agent-socket)"
 	local container_socket="$(lxc exec "$container" -- sudo -u "$user" -i gpgconf --list-dir | grep '^agent-socket:' | cut -d: -f2)"
 	local x11_socket="/tmp/.X11-unix/X$(echo "$DISPLAY" | cut -d: -f2 | cut -d. -f1)"
+	echo "===> Detected sockets..."
+	echo "host_socket=$host_socket"
+	echo "container_socket=$container_socket"
+	echo "x11_socket=$x11_socket"
+	echo
 	local my_ip="$(ip -o route get 240.0.0.0 | sed -n 's:.* src \([^ ]\+\) .*:\1:p')"
-	lxc exec "$container" -- sudo -u "$user" -i mkdir -m 700 -p "$(dirname "$container_socket")" "$home"/.gnupg
+	lxc exec "$container" -- sudo -u "$user" -i mkdir -m 700 -p "$(dirname "$container_socket")" "$home"/.gnupg /tmp/.X11-unix
 	lxc config device remove "$container" gpg-agent 2>/dev/null || true
 	lxc config device remove "$container" ssh-agent 2>/dev/null || true
 	lxc config device remove "$container" x11 2>/dev/null || true

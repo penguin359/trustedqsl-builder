@@ -63,9 +63,9 @@ build() {
 
 	docker build --build-arg tag="${tag}" --tag "tqsl-${tag}" .
 
-	host_socket="$(gpgconf --list-dir agent-extra-socket)"
-	container_socket="$(docker run --rm "tqsl-${tag}" gpgconf --list-dir | grep '^agent-socket:' | cut -d: -f2)"
-	x11_socket="/tmp/.X11-unix/X$(echo "$DISPLAY" | cut -d: -f2 | cut -d. -f1)"
+	local host_socket="$(gpgconf --list-dir agent-extra-socket)"
+	local container_socket="$(docker run --rm "tqsl-${tag}" gpgconf --list-dir | grep '^agent-socket:' | cut -d: -f2)"
+	local x11_socket="/tmp/.X11-unix/X$(echo "$DISPLAY" | cut -d: -f2 | cut -d. -f1)"
 	echo "===> Detected sockets..."
 	echo "host_socket=$host_socket"
 	echo "container_socket=$container_socket"
