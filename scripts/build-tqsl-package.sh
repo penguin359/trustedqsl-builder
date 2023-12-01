@@ -33,7 +33,8 @@ echo 'Acquire::http::Proxy "http://10.146.39.1:3142";' | sudo tee /etc/apt/apt.c
 
 if [ "${VERSION_CODENAME}" = "groovy" -o \
      "${VERSION_CODENAME}" = "hirsute" -o \
-     "${VERSION_CODENAME}" = "impish" ]; then
+     "${VERSION_CODENAME}" = "impish" -o \
+     "${VERSION_CODENAME}" = "kinetic" ]; then
 	sudo sed -i 's:archive.ubuntu.com:old-releases.ubuntu.com:' /etc/apt/sources.list
 	sudo sed -i 's:security.ubuntu.com:old-releases.ubuntu.com:' /etc/apt/sources.list
 fi
