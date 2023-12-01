@@ -13,7 +13,7 @@ fi
 
 # Needed for Docker to fix permissions
 x11_socket="/tmp/.X11-unix/X$(echo "$DISPLAY" | cut -d: -f2 | cut -d. -f1)"
-sudo mkdir -p /output
+sudo mkdir -p /output/tarball/
 sudo chown -R "${user}:${group}" "$x11_socket" /output
 sudo chmod -R u=rwX,go= "$x11_socket"
 sudo chmod -R u=rwX,go=rX /output
@@ -29,9 +29,16 @@ else
 fi
 
 # liblmdb-dev libdb5.3-dev 
+if [ "${VERSION_CODENAME}" = "groovy" -o \
+     "${VERSION_CODENAME}" = "hirsute" -o \
+     "${VERSION_CODENAME}" = "impish" -o \
+     "${VERSION_CODENAME}" = "kinetic" ]; then
+	sudo sed -i 's:archive.ubuntu.com:old-releases.ubuntu.com:' /etc/apt/sources.list
+	sudo sed -i 's:security.ubuntu.com:old-releases.ubuntu.com:' /etc/apt/sources.list
+fi
 sudo apt update
 sudo DEBIAN_FRONTEND=noninteractive apt upgrade -qy
-sudo DEBIAN_FRONTEND=noninteractive apt install -y wget gcc cmake libssl-dev libsqlite3-dev libexpat1-dev zlib1g-dev libcurl4-gnutls-dev "$gtk_package"
+sudo DEBIAN_FRONTEND=noninteractive apt install -y wget gcc g++ cmake libssl-dev libsqlite3-dev libexpat1-dev zlib1g-dev libcurl4-gnutls-dev "$gtk_package"
 # Install some development tools
 sudo DEBIAN_FRONTEND=noninteractive apt install -y inotify-tools doxygen vim-gtk3 wdiff colordiff tmux valgrind
 rm -fr ~/raw

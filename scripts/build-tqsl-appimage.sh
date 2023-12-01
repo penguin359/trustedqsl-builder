@@ -1,6 +1,8 @@
-#!/bin/sh
+#!/usr/bin/env bash
 
 set -e
+
+. /etc/os-release
 
 user="$(id -un)"
 group="$(id -gn)"
@@ -16,9 +18,26 @@ sudo chown -R "${user}:${group}" "$x11_socket" /output
 sudo chmod -R u=rwX,go= "$x11_socket"
 sudo chmod -R u=rwX,go=rX /output
 
+if [[ "$VERSION_ID" < "14.10" ]]; then
+	gtk_package=libwxgtk2.8-dev
+elif [[ "$VERSION_ID" < "18.10" ]]; then
+	gtk_package=libwxgtk3.0-dev
+elif [[ "$VERSION_ID" < "23.04" ]]; then
+	gtk_package=libwxgtk3.0-gtk3-dev
+else
+	gtk_package=libwxgtk3.2-dev
+fi
+
+if [ "${VERSION_CODENAME}" = "groovy" -o \
+     "${VERSION_CODENAME}" = "hirsute" -o \
+     "${VERSION_CODENAME}" = "impish" -o \
+     "${VERSION_CODENAME}" = "kinetic" ]; then
+	sudo sed -i 's:archive.ubuntu.com:old-releases.ubuntu.com:' /etc/apt/sources.list
+	sudo sed -i 's:security.ubuntu.com:old-releases.ubuntu.com:' /etc/apt/sources.list
+fi
 sudo apt update
 sudo DEBIAN_FRONTEND=noninteractive apt upgrade -qy
-sudo DEBIAN_FRONTEND=noninteractive apt install -y wget gcc cmake libssl-dev libsqlite3-dev libexpat1-dev zlib1g-dev libcurl4-gnutls-dev libwxgtk3.2-dev libfuse2 fuse3
+sudo DEBIAN_FRONTEND=noninteractive apt install -y wget gcc g++ cmake libssl-dev libsqlite3-dev libexpat1-dev zlib1g-dev libcurl4-gnutls-dev "$gtk_package" libfuse2 fuse3
 rm -fr ~/appimage
 mkdir ~/appimage
 cd ~/appimage
