@@ -1,4 +1,5 @@
-FROM ubuntu:22.10
+ARG tag=22.04
+FROM ubuntu:${tag}
 RUN apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get upgrade -qy && \
     DEBIAN_FRONTEND=noninteractive apt-get install -qy gnupg2 sudo \

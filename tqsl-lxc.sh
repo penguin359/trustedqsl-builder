@@ -16,6 +16,10 @@ while [ $# -gt 0 ]; do
 	case "$1" in
 		-h|--help)
 			echo "Usage: $0 [-h] [-n name] tag..." >&2
+			echo "  -h | --help        Help" >&2
+			echo "  -n | --name NAME   Container name" >&2
+			echo "  -u | --upload      Upload signed package" >&2
+			echo "  tag...             Ubuntu version(s) to build for" >&2
 			exit 0
 			;;
 		-n|--name)
@@ -51,8 +55,8 @@ if [ "${#tags[@]}" -eq 0 ]; then
 	#tags=("20.10")
 	#tags=("21.04")
 	#tags=("21.10")
-	#tags=("22.04")
-	tags=("22.10")
+	tags=("22.04")
+	#tags=("22.10")
 	#tags=("23.04")
 	#tags=("devel")
 fi

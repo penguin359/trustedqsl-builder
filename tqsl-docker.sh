@@ -16,6 +16,10 @@ while [ $# -gt 0 ]; do
 	case "$1" in
 		-h|--help)
 			echo "Usage: $0 [-h] [-n name] tag..." >&2
+			echo "  -h | --help        Help" >&2
+			echo "  -n | --name NAME   Container name" >&2
+			echo "  -u | --upload      Upload signed package" >&2
+			echo "  tag...             Ubuntu version(s) to build for" >&2
 			exit 0
 			;;
 		-n|--name)
@@ -44,7 +48,7 @@ cd "$base"
 declare -a tags=($@)
 
 if [ "${#tags[@]}" -eq 0 ]; then
-	tags=("22.10")
+	tags=("22.04")
 fi
 
 build() {
@@ -52,15 +56,15 @@ build() {
 	local release="ubuntu:${tag}"
 	local outputdir="${base}/output-docker/ubuntu${tag}"
 
-	sed -i -e 's/^FROM .*/FROM '"$release"'/' Dockerfile
+	#sed -i -e 's/^FROM .*/FROM '"$release"'/' Dockerfile
 
 	rm -fr "$outputdir"/
 	mkdir -p "$outputdir"/
 
-	docker build --tag tqsl .
+	docker build --build-arg tag="${tag}" --tag "tqsl-${tag}" .
 
 	host_socket="$(gpgconf --list-dir agent-extra-socket)"
-	container_socket="$(docker run --rm tqsl gpgconf --list-dir | grep '^agent-socket:' | cut -d: -f2)"
+	container_socket="$(docker run --rm "tqsl-${tag}" gpgconf --list-dir | grep '^agent-socket:' | cut -d: -f2)"
 	x11_socket="/tmp/.X11-unix/X$(echo "$DISPLAY" | cut -d: -f2 | cut -d. -f1)"
 	echo "===> Detected sockets..."
 	echo "host_socket=$host_socket"
@@ -73,21 +77,21 @@ build() {
 		-v "${x11_socket}:/tmp/.X11-unix/X0" \
 		-v "${host_socket}:${container_socket}" \
 		-v "${outputdir}:/output" \
-		--name "$container" tqsl ./build-tqsl-package.sh $upload
+		--name "$container" "tqsl-${tag}" ./build-tqsl-package.sh $upload
 		#-v "${HOME}/.gnupg:/home/ubuntu/.gnupg" \
 		#-v /tmp/.X11-unix:/tmp/.X11-unix \
 		#-e DISPLAY="$DISPLAY" \
 	docker container run -it --rm \
 		-v "${x11_socket}:/tmp/.X11-unix/X0" \
 		-v "${outputdir}:/output" \
-		--name "$container" tqsl ./build-tqsl-tarball.sh
+		--name "$container" "tqsl-${tag}" ./build-tqsl-tarball.sh
 	docker container run -it --rm \
 		-v "${x11_socket}:/tmp/.X11-unix/X0" \
 		-v "${outputdir}:/output" \
 		--device /dev/fuse \
 		--cap-add SYS_ADMIN \
 		--security-opt apparmor:unconfined \
-		--name "$container" tqsl ./build-tqsl-appimage.sh
+		--name "$container" "tqsl-${tag}" ./build-tqsl-appimage.sh
 
 	echo "===> Done."
 }
