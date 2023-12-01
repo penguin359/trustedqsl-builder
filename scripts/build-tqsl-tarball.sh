@@ -10,6 +10,10 @@ group="$(id -gn)"
 if [ -z "$DISPLAY" ]; then
 	export DISPLAY=":0"
 fi
+if [ -f /tmp/cookies ]; then
+	touch ~/.Xauthority
+	xauth merge /tmp/cookies
+fi
 
 # Needed for Docker to fix permissions
 x11_socket="/tmp/.X11-unix/X$(echo "$DISPLAY" | cut -d: -f2 | cut -d. -f1)"

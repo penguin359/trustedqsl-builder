@@ -16,6 +16,9 @@ group="$(id -gn)"
 if [ -z "$DISPLAY" ]; then
 	export DISPLAY=":0"
 fi
+if [ -f /tmp/cookies ]; then
+	xauth merge /tmp/cookies
+fi
 export SSH_AUTH_SOCK="/tmp/ssh-agent.sock"
 export GPG_AGENT_INFO="$(gpgconf --list-dir | grep '^agent-socket:' | cut -d: -f2):0:1"
 if tty >/dev/null 2>&1; then

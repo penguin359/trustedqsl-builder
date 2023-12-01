@@ -99,16 +99,19 @@ build() {
 	echo "x11_socket=$x11_socket"
 	echo
 	echo "===> Starting build script..."
+	xauth extract - "$DISPLAY" > /tmp/cookies
 	if [ -n "$tarball" ]; then
 		docker container run -it --rm \
 			-v "${x11_socket}:/tmp/.X11-unix/X0" \
 			-v "${outputdir}:/output" \
+			-v /tmp/cookies:/tmp/cookies \
 			--name "${container}-${tag}" "tqsl-${tag}" ./build-tqsl-tarball.sh
 	fi
 	if [ -n "$appimage" ]; then
 		docker container run -it --rm \
 			-v "${x11_socket}:/tmp/.X11-unix/X0" \
 			-v "${outputdir}:/output" \
+			-v /tmp/cookies:/tmp/cookies \
 			--device /dev/fuse \
 			--cap-add SYS_ADMIN \
 			--security-opt apparmor:unconfined \
@@ -120,6 +123,7 @@ build() {
 			-v "${x11_socket}:/tmp/.X11-unix/X0" \
 			-v "${host_socket}:${container_socket}" \
 			-v "${outputdir}:/output" \
+			-v /tmp/cookies:/tmp/cookies \
 			--name "${container}-${tag}" "tqsl-${tag}" ./build-tqsl-package.sh $upload
 			#-v "${HOME}/.gnupg:/home/ubuntu/.gnupg" \
 			#-v /tmp/.X11-unix:/tmp/.X11-unix \
