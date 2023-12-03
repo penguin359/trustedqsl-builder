@@ -76,6 +76,21 @@ if [ "${#tags[@]}" -eq 0 ]; then
 	tags=("22.04")
 fi
 
+cookie_file=
+cleanup() {
+	if [ -n "$cookie_file" -a -f "$cookie_file" ]; then
+		echo "Cleaning up cookies ${cookie_file}..."
+		rm "$cookie_file"
+	fi
+}
+
+error() {
+	echo -e "\e[31mBuild has failed.\e[m"
+}
+
+trap cleanup EXIT
+trap error ERR
+
 build() {
 	local tag="$1"
 	local release="ubuntu:${tag}"
@@ -86,9 +101,9 @@ build() {
 	rm -fr "$outputdir"/
 	mkdir -p "$outputdir"/
 
-	if ! docker image inspect "tqsl-${tag}" &>/dev/null; then
+	#if ! docker image inspect "tqsl-${tag}" &>/dev/null; then
 		docker build --build-arg tag="${tag}" --tag "tqsl-${tag}" .
-	fi
+	#fi
 
 	local host_socket="$(gpgconf --list-dir agent-extra-socket)"
 	local container_socket="$(docker run --rm "tqsl-${tag}" gpgconf --list-dir | grep '^agent-socket:' | cut -d: -f2)"
@@ -99,19 +114,20 @@ build() {
 	echo "x11_socket=$x11_socket"
 	echo
 	echo "===> Starting build script..."
-	xauth extract - "$DISPLAY" > /tmp/cookies
+	cookies_file="$(mktemp "${TMPDIR:-/tmp}/xauth-XXXXXXXX")"
+	xauth extract - "$DISPLAY" > "$cookies_file"
 	if [ -n "$tarball" ]; then
 		docker container run -it --rm \
 			-v "${x11_socket}:/tmp/.X11-unix/X0" \
 			-v "${outputdir}:/output" \
-			-v /tmp/cookies:/tmp/cookies \
+			-v "${cookies_file}":/tmp/cookies \
 			--name "${container}-${tag}" "tqsl-${tag}" ./build-tqsl-tarball.sh
 	fi
 	if [ -n "$appimage" ]; then
 		docker container run -it --rm \
 			-v "${x11_socket}:/tmp/.X11-unix/X0" \
 			-v "${outputdir}:/output" \
-			-v /tmp/cookies:/tmp/cookies \
+			-v "${cookies_file}":/tmp/cookies \
 			--device /dev/fuse \
 			--cap-add SYS_ADMIN \
 			--security-opt apparmor:unconfined \
@@ -123,7 +139,7 @@ build() {
 			-v "${x11_socket}:/tmp/.X11-unix/X0" \
 			-v "${host_socket}:${container_socket}" \
 			-v "${outputdir}:/output" \
-			-v /tmp/cookies:/tmp/cookies \
+			-v "${cookies_file}":/tmp/cookies \
 			--name "${container}-${tag}" "tqsl-${tag}" ./build-tqsl-package.sh $upload
 			#-v "${HOME}/.gnupg:/home/ubuntu/.gnupg" \
 			#-v /tmp/.X11-unix:/tmp/.X11-unix \
@@ -133,6 +149,11 @@ build() {
 	echo "===> Done."
 }
 
-for i in "${tags[@]}"; do
-	build "$i"
-done
+main() {
+	for i in "${tags[@]}"; do
+		build "$i"
+	done
+	exit 0
+}
+
+main
