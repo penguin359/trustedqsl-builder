@@ -78,7 +78,8 @@ fi
 
 build() {
 	local tag="$1"
-	local release="ubuntu:${tag}"
+	local category="${2:-ubuntu}"
+	local release="${category}:${tag}"
 	local outputdir="${base}/output-lxc/ubuntu${tag}"
 	local user="ubuntu"
 
@@ -107,6 +108,10 @@ build() {
 	elif [ "$release" = "ubuntu:14.04" ]; then
 		lxc exec "$container" -- apt install -y gnupg2
 		lxc exec "$container" -- rm -f /etc/apt/sources.list.d/ubuntu-esm-infra-trusty.list
+	elif [[ "$release" =~ "fedora" ]]; then
+		lxc exec "$container" -- useradd "$user" -m -s /bin/bash
+		lxc exec "$container" -- sh -c 'echo "ubuntu ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers.d/99-ubuntu-user'
+		lxc exec "$container" -- dnf install -y xauth
 	else
 		lxc exec "$container" -- systemctl isolate default
 	fi
@@ -143,6 +148,12 @@ build() {
 	echo
 	lxc file push -r scripts/* "$container""$home"/
 	echo "===> Starting build script..."
+	if [[ "$release" =~ "fedora" ]]; then
+		tarball=
+		appimage=
+		package=
+		lxc exec "$container" -- sudo -u "$user" -i "./fedora.sh"
+	fi
 	if [ -n "$tarball" ]; then
 		lxc exec "$container" -- sudo -u "$user" -i "./build-tqsl-tarball.sh"
 	fi
@@ -163,5 +174,9 @@ build() {
 }
 
 for i in "${tags[@]}"; do
-	build "$i"
+	prefix=
+	if [[ "$i" =~ "fedora" ]]; then
+		prefix=images
+	fi
+	build "$i" $prefix
 done
