@@ -32,7 +32,6 @@ sudo chown -R "${user}:${group}" "$SSH_AUTH_SOCK" "${HOME}/.gnupg" "$x11_socket"
 sudo chmod -R u=rwX,go= "$SSH_AUTH_SOCK" "${HOME}/.gnupg" "$x11_socket"
 sudo chmod -R u=rwX,go=rX /output
 
-echo 'Acquire::http::Proxy "http://10.146.39.1:3142";' | sudo tee /etc/apt/apt.conf.d/00aptproxy
 
 if [ "${VERSION_CODENAME}" = "groovy" -o \
      "${VERSION_CODENAME}" = "hirsute" -o \
@@ -40,6 +39,10 @@ if [ "${VERSION_CODENAME}" = "groovy" -o \
      "${VERSION_CODENAME}" = "kinetic" ]; then
 	sudo sed -i 's:archive.ubuntu.com:old-releases.ubuntu.com:' /etc/apt/sources.list
 	sudo sed -i 's:security.ubuntu.com:old-releases.ubuntu.com:' /etc/apt/sources.list
+else
+	proxy=10.146.39.1
+	ping -n1 "$proxy"
+	echo "Acquire::http::Proxy \"http://${proxy}:3142\";" | sudo tee /etc/apt/apt.conf.d/00aptproxy
 fi
 sudo apt update
 sudo DEBIAN_FRONTEND=noninteractive apt upgrade -qy
@@ -147,6 +150,7 @@ debuild --no-lintian -S
 echo "===> Running lintian on source package..."
 lintian -I --pedantic $lintian_opts ../trustedqsl_*_source.changes
 #debsign
+echo "===> Signing source package..."
 debsign -S
 cd ..
 sudo dpkg -i trustedqsl_*_amd64.deb
