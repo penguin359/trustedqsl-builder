@@ -120,7 +120,7 @@ if [ "$branch" = "backport-trusty" ]; then
 else
 	sudo DEBIAN_FRONTEND=noninteractive apt install -qy ./trustedqsl-build-deps_*.deb
 fi
-wget http://archive.ubuntu.com/ubuntu/pool/universe/t/trustedqsl/trustedqsl_2.6.5.orig.tar.gz
+wget http://archive.ubuntu.com/ubuntu/pool/universe/t/trustedqsl/trustedqsl_2.7.1.orig.tar.gz
 cd trustedqsl
 #lintian_opts="--fail-on error,warning"
 lintian_opts="--fail-on error"
