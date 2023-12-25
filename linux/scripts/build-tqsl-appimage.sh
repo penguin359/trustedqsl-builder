@@ -4,6 +4,10 @@ set -e
 
 . /etc/os-release
 
+if [ "$VERSION_ID" = "14.04" ]; then
+	VERSION_CODENAME="trusty"
+fi
+
 user="$(id -un)"
 group="$(id -gn)"
 
@@ -11,6 +15,7 @@ if [ -z "$DISPLAY" ]; then
 	export DISPLAY=":0"
 fi
 if [ -f /tmp/cookies ]; then
+	touch ~/.Xauthority
 	xauth merge /tmp/cookies
 fi
 
@@ -44,19 +49,18 @@ sudo DEBIAN_FRONTEND=noninteractive apt install -y wget gcc g++ cmake libssl-dev
 rm -fr ~/appimage
 mkdir ~/appimage
 cd ~/appimage
-wget http://www.arrl.org/tqsl/tqsl-2.6.5.tar.gz
-rm -fr tqsl-2.6.5
-tar xvf tqsl-2.6.5.tar.gz
-cd tqsl-2.6.5
+version="$(curl -qsSLf https://arrl.org/tqsl-download | sed -ne 's@.*/tqsl-\([0-9]\+\(\.[0-9]\+\)\+\)\.tar\.gz.*@\1@p')"
+wget "http://www.arrl.org/tqsl/tqsl-${version}.tar.gz"
+rm -fr "tqsl-${version}"
+tar xvf "tqsl-${version}.tar.gz"
+cd "tqsl-${version}"
 sudo mkdir -p /usr/local/bin/
 # FIXME: Workaround needed on older Ubuntu releases
 # error: RPC failed; curl 56 GnuTLS recv error (-54): Error in the pull function.
 git config --global http.postBuffer 1048576000
 ./linux-make-appimage.sh
-#./linux-make-appimage.sh || true
 echo "===> Testing tqsl binary..."
 ./TQSL-x86_64.AppImage --version 2>&1 | grep --color 'TQSL Version 2\..*'
-#./TQSL-x86_64.AppImage --version 2>&1 | grep --color 'TQSL Version 2\..*' || true
 cp --preserve=timestamps ./TQSL-x86_64.AppImage /output/appimage/
 echo "Success!"
 cd

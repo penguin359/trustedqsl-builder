@@ -8,8 +8,6 @@ if [ "$VERSION_ID" = "14.04" ]; then
 	VERSION_CODENAME="trusty"
 fi
 
-branch="backport-${VERSION_CODENAME}"
-
 user="$(id -un)"
 group="$(id -gn)"
 
@@ -19,6 +17,9 @@ fi
 if [ -f /tmp/cookies ]; then
 	xauth merge /tmp/cookies
 fi
+
+branch="backport-${VERSION_CODENAME}"
+
 export SSH_AUTH_SOCK="/tmp/ssh-agent.sock"
 export GPG_AGENT_INFO="$(gpgconf --list-dir | grep '^agent-socket:' | cut -d: -f2):0:1"
 if tty >/dev/null 2>&1; then
@@ -41,7 +42,7 @@ if [ "${VERSION_CODENAME}" = "groovy" -o \
 	sudo sed -i 's:security.ubuntu.com:old-releases.ubuntu.com:' /etc/apt/sources.list
 else
 	proxy=10.146.39.1
-	ping -n1 "$proxy"
+	#ping -n1 "$proxy"
 	echo "Acquire::http::Proxy \"http://${proxy}:3142\";" | sudo tee /etc/apt/apt.conf.d/00aptproxy
 fi
 sudo apt update

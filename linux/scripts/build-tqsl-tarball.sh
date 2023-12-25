@@ -4,6 +4,10 @@ set -e
 
 . /etc/os-release
 
+if [ "$VERSION_ID" = "14.04" ]; then
+	VERSION_CODENAME="trusty"
+fi
+
 user="$(id -un)"
 group="$(id -gn)"
 
@@ -52,11 +56,11 @@ cd ~/raw
 #git clone git://git.code.sf.net/u/penguin359/trustedqsl
 #git clone ssh://penguin359@git.code.sf.net/u/penguin359/trustedqsl
 
-version=2.7.1
-wget http://www.arrl.org/tqsl/tqsl-${version}.tar.gz
-rm -fr tqsl-${version}
-tar xvf tqsl-${version}.tar.gz
-cd tqsl-${version}
+version="$(curl -qsSLf https://arrl.org/tqsl-download | sed -ne 's@.*/tqsl-\([0-9]\+\(\.[0-9]\+\)\+\)\.tar\.gz.*@\1@p')"
+wget "http://www.arrl.org/tqsl/tqsl-${version}.tar.gz"
+rm -fr "tqsl-${version}"
+tar xvf "tqsl-${version}.tar.gz"
+cd "tqsl-${version}"
 cmake -B build -S .
 cmake --build build
 sudo cmake --install build
