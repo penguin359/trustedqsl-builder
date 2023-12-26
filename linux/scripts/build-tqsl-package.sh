@@ -76,9 +76,16 @@ login = penguin359
 EOF
 
 mkdir -p ~/.ssh/
+cat >> ~/.ssh/config <<EOF
+Host github.com
+User git
+EOF
 cat >> ~/.ssh/known_hosts <<EOF
 |1|L65WTC0AxkfE4nrvu2RV0ZmhURg=|wRCkGhAHG+NTMvWJZhrOk1Y/o1s= ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEA0aKz5UTUndYgIGG7dQBV+HaeuEZJ2xPHo2DS2iSKvUL4xNMSAY4UguNW+pX56nAQmZKIZZ8MaEvSj6zMEDiq6HFfn5JcTlM80UwlnyKe8B8p7Nk06PPQLrnmQt5fh0HmEcZx+JU9TZsfCHPnX7MNz4ELfZE6cFsclClrKim3BHUIGq//t93DllB+h4O9LHjEUsQ1Sr63irDLSutkLJD6RXchjROXkNirlcNVHH/jwLWR5RcYilNX7S5bIkK8NlWPjsn/8Ua5O7I9/YoE97PpO6i73DTGLh5H9JN/SITwCKBkgSDWUt61uPK3Y11Gty7o2lWsBjhBUm2Y38CBsoGmBw==
 |1|xPW80Prm6bDJ95oIpf2oWCo2ZbM=|f/tCGjfc5/6MrNIhruPMyX026nc= ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEA0aKz5UTUndYgIGG7dQBV+HaeuEZJ2xPHo2DS2iSKvUL4xNMSAY4UguNW+pX56nAQmZKIZZ8MaEvSj6zMEDiq6HFfn5JcTlM80UwlnyKe8B8p7Nk06PPQLrnmQt5fh0HmEcZx+JU9TZsfCHPnX7MNz4ELfZE6cFsclClrKim3BHUIGq//t93DllB+h4O9LHjEUsQ1Sr63irDLSutkLJD6RXchjROXkNirlcNVHH/jwLWR5RcYilNX7S5bIkK8NlWPjsn/8Ua5O7I9/YoE97PpO6i73DTGLh5H9JN/SITwCKBkgSDWUt61uPK3Y11Gty7o2lWsBjhBUm2Y38CBsoGmBw==
+github.com ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOMqqnkVzrm0SdG6UOoqKLsabgH5C9okWi0dh2l9GKJl
+github.com ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBEmKSENjQEezOmxkZMy7opKgwFB9nkt5YRrYMjNuG5N87uRgg6CLrbo5wAdT/y6v0mKV0U2w0WZ2YB/++Tpockg=
+github.com ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQCj7ndNxQowgcQnjshcLrqPEiiphnt+VTTvDP6mHBL9j1aNUkY4Ue1gvwnGLVlOhGeYrnZaMgRK6+PKCUXaDbC7qtbW8gIkhL7aGCsOr/C56SJMy/BCZfxd1nWzAOxSDPgVsmerOBYfNqltV9/hWCqBywINIR+5dIg6JTJ72pcEpEjcYgXkE2YEFXV1JHnsKgbLWNlhScqb2UmyRkQyytRLtL+38TGxkxCflmO+5Z8CSSNY7GidjMIZ7Q4zMjA2n1nGrlTDkzwDCsw+wqFPGQA179cnfGWOWRVruj16z6XyvxvjJwbz0wQZ75XK5tKSb7FNyeIEs4TT4jk+S4dhPeAUC5y+bDYirYgM4GC7uEnztnZyaVWQ7B381AK4Qdrwt51ZqExKbQpTUNn+EjqoTwvqNj4kqx5QUCI0ThS/YkOxJCXmPUWZbhjpCg56i+2aB6CmK2JGhn57K5mj0MNdBXA4/WnwH6XoPWJzK5Nyu2zB3nAZp+S5hpQs+p1vN1/wsjk=
 EOF
 
 # dch -v 2.6.5-3~penguin359~kinetic1
@@ -90,6 +97,9 @@ gpg2 --import-ownertrust <<EOF
 EOF
 gpg2 --check-trustdb
 gpg2 --output ~/.gnupg/trustedkeys.gpg --export "7896E0999FC79F6CE0EDE103222DF356A57A98FA"
+
+git config --global user.name "Loren M. Lang"
+git config --global user.email "lorenl@north-winds.org"
 
 rm -fr ~/deb
 mkdir ~/deb
@@ -106,6 +116,7 @@ fi
 version="$(curl -qsSLf https://arrl.org/tqsl-download | sed -ne 's@.*/tqsl-\([0-9]\+\(\.[0-9]\+\)\+\)\.tar\.gz.*@\1@p')"
 wget "http://archive.ubuntu.com/ubuntu/pool/universe/t/trustedqsl/trustedqsl_${version}.orig.tar.gz"
 cd trustedqsl
+git branch pristine-tar origin/pristine-tar
 #lintian_opts="--fail-on error,warning"
 lintian_opts="--fail-on error"
 if [ "$branch" = "backport-trusty" -o \
@@ -122,7 +133,8 @@ fi
 #dpkg-buildpackage -kfakeroot
 #gbp buildpackage --git-debian-branch="$branch" --git-tarball-dir=.. --lintian-opts $lintian_opts
 echo "===> Building binary package..."
-gbp buildpackage --git-debian-branch="$branch" --git-tarball-dir=.. --git-builder="debuild --no-lintian -i -I"
+# --git-pristine-tar
+gbp buildpackage --git-debian-branch="$branch" --git-tarball-dir=.. --git-builder="debuild --no-lintian -i -I" --git-tag --git-sign-tags --git-keyid="7896E0999FC79F6CE0EDE103222DF356A57A98FA" --git-debian-tag='released/%(version)s' --git-debian-tag-msg='%(pkg)s Ubuntu PPA release %(version)s'
 #lintian -i -I --fail-on error,warning,info,pedantic ../trustedqsl_*_amd64.changes
 echo "===> Running lintian on binary package..."
 lintian -I --pedantic $lintian_opts ../trustedqsl_*_amd64.changes
@@ -143,5 +155,7 @@ if [ "$1" = "-u" ]; then
 	dput --debug -l trustedqsl trustedqsl_*_source.changes
 fi
 cp --preserve=timestamps trustedqsl_* /output/deb/
+if [ "$1" = "-u" ]; then
+	git --git-dir=trustedqsl/.git push --tags github.com:penguin359/trustedqsl
+fi
 echo "Success!"
-cd
