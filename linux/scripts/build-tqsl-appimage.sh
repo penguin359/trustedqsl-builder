@@ -55,7 +55,7 @@ rm -fr "tqsl-${version}"
 tar xvf "tqsl-${version}.tar.gz"
 cd "tqsl-${version}"
 sudo mkdir -p /usr/local/bin/
-# FIXME: Workaround needed on older Ubuntu releases
+# FIXME: Workaround needed on Ubuntu 16.04 and older releases
 # error: RPC failed; curl 56 GnuTLS recv error (-54): Error in the pull function.
 git config --global http.postBuffer 1048576000
 ./linux-make-appimage.sh

@@ -2,7 +2,7 @@
 
 base="$(dirname "$(readlink -f "$0")")"
 
-args=$(getopt --name "$0" --options 'hn:utap' --longoptions 'help,name:,upload,tarball,appimage,package' --shell sh -- "$@")
+args=$(getopt --name "$0" --options 'hn:uTtap' --longoptions 'help,name:,upload,tag,tarball,appimage,package' --shell sh -- "$@")
 if [ $? -ne 0 ]; then
 	echo >&2
 	echo "Invalid options, use -h for help." >&2
@@ -12,6 +12,7 @@ eval set -- "$args"
 
 container="tqsl"
 upload=
+tag_opt=
 tarball=
 appimage=
 package=
@@ -23,6 +24,7 @@ while [ $# -gt 0 ]; do
 			echo "  -h | --help        Help" >&2
 			echo "  -n | --name NAME   Container name" >&2
 			echo "  -u | --upload      Upload signed package" >&2
+			echo "  -T | --tag         Upload signed tag" >&2
 			echo "  -t | --tarball     Only build tarball" >&2
 			echo "  -a | --appimage    Only build AppImage" >&2
 			echo "  -p | --package     Only build Debian package" >&2
@@ -35,6 +37,9 @@ while [ $# -gt 0 ]; do
 			;;
 		-u|--upload)
 			upload=-u
+			;;
+		-T|--tag)
+			tag_opt=-T
 			;;
 		-t|--tarball)
 			tarball=y
@@ -75,6 +80,17 @@ declare -a tags=($@)
 if [ "${#tags[@]}" -eq 0 ]; then
 	tags=("22.04")
 fi
+
+cleanup() {
+	:
+}
+
+error() {
+	echo -e "\e[31mBuild has failed.\e[m"
+}
+
+trap cleanup EXIT
+trap error ERR
 
 build() {
 	local tag="$1"
@@ -145,11 +161,6 @@ build() {
 	else
 		lxc config device add "$container" gpg-agent proxy connect=unix:"$host_socket" listen=unix:"$container_socket" bind=container uid="$uid" gid="$gid" mode=0600
 	fi
-	echo "===> Detected sockets..."
-	echo "host_socket=$host_socket"
-	echo "container_socket=$container_socket"
-	echo "x11_socket=$x11_socket"
-	echo
 	lxc file push -r scripts/* "$container""$home"/
 	echo "===> Starting build script..."
 	if [[ "$release" =~ "fedora" ]]; then
@@ -165,7 +176,7 @@ build() {
 		lxc exec "$container" -- sudo -u "$user" -i "./build-tqsl-appimage.sh"
 	fi
 	if [ -n "$package" ]; then
-		lxc exec "$container" -- sudo -u "$user" -i "./build-tqsl-package.sh" $upload
+		lxc exec "$container" -- sudo -u "$user" -i "./build-tqsl-package.sh" $upload $tag_opt
 	fi
 	rm -fr "$outputdir"/
 	lxc file pull -r "$container/output/" "$outputdir"/
@@ -177,10 +188,15 @@ build() {
 	echo "===> Done."
 }
 
-for i in "${tags[@]}"; do
-	prefix=
-	if [[ "$i" =~ "fedora" ]]; then
-		prefix=images
-	fi
-	build "$i" $prefix
-done
+main() {
+	for i in "${tags[@]}"; do
+		prefix=
+		if [[ "$i" =~ "fedora" ]]; then
+			prefix=images
+		fi
+		build "$i" $prefix
+	done
+	exit 0
+}
+
+main

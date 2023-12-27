@@ -2,7 +2,7 @@
 
 base="$(dirname "$(readlink -f "$0")")"
 
-args=$(getopt --name "$0" --options 'hn:utap' --longoptions 'help,name:,upload,tarball,appimage,package' --shell sh -- "$@")
+args=$(getopt --name "$0" --options 'hn:uTtap' --longoptions 'help,name:,upload,tag,tarball,appimage,package' --shell sh -- "$@")
 if [ $? -ne 0 ]; then
 	echo >&2
 	echo "Invalid options, use -h for help." >&2
@@ -12,6 +12,7 @@ eval set -- "$args"
 
 container="tqsl"
 upload=
+tag_opt=
 tarball=
 appimage=
 package=
@@ -23,6 +24,7 @@ while [ $# -gt 0 ]; do
 			echo "  -h | --help        Help" >&2
 			echo "  -n | --name NAME   Container name" >&2
 			echo "  -u | --upload      Upload signed package" >&2
+			echo "  -T | --tag         Upload signed tag" >&2
 			echo "  -t | --tarball     Only build tarball" >&2
 			echo "  -a | --appimage    Only build AppImage" >&2
 			echo "  -p | --package     Only build Debian package" >&2
@@ -35,6 +37,9 @@ while [ $# -gt 0 ]; do
 			;;
 		-u|--upload)
 			upload=-u
+			;;
+		-T|--tag)
+			tag_opt=-T
 			;;
 		-t|--tarball)
 			tarball=y
@@ -140,7 +145,7 @@ build() {
 			-v "${host_socket}:${container_socket}" \
 			-v "${outputdir}:/output" \
 			-v "${cookies_file}":/tmp/cookies \
-			--name "${container}-${tag}" "tqsl-${tag}" ./build-tqsl-package.sh $upload
+			--name "${container}-${tag}" "tqsl-${tag}" ./build-tqsl-package.sh $upload $tag_opt
 			#-v "${HOME}/.gnupg:/home/ubuntu/.gnupg" \
 			#-v /tmp/.X11-unix:/tmp/.X11-unix \
 			#-e DISPLAY="$DISPLAY" \

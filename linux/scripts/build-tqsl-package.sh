@@ -2,6 +2,15 @@
 
 set -e
 
+upload_opt=
+tag_opt=
+if [ "$1" = "-u" ]; then
+	upload_opt=y
+	tag_opt=y
+elif [ "$1" = "-T" ]; then
+	tag_opt=y
+fi
+
 . /etc/os-release
 
 if [ "$VERSION_ID" = "14.04" ]; then
@@ -149,7 +158,7 @@ git_msg_opt=('--git-debian-tag-msg=%(pkg)s Ubuntu PPA release %(version)s')
 if [ "$branch" = "backport-trusty" ]; then
 	git_msg_opt=()
 fi
-gbp buildpackage --git-debian-branch="$branch" "${tarball_opt[@]}" --git-builder="debuild --no-lintian -i -I" --git-tag --git-sign-tags --git-keyid="7896E0999FC79F6CE0EDE103222DF356A57A98FA" --git-debian-tag='released/%(version)s' "${git_msg_opt[@]}"
+gbp buildpackage --git-debian-branch="$branch" "${tarball_opt[@]}" --git-builder="debuild --no-lintian -i -I" --git-tag --git-sign-tags --git-retag --git-keyid="7896E0999FC79F6CE0EDE103222DF356A57A98FA" --git-debian-tag='released/%(version)s' "${git_msg_opt[@]}"
 #lintian -i -I --fail-on error,warning,info,pedantic ../trustedqsl_*_amd64.changes
 echo "===> Running lintian on binary package..."
 lintian -I --pedantic $lintian_opts ../trustedqsl_*_amd64.changes
@@ -166,11 +175,11 @@ sudo dpkg -i trustedqsl_*_amd64.deb
 tqsl --version 2>&1 | grep --color 'TQSL Version 2\..*'
 dscverify trustedqsl_*_source.changes
 dput -ol trustedqsl trustedqsl_*_source.changes
-if [ "$1" = "-u" ]; then
+if [ -n "$upload_opt" ]; then
 	dput --debug -l trustedqsl trustedqsl_*_source.changes
 fi
 cp --preserve=timestamps trustedqsl_* /output/deb/
-if [ "$1" = "-u" ]; then
+if [ -n "$tag_opt" ]; then
 	git --git-dir=trustedqsl/.git push --tags github.com:penguin359/trustedqsl
 fi
 echo "Success!"
