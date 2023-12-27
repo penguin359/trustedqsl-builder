@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 set -e
 
@@ -113,10 +113,15 @@ if [ "$branch" = "backport-trusty" ]; then
 else
 	sudo DEBIAN_FRONTEND=noninteractive apt install -qy ./trustedqsl-build-deps_*.deb
 fi
-version="$(curl -qsSLf https://arrl.org/tqsl-download | sed -ne 's@.*/tqsl-\([0-9]\+\(\.[0-9]\+\)\+\)\.tar\.gz.*@\1@p')"
-wget "http://archive.ubuntu.com/ubuntu/pool/universe/t/trustedqsl/trustedqsl_${version}.orig.tar.gz"
+pristine=
+if [ -z "$pristine" ]; then
+	version="$(curl -qsSLf https://arrl.org/tqsl-download | sed -ne 's@.*/tqsl-\([0-9]\+\(\.[0-9]\+\)\+\)\.tar\.gz.*@\1@p')"
+	wget "http://archive.ubuntu.com/ubuntu/pool/universe/t/trustedqsl/trustedqsl_${version}.orig.tar.gz"
+fi
 cd trustedqsl
-git branch pristine-tar origin/pristine-tar
+if [ -n "$pristine" ]; then
+	git branch pristine-tar origin/pristine-tar
+fi
 #lintian_opts="--fail-on error,warning"
 lintian_opts="--fail-on error"
 if [ "$branch" = "backport-trusty" -o \
@@ -133,8 +138,15 @@ fi
 #dpkg-buildpackage -kfakeroot
 #gbp buildpackage --git-debian-branch="$branch" --git-tarball-dir=.. --lintian-opts $lintian_opts
 echo "===> Building binary package..."
-# --git-pristine-tar
-gbp buildpackage --git-debian-branch="$branch" --git-tarball-dir=.. --git-builder="debuild --no-lintian -i -I" --git-tag --git-sign-tags --git-keyid="7896E0999FC79F6CE0EDE103222DF356A57A98FA" --git-debian-tag='released/%(version)s' --git-debian-tag-msg='%(pkg)s Ubuntu PPA release %(version)s'
+tarball_opt=('--git-tarball-dir=..')
+if [ -n "$pristine" ]; then
+	tarball_opt=('--git-pristine-tar')
+fi
+git_msg_opt=('--git-debian-tag-msg=%(pkg)s Ubuntu PPA release %(version)s')
+if [ "$branch" = "backport-trusty" ]; then
+	git_msg_opt=()
+fi
+gbp buildpackage --git-debian-branch="$branch" "${tarball_opt[@]}" --git-builder="debuild --no-lintian -i -I" --git-tag --git-sign-tags --git-keyid="7896E0999FC79F6CE0EDE103222DF356A57A98FA" --git-debian-tag='released/%(version)s' "${git_msg_opt[@]}"
 #lintian -i -I --fail-on error,warning,info,pedantic ../trustedqsl_*_amd64.changes
 echo "===> Running lintian on binary package..."
 lintian -I --pedantic $lintian_opts ../trustedqsl_*_amd64.changes
