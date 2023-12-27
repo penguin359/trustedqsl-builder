@@ -135,8 +135,12 @@ build() {
 	#lxc config device add "$container" x11 disk source="$x11_socket" path=/tmp/.X11-unix/X0
 	lxc config device add "$container" x11 proxy connect=unix:"$x11_socket" listen=unix:/tmp/.X11-unix/X0 bind=container uid="$uid" gid="$gid" mode=0600
 	xauth extract - "$DISPLAY" | lxc exec "$container" -- sudo -u "$user" -i xauth merge -
-	if [ "$release" = "ubuntu:14.04" -o \
-	     "$release" = "ubuntu:16.04" ]; then
+	# Fixes the following error with older Ubuntu:
+	#   gpg: problem with the agent: Unknown error code
+	#   gpg: problem with the agent - disabling agent use
+	#   error: gpg failed to sign the data
+	#   error: unable to sign the tag
+	if [ "$release" = "ubuntu:14.04" ]; then
 		gpg2 --export-secret-key "7896E0999FC79F6CE0EDE103222DF356A57A98FA" | lxc exec "$container" -- sudo -u "$user" -i gpg2 --batch --import
 	else
 		lxc config device add "$container" gpg-agent proxy connect=unix:"$host_socket" listen=unix:"$container_socket" bind=container uid="$uid" gid="$gid" mode=0600

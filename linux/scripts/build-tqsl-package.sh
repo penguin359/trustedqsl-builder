@@ -51,12 +51,15 @@ cd
 
 
 paramiko=python3-paramiko
-if [ "$branch" = "backport-trusty" ]; then
+if [ "$branch" = "backport-trusty" -o \
+     "$branch" = "backport-xenial" ]; then
 	paramiko="python-paramiko python-bzrlib"
 fi
-sudo DEBIAN_FRONTEND=noninteractive apt install -qy devscripts equivs git-buildpackage gnupg2 $paramiko
+sudo DEBIAN_FRONTEND=noninteractive apt install -qy devscripts dput equivs git-buildpackage gnupg2 $paramiko
 if [ "$branch" = "backport-xenial" ]; then
-	sudo DEBIAN_FRONTEND=noninteractive apt remove -qy gnupg
+	# dput relies on gnupg package
+	#sudo DEBIAN_FRONTEND=noninteractive apt remove -qy gnupg
+	sudo ln -snf gpg2 /usr/bin/gpg
 fi
 export DEBEMAIL="lorenl@north-winds.org"
 export DEBFULLNAME="Loren M. Lang"
