@@ -39,6 +39,7 @@ g++ -ggdb getpassword.cpp wxutil.cpp test.cpp $(wx-config --cppflags --cxxflags 
 cmake -B ~/raw/tqsl/build -S ~/raw/tqsl && cmake --build ~/raw/tqsl/build && ctest --test-dir ~/raw/tqsl/build/tests/ -V
 
 cmake -B ../tqsl-build -S . && cmake --build ../tqsl-build && ctest --test-dir ../tqsl-build/tests/ -V
+mkdir -p build && cd build && cmake .. && make && make test
 git -c user.name='Loren M. Lang' -c user.email='lorenl@north-winds.org' commit -av
 
 build error on warning
@@ -48,3 +49,6 @@ force c++11?
 
 groff crashes
 elf error on build-id for jammy
+trustedqsl-dbgsym: elf-error In program headers: Unable to find program
+interpreter name
+[usr/lib/debug/.build-id/15/5b46049286a8300c200e557ed023d1555a5b97.debug]
