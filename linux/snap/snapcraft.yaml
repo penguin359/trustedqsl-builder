@@ -1,0 +1,53 @@
+name: trusted-qsl # you probably want to 'snapcraft register <name>'
+base: core22 # the base snap is the execution environment for this snap
+version: '2.7.2' # just for humans, typically '1.2+git' or '1.3.2'
+summary: Single-line elevator pitch for your amazing snap # 79 char long summary
+description: |
+  This is my-snap's description. You have a paragraph or two to tell the
+  most important story about your snap. Keep it under 100 words though,
+  we live in tweetspace and your description wants to look good in the snap
+  store.
+
+grade: devel # must be 'stable' to release into candidate/stable channels
+confinement: devmode # use 'strict' once you have the right plugs and slots
+
+apps:
+  tqsl:
+    command: /usr/bin/tqsl
+    plugs:
+      - desktop
+      - desktop-legacy
+      - home
+      - network
+      - wayland
+      - x11
+  shell:
+    command: /bin/bash
+
+parts:
+  my-part:
+    source: https://git.code.sf.net/p/trustedqsl/tqsl
+    source-type: git
+    # See 'snapcraft plugins'
+    plugin: cmake
+    cmake-parameters:
+      - -DCMAKE_INSTALL_PREFIX=/usr
+    build-packages:
+      - pkg-config
+      - libcurl4-openssl-dev
+      - libexpat1-dev
+      - libsqlite3-dev
+      - libssl-dev
+      - libwxgtk3.0-gtk3-dev
+      - zlib1g-dev
+    stage-packages:
+      - bash
+      - gnome-icon-theme
+      - hicolor-icon-theme
+      - libxapp-gtk3-module
+      - libcurl4
+      - libexpat1
+      - libsqlite3-0
+      - libssl3
+      - libwxgtk3.0-gtk3-0v5
+      - zlib1g
