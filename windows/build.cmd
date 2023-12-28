@@ -237,6 +237,8 @@ GOTO success
 @cd %ROOT%
 @del /s/q openssl 2>NUL
 @rmdir /s/q openssl 2>NUL
+@del /s/q openssl-debug 2>NUL
+@rmdir /s/q openssl-debug 2>NUL
 @del /s/q openssl-%OPENSSL_VERSION% 2>NUL
 @rmdir /s/q openssl-%OPENSSL_VERSION% 2>NUL
 @7z x "downloads\openssl-%OPENSSL_VERSION%.tar.gz" -so | 7z x -aoa -si -ttar
@@ -265,7 +267,17 @@ IF %OPENSSL_VERSION% LSS 1.1 (
 	nmake -f %makefile% install
 	@IF ERRORLEVEL 1 GOTO error
 ) ELSE (
-	perl Configure %target% %opts% no-capieng no-async --prefix=%ROOT%openssl --openssldir=%ROOT%openssl\bin\
+	perl Configure %target% %opts% no-capieng no-async --prefix=%ROOT%openssl --openssldir=%ROOT%openssl\bin\ --release
+	@IF ERRORLEVEL 1 GOTO error
+	nmake
+	@IF ERRORLEVEL 1 GOTO error
+	@REM Currently broken on 1.1.1m
+	@REM nmake test
+	@REM IF ERRORLEVEL 1 GOTO error
+	nmake install
+	@IF ERRORLEVEL 1 GOTO error
+
+	perl Configure %target% %opts% no-capieng no-async --prefix=%ROOT%openssl-debug --openssldir=%ROOT%openssl-debug\bin\ --debug
 	@IF ERRORLEVEL 1 GOTO error
 	nmake
 	@IF ERRORLEVEL 1 GOTO error

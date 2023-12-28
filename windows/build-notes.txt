@@ -584,3 +584,18 @@ On call to open() insize gz_load()
 
 DATADIR=C:\projects\trustedqsl-builder\windows\tqsl\tests\fixtures
 TQSLDIR=C:\projects\trustedqsl-builder\windows\tqsl\build\tests\tqsl
+
+libcmtd.lib;libcmt.lib;msvcrt.lib
+%(IgnoreSpecificDefaultLibraries);libcmtd.lib;libcmt.lib;msvcrt.lib;msvcrt;msvcr120;msvcr120.dll
+
+
+cl.exe /EHsc /W3 /WX adiftest.cpp /Igtest-1.7.0\include ..\build\tests\gtest-1.7.0\gtest_main.dir\Debug\gtest_main.obj ..\build\tests\gtest-1.7.0\gtest.dir\Debug\gtest-all.obj /MDd /DEBUG /Zi /D_CRT_SECURE_NO_WARNINGS ..\..\openssl\lib\VC\libcrypto.lib ..\..\openssl\lib\VC\libssl.lib ws2_32.lib advapi32.lib gdi32.lib user32.lib ..\..\expat-2.2.8\Bin\libexpat.lib ..\..\lmdb\lib\lmdb.lib ..\..\zlib-1.2.8\build\Debug\zlibstaticd.lib ..\build\lib\Debug\tqsllib2.lib
+
+cl.exe /EHsc /W3 /WX cabrillotest.cpp /Igtest-1.7.0\include ..\build\tests\gtest-1.7.0\gtest_main.dir\Debug\gtest_main.obj ..\build\tests\gtest-1.7.0\gtest.dir\Debug\gtest-all.obj /MDd /DEBUG /Zi /D_CRT_SECURE_NO_WARNINGS ..\..\openssl\lib\VC\libcrypto.lib ..\..\openssl\lib\VC\libssl.lib ws2_32.lib advapi32.lib gdi32.lib user32.lib ..\..\expat-2.2.8\Bin\libexpat.lib ..\..\lmdb\lib\lmdb.lib ..\..\zlib-1.2.8\build\Debug\zlibstaticd.lib ..\build\lib\Debug\tqsllib2.lib
+
+
+cl.exe /EHsc /W3 /WX adiftest.cpp /IC:\Users\loren\.nuget\packages\boost\1.77.0\lib\native\include /MDd /DEBUG /Zi /D_CRT_SECURE_NO_WARNINGS ..\..\openssl\lib\VC\libcrypto.lib ..\..\openssl\lib\VC\libssl.lib ws2_32.lib advapi32.lib gdi32.lib user32.lib ..\..\expat-2.2.8\Bin\libexpat.lib ..\..\lmdb\lib\lmdb.lib ..\..\zlib-1.2.8\build\Debug\zlibstaticd.lib ..\build\lib\Debug\tqsllib2.lib
+
+
+
+rm -fo -r .\build-boost\; cmake . -DCMAKE_LIBRARY_PATH="C:\AA\windows\expat-2.2.8\Bin" -DCMAKE_INCLUDE_PATH="C:\AA\windows\expat-2.2.8\Source\lib" -DBDB_INCLUDE_DIR="C:\AA\windows\db-6.0.20.NC\build_windows" -DBDB_LIBRARY="C:\AA\windows\db-6.0.20.NC\build_windows\Win32\Release\db.lib" -DOPENSSL_ROOT_DIR=C:\AA\windows\openssl -DCURL_LIBRARY=C:\AA\windows\curl-7.39.0\builds\libcurl-vc-x86-release-static-sspi-winssl\lib -DCURL_INCLUDE_DIR=C:\AA\windows\curl-7.39.0\builds\libcurl-vc-x86-release-static-sspi-winssl\include -DwxWidgets_ROOT_DIR=C:\AA\windows\wxWidgets-3.2.0 -DwxWidgets_LIB_DIR=C:\AA\windows\wxWidgets-3.2.0\lib\vc_lib -DZLIB_LIBRARY_REL=C:\AA\windows\zlib-1.2.8\Release -DZLIB_INCLUDE_DIR=C:\AA\windows\zlib-1.2.8 -DBoost_INCLUDE_DIR=C:\tqsl-build\boost_1_81_0\boost_1_81_0 -G "Visual Studio 9 2008" -A Win32 -B build-boost
