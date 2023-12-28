@@ -63,4 +63,3 @@ echo "===> Testing tqsl binary..."
 ./TQSL-x86_64.AppImage --version 2>&1 | grep --color 'TQSL Version 2\..*'
 cp --preserve=timestamps ./TQSL-x86_64.AppImage /output/appimage/
 echo "Success!"
-cd

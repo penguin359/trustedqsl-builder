@@ -68,4 +68,3 @@ sudo ldconfig
 echo "===> Testing tqsl binary..."
 tqsl --version 2>&1 | grep --color 'TQSL Version 2\..*'
 echo "Success!"
-cd

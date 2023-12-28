@@ -24,6 +24,7 @@ if [ -z "$DISPLAY" ]; then
 	export DISPLAY=":0"
 fi
 if [ -f /tmp/cookies ]; then
+	touch ~/.Xauthority
 	xauth merge /tmp/cookies
 fi
 
@@ -56,6 +57,9 @@ else
 fi
 sudo apt update
 sudo DEBIAN_FRONTEND=noninteractive apt upgrade -qy
+# FIXME: Workaround needed on Ubuntu 16.04 and older releases
+# error: RPC failed; curl 56 GnuTLS recv error (-54): Error in the pull function.
+git config --global http.postBuffer 1048576000
 cd
 
 
