@@ -105,7 +105,19 @@ $downloads = @{
 	};
 }
 
-if($env:USE_BDB) {
+if($env:USE_SQLITE3) {
+	$downloads["sqlite3"] = @{
+		Name = "SQLite 3";
+		DefaultVersion = "3440200";
+		Files = @{
+			"3440200" = @{
+				File = "sqlite-amalgamation-3440200.zip";
+				Url  = "https://sqlite.org/2023/sqlite-amalgamation-3440200.zip";
+				Hash = "833be89b53b3be8b40a2e3d5fedb635080e3edb204957244f3d6987c2bb2345f";
+			};
+		};
+	}
+} elseif($env:USE_BDB) {
 	$downloads["bdb"] = @{
 		Name = "Berkeley DB";
 		DefaultVersion = "6.0.20";

@@ -5,6 +5,7 @@
 /lmdb/
 /openssl/
 /openssl-*/
+/sqlite-amalgamation-*/
 /tqsl/
 /wxWidgets-*/
 /zlib-*/

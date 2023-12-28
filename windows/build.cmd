@@ -52,6 +52,10 @@ SET ROOT=%~dp0
 	SET LMDB_VERSION=0.9.29
 )
 
+@IF x%SQLITE3_VERSION%==x (
+	SET SQLITE3_VERSION=3440200
+)
+
 @IF %VS_RELEASE%==2008 (
 	SET VS_VERSION=9.0
 	SET VS_GENERATOR=Visual Studio 9 2008
@@ -96,7 +100,11 @@ SET ROOT=%~dp0
 @SET BUILD_ZLIB=y
 @SET BUILD_BDB=
 @SET BUILD_LMDB=
-@IF NOT x%USE_BDB%==x (
+@SET BUILD_SQLITE3=
+@IF NOT x%USE_SQLITE3%==x (
+	SET BUILD_SQLITE3=y
+	SET LMDB_DIR=
+) ELSE IF NOT x%USE_BDB%==x (
 	SET BUILD_BDB=y
 	SET LMDB_DIR=
 ) ELSE (
@@ -112,6 +120,7 @@ SET ROOT=%~dp0
 	SET BUILD_ZLIB=
 	SET BUILD_BDB=
 	SET BUILD_LMDB=
+	SET BUILD_SQLITE3=
 	SET BUILD_TQSL=
 )
 :opt_loop
@@ -122,6 +131,7 @@ IF x%1==xexpat (SET BUILD_EXPAT=y) ELSE ^
 IF x%1==xzlib (SET BUILD_ZLIB=y) ELSE ^
 IF x%1==xbdb (SET BUILD_BDB=y) ELSE ^
 IF x%1==xlmdb (SET BUILD_LMDB=y) ELSE ^
+IF x%1==xsqlite3 (SET BUILD_SQLITE3=y) ELSE ^
 IF x%1==xtqsl (SET BUILD_TQSL=y) ELSE ^
 IF NOT x%1==x (
 	ECHO Unrecognized option %1 1>&2
@@ -133,6 +143,22 @@ IF NOT x%1==x (
 @REM If user explicitly asked for Berkeley DB, use it
 @IF NOT x%BUILD_BDB%==x (
 	SET USE_BDB=y
+	SET USE_LMDB=
+	SET USE_SQLITE3=
+)
+
+@REM [Unless] If user explicitly asked for LMDB, use it
+@IF NOT x%BUILD_LMDB%==x (
+	SET USE_BDB=
+	SET USE_LMDB=y
+	SET USE_SQLITE3=
+)
+
+@REM [Unless] If user explicitly asked for SQLite3, use it
+@IF NOT x%BUILD_SQLITE3%==x (
+	SET USE_BDB=
+	SET USE_LMDB=
+	SET USE_SQLITE3=y
 )
 
 @IF NOT x%USE_64BIT%==x (
@@ -227,6 +253,8 @@ CALL download.bat
 :end_bdb
 @IF x%BUILD_LMDB%==xy GOTO lmdb
 :end_lmdb
+@IF x%BUILD_SQLITE3%==xy GOTO sqlite3
+:end_sqlite3
 @IF x%BUILD_TQSL%==xy GOTO tqsl
 :end_tqsl
 GOTO success
@@ -593,6 +621,22 @@ copy /Y *.lib ..\..\lib
 GOTO end_lmdb
 
 
+:sqlite3
+@ECHO Building SQLite 3...
+@cd %ROOT%
+@del /s/q sqlite-amalgamation-%SQLITE3_VERSION% 2>NUL
+@rmdir /s/q sqlite-amalgamation-%SQLITE3_VERSION% 2>NUL
+@7z x "downloads\sqlite-amalgamation-%SQLITE3_VERSION%.zip" -aoa
+cd sqlite-amalgamation-%SQLITE3_VERSION%
+@del /s/q *.obj 2>NUL
+@del /s/q *.lib 2>NUL
+cl -c -O2 sqlite3.c
+@IF ERRORLEVEL 1 GOTO error
+lib /OUT:sqlite3.lib sqlite3.obj
+@IF ERRORLEVEL 1 GOTO error
+GOTO end_sqlite3
+
+
 :tqsl
 @ECHO Building Trusted QSL...
 @cd %ROOT%
@@ -621,6 +665,8 @@ cmake -G "%VS_GENERATOR%" -A %build_platform% -B build -S . ^
     -DwxWidgets_ROOT_DIR="%ROOT%wxWidgets-%WXWIDGETS_VERSION%" ^
     -DBDB_INCLUDE_DIR="%ROOT%db-%BDB_VERSION%.NC\build_windows" ^
     -DBDB_LIBRARY="%ROOT%db-%BDB_VERSION%.NC\build_windows\%build_platform%\Static_Release\libdb60s.lib" ^
+    -DSQLite3_INCLUDE_DIR="%ROOT%sqlite-amalgamation-%SQLITE3_VERSION%" ^
+    -DSQLite3_LIBRARY="%ROOT%sqlite-amalgamation-%SQLITE3_VERSION%\sqlite3.lib" ^
     -DOPENSSL_ROOT_DIR="%ROOT%openssl" ^
     -DCURL_LIBRARY="%ROOT%curl-%CURL_VERSION%\builds\libcurl-vc-%curl_machine%-release-static-sspi-%curl_build%\lib\libcurl_a.lib" ^
     -DCURL_INCLUDE_DIR="%ROOT%curl-%CURL_VERSION%\builds\libcurl-vc-%curl_machine%-release-static-sspi-%curl_build%\include" ^
