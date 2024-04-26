@@ -47,7 +47,8 @@ sudo chmod -R u=rwX,go=rX /output
 if [ "${VERSION_CODENAME}" = "groovy" -o \
      "${VERSION_CODENAME}" = "hirsute" -o \
      "${VERSION_CODENAME}" = "impish" -o \
-     "${VERSION_CODENAME}" = "kinetic" ]; then
+     "${VERSION_CODENAME}" = "kinetic" -o \
+     "${VERSION_CODENAME}" = "lunar" ]; then
 	sudo sed -i 's:archive.ubuntu.com:old-releases.ubuntu.com:' /etc/apt/sources.list
 	sudo sed -i 's:security.ubuntu.com:old-releases.ubuntu.com:' /etc/apt/sources.list
 else
@@ -123,13 +124,14 @@ mkdir ~/deb
 cd ~/deb
 rm -fr trustedqsl
 git clone -b "$branch" https://github.com/penguin359/trustedqsl
-mk-build-deps trustedqsl/debian/control
-if [ "$branch" = "backport-trusty" ]; then
-	sudo DEBIAN_FRONTEND=noninteractive dpkg -i ./trustedqsl-build-deps_*.deb || true
-	sudo apt install -y -f
-else
-	sudo DEBIAN_FRONTEND=noninteractive apt install -qy ./trustedqsl-build-deps_*.deb
-fi
+sudo apt-get build-dep -y trustedqsl
+#mk-build-deps trustedqsl/debian/control
+#if [ "$branch" = "backport-trusty" ]; then
+#	sudo DEBIAN_FRONTEND=noninteractive dpkg -i ./trustedqsl-build-deps_*.deb || true
+#	sudo apt install -y -f
+#else
+#	sudo DEBIAN_FRONTEND=noninteractive apt install -qy ./trustedqsl-build-deps_*.deb
+#fi
 pristine=
 if [ -z "$pristine" ]; then
 	version="$(curl -qsSLf https://arrl.org/tqsl-download | sed -ne 's@.*/tqsl-\([0-9]\+\(\.[0-9]\+\)\+\)\.tar\.gz.*@\1@p')"
@@ -139,8 +141,8 @@ cd trustedqsl
 if [ -n "$pristine" ]; then
 	git branch pristine-tar origin/pristine-tar
 fi
-#lintian_opts="--fail-on error,warning"
-lintian_opts="--fail-on error"
+lintian_opts="--fail-on error,warning"
+#lintian_opts="--fail-on error"
 if [ "$branch" = "backport-trusty" -o \
      "$branch" = "backport-xenial" -o \
      "$branch" = "backport-bionic" -o \
