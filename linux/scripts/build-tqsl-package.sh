@@ -129,8 +129,8 @@ rm -fr ~/deb
 mkdir ~/deb
 cd ~/deb
 rm -fr trustedqsl
-git clone -b "$branch" https://github.com/penguin359/trustedqsl
-sudo apt-get build-dep -y trustedqsl
+#git clone -b "$branch" https://github.com/penguin359/trustedqsl
+gbp clone --debian-branch "$branch" --pristine-tar https://github.com/penguin359/trustedqsl
 #mk-build-deps trustedqsl/debian/control
 #if [ "$branch" = "backport-trusty" ]; then
 #	sudo DEBIAN_FRONTEND=noninteractive dpkg -i ./trustedqsl-build-deps_*.deb || true
@@ -138,14 +138,18 @@ sudo apt-get build-dep -y trustedqsl
 #else
 #	sudo DEBIAN_FRONTEND=noninteractive apt install -qy ./trustedqsl-build-deps_*.deb
 #fi
-pristine=
+pristine=y
 if [ -z "$pristine" ]; then
 	version="$(curl -qsSLf https://arrl.org/tqsl-download | sed -ne 's@.*/tqsl-\([0-9]\+\(\.[0-9]\+\)\+\)\.tar\.gz.*@\1@p')"
-	wget "http://archive.ubuntu.com/ubuntu/pool/universe/t/trustedqsl/trustedqsl_${version}.orig.tar.gz"
+	wget "http://archive.ubuntu.com/ubuntu/pool/universe/t/trustedqsl/trustedqsl_${version}.orig.tar.gz" || \
+	wget "https://deb.debian.org/debian/pool/main/t/trustedqsl/trustedqsl_${version}.orig.tar.gz"
 fi
 cd trustedqsl
+git checkout "$branch"
+sudo apt-get build-dep -y .
 if [ -n "$pristine" ]; then
-	git branch pristine-tar origin/pristine-tar
+	#git branch pristine-tar origin/pristine-tar
+	origtargz
 fi
 #lintian_opts="--fail-on error,warning"
 lintian_opts="--fail-on error"
