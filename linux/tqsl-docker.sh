@@ -2,7 +2,7 @@
 
 base="$(dirname "$(readlink -f "$0")")"
 
-args=$(getopt --name "$0" --options 'hn:uTtap' --longoptions 'help,name:,upload,tag,tarball,appimage,package' --shell sh -- "$@")
+args=$(getopt --name "$0" --options 'hn:uTtapN' --longoptions 'help,name:,upload,tag,tarball,appimage,package,no-clean' --shell sh -- "$@")
 if [ $? -ne 0 ]; then
 	echo >&2
 	echo "Invalid options, use -h for help." >&2
@@ -17,6 +17,7 @@ tarball=
 appimage=
 package=
 all=y
+clean=y
 while [ $# -gt 0 ]; do
 	case "$1" in
 		-h|--help)
@@ -28,6 +29,7 @@ while [ $# -gt 0 ]; do
 			echo "  -t | --tarball     Only build tarball" >&2
 			echo "  -a | --appimage    Only build AppImage" >&2
 			echo "  -p | --package     Only build Debian package" >&2
+			echo "  -N | --no-clean    Don't clean container" >&2
 			echo "  tag...             Ubuntu version(s) to build for" >&2
 			exit 0
 			;;
@@ -52,6 +54,9 @@ while [ $# -gt 0 ]; do
 		-p|--package)
 			package=y
 			all=
+			;;
+		-N|--no-clean)
+			clean=
 			;;
 		--)
 			shift
@@ -100,6 +105,12 @@ build() {
 	local tag="$1"
 	local release="ubuntu:${tag}"
 	local outputdir="${base}/output-docker/ubuntu${tag}"
+	local clean="$2"
+	if [ -n "$clean" ]; then
+		clean=--rm
+	else
+		clean=
+	fi
 
 	#sed -i -e 's/^FROM .*/FROM '"$release"'/' Dockerfile
 
@@ -109,6 +120,7 @@ build() {
 	#if ! docker image inspect "tqsl-${tag}" &>/dev/null; then
 		docker build --build-arg tag="${tag}" --tag "tqsl-${tag}" .
 	#fi
+	docker container rm "${container}-${tag}" 2>/dev/null || true
 
 	local host_socket="$(gpgconf --list-dir agent-extra-socket)"
 	local container_socket="$(docker run --rm "tqsl-${tag}" gpgconf --list-dir | grep '^agent-socket:' | cut -d: -f2)"
@@ -122,14 +134,14 @@ build() {
 	cookies_file="$(mktemp "${TMPDIR:-/tmp}/xauth-XXXXXXXX")"
 	xauth extract - "$DISPLAY" > "$cookies_file"
 	if [ -n "$tarball" ]; then
-		docker container run -it --rm \
+		docker container run -it $clean \
 			-v "${x11_socket}:/tmp/.X11-unix/X0" \
 			-v "${outputdir}:/output" \
 			-v "${cookies_file}":/tmp/cookies \
 			--name "${container}-${tag}" "tqsl-${tag}" ./build-tqsl-tarball.sh
 	fi
 	if [ -n "$appimage" ]; then
-		docker container run -it --rm \
+		docker container run -it $clean \
 			-v "${x11_socket}:/tmp/.X11-unix/X0" \
 			-v "${outputdir}:/output" \
 			-v "${cookies_file}":/tmp/cookies \
@@ -139,7 +151,7 @@ build() {
 			--name "${container}-${tag}" "tqsl-${tag}" ./build-tqsl-appimage.sh
 	fi
 	if [ -n "$package" ]; then
-		docker container run -it --rm \
+		docker container run -it $clean \
 			-v "${SSH_AUTH_SOCK}:/tmp/ssh-agent.sock" \
 			-v "${x11_socket}:/tmp/.X11-unix/X0" \
 			-v "${host_socket}:${container_socket}" \
@@ -156,7 +168,7 @@ build() {
 
 main() {
 	for i in "${tags[@]}"; do
-		build "$i"
+		build "$i" "$clean"
 	done
 	exit 0
 }
