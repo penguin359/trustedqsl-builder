@@ -44,17 +44,23 @@ sudo chmod -R u=rwX,go= "$SSH_AUTH_SOCK" "${HOME}/.gnupg" "$x11_socket"
 sudo chmod -R u=rwX,go=rX /output
 
 
+if [ -f /etc/apt/sources.list ]; then
+	echo deb http://archive.ubuntu.com/ubuntu/ ${VERSION_CODENAME} main universe | sudo tee -a /etc/apt/sources.list >/dev/null
+	echo deb-src http://archive.ubuntu.com/ubuntu/ ${VERSION_CODENAME} main universe | sudo tee -a /etc/apt/sources.list >/dev/null
+fi
 if [ "${VERSION_CODENAME}" = "groovy" -o \
      "${VERSION_CODENAME}" = "hirsute" -o \
      "${VERSION_CODENAME}" = "impish" -o \
-     "${VERSION_CODENAME}" = "kinetic" -o \
-     "${VERSION_CODENAME}" = "lunar" ]; then
+     "${VERSION_CODENAME}" = "kinetic" ]; then
 	sudo sed -i 's:archive.ubuntu.com:old-releases.ubuntu.com:' /etc/apt/sources.list
 	sudo sed -i 's:security.ubuntu.com:old-releases.ubuntu.com:' /etc/apt/sources.list
 else
 	proxy=10.146.39.1
 	#ping -n1 "$proxy"
 	echo "Acquire::http::Proxy \"http://${proxy}:3142\";" | sudo tee /etc/apt/apt.conf.d/00aptproxy
+fi
+if [ -f /etc/apt/sources.list.d/ubuntu.sources ]; then
+	sudo sed -i -e 's/^Types:.*/Types: deb deb-src/' /etc/apt/sources.list.d/ubuntu.sources
 fi
 sudo apt update
 sudo DEBIAN_FRONTEND=noninteractive apt upgrade -qy
@@ -141,8 +147,8 @@ cd trustedqsl
 if [ -n "$pristine" ]; then
 	git branch pristine-tar origin/pristine-tar
 fi
-lintian_opts="--fail-on error,warning"
-#lintian_opts="--fail-on error"
+#lintian_opts="--fail-on error,warning"
+lintian_opts="--fail-on error"
 if [ "$branch" = "backport-trusty" -o \
      "$branch" = "backport-xenial" -o \
      "$branch" = "backport-bionic" -o \
