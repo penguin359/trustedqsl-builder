@@ -2,7 +2,7 @@
 
 base="$(dirname "$(readlink -f "$0")")"
 
-args=$(getopt --name "$0" --options 'hn:uTtap' --longoptions 'help,name:,upload,tag,tarball,appimage,package' --shell sh -- "$@")
+args=$(getopt --name "$0" --options 'hn:uTtapD' --longoptions 'help,name:,upload,tag,tarball,appimage,package,shell-debug' --shell sh -- "$@")
 if [ $? -ne 0 ]; then
 	echo >&2
 	echo "Invalid options, use -h for help." >&2
@@ -16,6 +16,7 @@ tag_opt=
 tarball=
 appimage=
 package=
+sh_debug=
 all=y
 while [ $# -gt 0 ]; do
 	case "$1" in
@@ -28,6 +29,7 @@ while [ $# -gt 0 ]; do
 			echo "  -t | --tarball     Only build tarball" >&2
 			echo "  -a | --appimage    Only build AppImage" >&2
 			echo "  -p | --package     Only build Debian package" >&2
+			echo "  -D | --shell-debug Enable shell script debugging" >&2
 			echo "  tag...             Ubuntu version(s) to build for" >&2
 			exit 0
 			;;
@@ -52,6 +54,9 @@ while [ $# -gt 0 ]; do
 		-p|--package)
 			package=y
 			all=
+			;;
+		-D|--shell-debug)
+			sh_debug="bash -x"
 			;;
 		--)
 			shift
@@ -181,13 +186,13 @@ build() {
 		lxc exec "$container" -- sudo -u "$user" -i "./fedora.sh"
 	fi
 	if [ -n "$tarball" ]; then
-		lxc exec "$container" -- sudo -u "$user" -i "./build-tqsl-tarball.sh"
+		lxc exec "$container" -- sudo -u "$user" -i $sh_debug "./build-tqsl-tarball.sh"
 	fi
 	if [ -n "$appimage" ]; then
-		lxc exec "$container" -- sudo -u "$user" -i "./build-tqsl-appimage.sh"
+		lxc exec "$container" -- sudo -u "$user" -i $sh_debug "./build-tqsl-appimage.sh"
 	fi
 	if [ -n "$package" ]; then
-		lxc exec "$container" -- sudo -u "$user" -i "./build-tqsl-package.sh" $upload $tag_opt
+		lxc exec "$container" -- sudo -u "$user" -i $sh_debug "./build-tqsl-package.sh" $upload $tag_opt
 	fi
 	rm -fr "$outputdir"/
 	lxc file pull -r "$container/output/" "$outputdir"/
