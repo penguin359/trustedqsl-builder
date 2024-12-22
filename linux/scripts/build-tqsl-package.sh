@@ -51,7 +51,9 @@ fi
 if [ "${VERSION_CODENAME}" = "groovy" -o \
      "${VERSION_CODENAME}" = "hirsute" -o \
      "${VERSION_CODENAME}" = "impish" -o \
-     "${VERSION_CODENAME}" = "kinetic" ]; then
+     "${VERSION_CODENAME}" = "kinetic" -o \
+     "${VERSION_CODENAME}" = "lunar" -o \
+     "${VERSION_CODENAME}" = "mantic" ]; then
 	sudo sed -i 's:archive.ubuntu.com:old-releases.ubuntu.com:' /etc/apt/sources.list
 	sudo sed -i 's:security.ubuntu.com:old-releases.ubuntu.com:' /etc/apt/sources.list
 else
