@@ -143,7 +143,7 @@ fi
 cd trustedqsl
 git checkout "$branch"
 #sudo apt-get build-dep -y .
-pristine=y
+pristine=
 if [ "$branch" = "backport-trusty" -o \
      "$branch" = "backport-xenial" ]; then
 	pristine=
