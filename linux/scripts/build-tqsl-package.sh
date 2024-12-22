@@ -140,19 +140,25 @@ if [ "$branch" = "backport-trusty" ]; then
 else
 	sudo DEBIAN_FRONTEND=noninteractive apt install -qy ./trustedqsl-build-deps_*.deb
 fi
+cd trustedqsl
+git checkout "$branch"
+#sudo apt-get build-dep -y .
 pristine=y
 if [ "$branch" = "backport-trusty" -o \
      "$branch" = "backport-xenial" ]; then
 	pristine=
 fi
 if [ -z "$pristine" ]; then
-	version="$(curl -qsSLf https://arrl.org/tqsl-download | sed -ne 's@.*/tqsl-\([0-9]\+\(\.[0-9]\+\)\+\)\.tar\.gz.*@\1@p')"
-	wget "http://archive.ubuntu.com/ubuntu/pool/universe/t/trustedqsl/trustedqsl_${version}.orig.tar.gz" || \
-	wget "https://deb.debian.org/debian/pool/main/t/trustedqsl/trustedqsl_${version}.orig.tar.gz"
+	#version="$(curl -qsSLf https://arrl.org/tqsl-download | sed -ne 's@.*/tqsl-\([0-9]\+\(\.[0-9]\+\)\+\)\.tar\.gz.*@\1@p')"
+	version="$(dpkg-parsechangelog --show-field Version)"
+	version="${version%-*}"
+	(
+		cd ..
+		wget "http://archive.ubuntu.com/ubuntu/pool/universe/t/trustedqsl/trustedqsl_${version}.orig.tar.gz" || \
+		wget "https://deb.debian.org/debian/pool/main/t/trustedqsl/trustedqsl_${version}.orig.tar.gz" || \
+		wget "https://www.arrl.org/tqsl/tqsl-${version}.tar.gz" -O "trustedqsl_${version}.orig.tar.gz"
+	)
 fi
-cd trustedqsl
-git checkout "$branch"
-#sudo apt-get build-dep -y .
 if [ -n "$pristine" ]; then
 	#git branch pristine-tar origin/pristine-tar
 	origtargz
