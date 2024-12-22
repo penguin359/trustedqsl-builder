@@ -103,6 +103,14 @@ build() {
 	local release="${category}:${tag}"
 	local outputdir="${base}/output-lxc/ubuntu${tag}"
 	local user="ubuntu"
+	if [[ "$release" =~ "debian" ]]; then
+		user="debian"
+	fi
+
+	if [ -z "$DISPLAY" ]; then
+		echo "No DISPLAY is set." >&2
+		return 1
+	fi
 
 	lxc stop --force "$container" 2>/dev/null || true
 	lxc delete "$container" 2>/dev/null || true
@@ -140,6 +148,10 @@ build() {
 	elif [ "$release" = "ubuntu:14.04" ]; then
 		lxc exec "$container" -- apt install -y gnupg2
 		lxc exec "$container" -- rm -f /etc/apt/sources.list.d/ubuntu-esm-infra-trusty.list
+	elif [[ "$release" =~ "debian" ]]; then
+		lxc exec "$container" -- useradd "$user" -m -G sudo -s /bin/bash
+		lxc exec "$container" -- sh -c 'echo "debian ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers.d/99-ubuntu-user'
+		lxc exec "$container" -- apt install -y gnupg2
 	elif [[ "$release" =~ "fedora" ]]; then
 		lxc exec "$container" -- useradd "$user" -m -s /bin/bash
 		lxc exec "$container" -- sh -c 'echo "ubuntu ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers.d/99-ubuntu-user'
@@ -207,7 +219,9 @@ build() {
 main() {
 	for i in "${tags[@]}"; do
 		prefix=
-		if [[ "$i" =~ "fedora" ]]; then
+		if [[ "$i" =~ "debian" ]]; then
+			prefix=images
+		elif [[ "$i" =~ "fedora" ]]; then
 			prefix=images
 		fi
 		build "$i" $prefix

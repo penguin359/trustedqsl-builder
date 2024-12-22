@@ -29,6 +29,9 @@ if [ -f /tmp/cookies ]; then
 fi
 
 branch="backport-${VERSION_CODENAME}"
+if [ "$ID" = "debian" ]; then
+	branch="debian/${VERSION_CODENAME}-backports"
+fi
 
 export SSH_AUTH_SOCK="/tmp/ssh-agent.sock"
 export GPG_AGENT_INFO="$(gpgconf --list-dir | grep '^agent-socket:' | cut -d: -f2):0:1"
@@ -44,22 +47,24 @@ sudo chmod -R u=rwX,go= "$SSH_AUTH_SOCK" "${HOME}/.gnupg" "$x11_socket"
 sudo chmod -R u=rwX,go=rX /output
 
 
-if [ -f /etc/apt/sources.list ]; then
-	echo deb http://archive.ubuntu.com/ubuntu/ ${VERSION_CODENAME} main universe | sudo tee -a /etc/apt/sources.list >/dev/null
-	echo deb-src http://archive.ubuntu.com/ubuntu/ ${VERSION_CODENAME} main universe | sudo tee -a /etc/apt/sources.list >/dev/null
-fi
-if [ "${VERSION_CODENAME}" = "groovy" -o \
-     "${VERSION_CODENAME}" = "hirsute" -o \
-     "${VERSION_CODENAME}" = "impish" -o \
-     "${VERSION_CODENAME}" = "kinetic" -o \
-     "${VERSION_CODENAME}" = "lunar" -o \
-     "${VERSION_CODENAME}" = "mantic" ]; then
-	sudo sed -i 's:archive.ubuntu.com:old-releases.ubuntu.com:' /etc/apt/sources.list
-	sudo sed -i 's:security.ubuntu.com:old-releases.ubuntu.com:' /etc/apt/sources.list
-else
-	proxy=10.146.39.1
-	#ping -n1 "$proxy"
-	echo "Acquire::http::Proxy \"http://${proxy}:3142\";" | sudo tee /etc/apt/apt.conf.d/00aptproxy
+if [ "$ID" = "ubuntu" ]; then
+	if [ -f /etc/apt/sources.list ]; then
+		echo deb http://archive.ubuntu.com/ubuntu/ ${VERSION_CODENAME} main universe | sudo tee -a /etc/apt/sources.list >/dev/null
+		echo deb-src http://archive.ubuntu.com/ubuntu/ ${VERSION_CODENAME} main universe | sudo tee -a /etc/apt/sources.list >/dev/null
+	fi
+	if [ "${VERSION_CODENAME}" = "groovy" -o \
+	     "${VERSION_CODENAME}" = "hirsute" -o \
+	     "${VERSION_CODENAME}" = "impish" -o \
+	     "${VERSION_CODENAME}" = "kinetic" -o \
+	     "${VERSION_CODENAME}" = "lunar" -o \
+	     "${VERSION_CODENAME}" = "mantic" ]; then
+		sudo sed -i 's:archive.ubuntu.com:old-releases.ubuntu.com:' /etc/apt/sources.list
+		sudo sed -i 's:security.ubuntu.com:old-releases.ubuntu.com:' /etc/apt/sources.list
+	else
+		proxy=10.146.39.1
+		#ping -n1 "$proxy"
+		echo "Acquire::http::Proxy \"http://${proxy}:3142\";" | sudo tee /etc/apt/apt.conf.d/00aptproxy
+	fi
 fi
 if [ -f /etc/apt/sources.list.d/ubuntu.sources ]; then
 	sudo sed -i -e 's/^Types:.*/Types: deb deb-src/' /etc/apt/sources.list.d/ubuntu.sources
