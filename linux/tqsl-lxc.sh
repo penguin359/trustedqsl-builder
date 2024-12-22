@@ -116,6 +116,17 @@ build() {
 		fi
 		sleep 1
 	done
+	if ! lxc exec "$container" -- ping -c 1 www.google.com; then
+		lxc exec "$container" -- rm /etc/resolv.conf
+		lxc exec "$container" -- sh -c 'echo nameserver 8.8.8.8 > /etc/resolv.conf'
+		lxc exec "$container" -- dhclient eth0
+		for i in $(seq 10); do
+			if lxc exec "$container" -- ping -c 1 www.google.com; then
+				break
+			fi
+			sleep 1
+		done
+	fi
 	if [ "$release" = "ubuntu:16.04" ]; then
 		lxc exec "$container" -- useradd "$user" -m -G sudo -s /bin/bash
 		lxc exec "$container" -- sh -c 'echo "ubuntu ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers.d/99-ubuntu-user'
