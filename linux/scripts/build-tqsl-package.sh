@@ -131,13 +131,13 @@ cd ~/deb
 rm -fr trustedqsl
 #git clone -b "$branch" https://github.com/penguin359/trustedqsl
 gbp clone --debian-branch "$branch" --pristine-tar https://github.com/penguin359/trustedqsl
-#mk-build-deps trustedqsl/debian/control
-#if [ "$branch" = "backport-trusty" ]; then
-#	sudo DEBIAN_FRONTEND=noninteractive dpkg -i ./trustedqsl-build-deps_*.deb || true
-#	sudo apt install -y -f
-#else
-#	sudo DEBIAN_FRONTEND=noninteractive apt install -qy ./trustedqsl-build-deps_*.deb
-#fi
+mk-build-deps trustedqsl/debian/control
+if [ "$branch" = "backport-trusty" ]; then
+	sudo DEBIAN_FRONTEND=noninteractive dpkg -i ./trustedqsl-build-deps_*.deb || true
+	sudo apt install -y -f
+else
+	sudo DEBIAN_FRONTEND=noninteractive apt install -qy ./trustedqsl-build-deps_*.deb
+fi
 pristine=y
 if [ -z "$pristine" ]; then
 	version="$(curl -qsSLf https://arrl.org/tqsl-download | sed -ne 's@.*/tqsl-\([0-9]\+\(\.[0-9]\+\)\+\)\.tar\.gz.*@\1@p')"
@@ -146,7 +146,7 @@ if [ -z "$pristine" ]; then
 fi
 cd trustedqsl
 git checkout "$branch"
-sudo apt-get build-dep -y .
+#sudo apt-get build-dep -y .
 if [ -n "$pristine" ]; then
 	#git branch pristine-tar origin/pristine-tar
 	origtargz
@@ -175,7 +175,7 @@ git_msg_opt=('--git-debian-tag-msg=%(pkg)s Ubuntu PPA release %(version)s')
 if [ "$branch" = "backport-trusty" ]; then
 	git_msg_opt=()
 fi
-gbp buildpackage --git-debian-branch="$branch" "${tarball_opt[@]}" --git-builder="debuild --no-lintian -i -I" --git-tag --git-sign-tags --git-retag --git-keyid="7896E0999FC79F6CE0EDE103222DF356A57A98FA" --git-debian-tag='released/%(version)s' "${git_msg_opt[@]}"
+gbp buildpackage --git-debian-branch="$branch" "${tarball_opt[@]}" --git-builder="debuild --no-lintian -i -I" --git-tag --git-sign-tags --git-retag --git-keyid="7896E0999FC79F6CE0EDE103222DF356A57A98FA" --git-debian-tag='released/%(version)s' "${git_msg_opt[@]}" --git-no-create-orig
 #lintian -i -I --fail-on error,warning,info,pedantic ../trustedqsl_*_amd64.changes
 echo "===> Running lintian on binary package..."
 lintian -I --pedantic $lintian_opts ../trustedqsl_*_amd64.changes
