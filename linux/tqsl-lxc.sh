@@ -2,7 +2,7 @@
 
 base="$(dirname "$(readlink -f "$0")")"
 
-args=$(getopt --name "$0" --options 'hn:uTtapD' --longoptions 'help,name:,upload,tag,tarball,appimage,package,shell-debug' --shell sh -- "$@")
+args=$(getopt --name "$0" --options 'hn:uTUtapD' --longoptions 'help,name:,upload,tag,no-sign,tarball,appimage,package,shell-debug' --shell sh -- "$@")
 if [ $? -ne 0 ]; then
 	echo >&2
 	echo "Invalid options, use -h for help." >&2
@@ -13,6 +13,7 @@ eval set -- "$args"
 container="tqsl"
 upload=
 tag_opt=
+no_sign=
 tarball=
 appimage=
 package=
@@ -42,6 +43,9 @@ while [ $# -gt 0 ]; do
 			;;
 		-T|--tag)
 			tag_opt=-T
+			;;
+		-U|--no-sign)
+			no_sign=-U
 			;;
 		-t|--tarball)
 			tarball=y
@@ -187,7 +191,9 @@ build() {
 	if [ "$release" = "ubuntu:14.04" ]; then
 		gpg2 --export-secret-key "7896E0999FC79F6CE0EDE103222DF356A57A98FA" | lxc exec "$container" -- sudo -u "$user" -i gpg2 --batch --import
 	else
-		lxc config device add "$container" gpg-agent proxy connect=unix:"$host_socket" listen=unix:"$container_socket" bind=container uid="$uid" gid="$gid" mode=0600
+		if [ -z "$no_sign" ]; then
+			lxc config device add "$container" gpg-agent proxy connect=unix:"$host_socket" listen=unix:"$container_socket" bind=container uid="$uid" gid="$gid" mode=0600
+		fi
 	fi
 	lxc file push -r scripts/* "$container""$home"/
 	echo "===> Starting build script..."
@@ -204,7 +210,7 @@ build() {
 		lxc exec "$container" -- sudo -u "$user" -i $sh_debug "./build-tqsl-appimage.sh"
 	fi
 	if [ -n "$package" ]; then
-		lxc exec "$container" -- sudo -u "$user" -i $sh_debug "./build-tqsl-package.sh" $upload $tag_opt
+		lxc exec "$container" -- sudo -u "$user" -i $sh_debug "./build-tqsl-package.sh" $upload $tag_opt $no_sign
 	fi
 	rm -fr "$outputdir"/
 	lxc file pull -r "$container/output/" "$outputdir"/

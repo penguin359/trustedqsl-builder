@@ -4,11 +4,18 @@ set -e
 
 upload_opt=
 tag_opt=
+sign=y
 if [ "$1" = "-u" ]; then
 	upload_opt=y
 	tag_opt=y
 elif [ "$1" = "-T" ]; then
 	tag_opt=y
+elif [ "$1" = "-U" ]; then
+	sign=
+fi
+if [ -z "$sign" ]; then
+	upload_opt=
+	tag_opt=
 fi
 
 . /etc/os-release
@@ -192,17 +199,26 @@ git_msg_opt=('--git-debian-tag-msg=%(pkg)s Ubuntu PPA release %(version)s')
 if [ "$branch" = "backport-trusty" ]; then
 	git_msg_opt=()
 fi
-gbp buildpackage --git-debian-branch="$branch" "${tarball_opt[@]}" --git-builder="debuild --no-lintian -i -I" --git-tag --git-sign-tags --git-retag --git-keyid="7896E0999FC79F6CE0EDE103222DF356A57A98FA" --git-debian-tag='released/%(version)s' "${git_msg_opt[@]}" --git-no-create-orig
+sign_tag=
+debuild_sign=
+if [ -n "$sign" ]; then
+	sign_tag="--git-sign-tags"
+else
+	debuild_sign="-us -uc"
+fi
+gbp buildpackage --git-debian-branch="$branch" "${tarball_opt[@]}" --git-builder="debuild --no-lintian -i -I $debuild_sign" --git-tag $sign_tag --git-retag --git-keyid="7896E0999FC79F6CE0EDE103222DF356A57A98FA" --git-debian-tag='released/%(version)s' "${git_msg_opt[@]}" --git-no-create-orig
 #lintian -i -I --fail-on error,warning,info,pedantic ../trustedqsl_*_amd64.changes
 echo "===> Running lintian on binary package..."
 lintian -I --pedantic $lintian_opts ../trustedqsl_*_amd64.changes
 echo "===> Building source package..."
-debuild --no-lintian -S
+debuild --no-lintian -S $debuild_sign
 echo "===> Running lintian on source package..."
 lintian -I --pedantic $lintian_opts ../trustedqsl_*_source.changes
-#debsign
-echo "===> Signing source package..."
-debsign -S
+if [ -n "$sign" ]; then
+	#debsign
+	echo "===> Signing source package..."
+	debsign -S
+fi
 cd ..
 sudo dpkg -i trustedqsl_*_amd64.deb
 # Exits with status 255 on good invocation
