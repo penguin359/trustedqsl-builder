@@ -141,6 +141,10 @@ else
 	sudo DEBIAN_FRONTEND=noninteractive apt install -qy ./trustedqsl-build-deps_*.deb
 fi
 pristine=y
+if [ "$branch" = "backport-trusty" -o \
+     "$branch" = "backport-xenial" ]; then
+	pristine=
+fi
 if [ -z "$pristine" ]; then
 	version="$(curl -qsSLf https://arrl.org/tqsl-download | sed -ne 's@.*/tqsl-\([0-9]\+\(\.[0-9]\+\)\+\)\.tar\.gz.*@\1@p')"
 	wget "http://archive.ubuntu.com/ubuntu/pool/universe/t/trustedqsl/trustedqsl_${version}.orig.tar.gz" || \
