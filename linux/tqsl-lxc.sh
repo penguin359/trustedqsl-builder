@@ -169,10 +169,12 @@ build() {
 	local host_socket="$(gpgconf --list-dir agent-extra-socket)"
 	local container_socket="$(lxc exec "$container" -- sudo -u "$user" -i gpgconf --list-dir | grep '^agent-socket:' | cut -d: -f2)"
 	local x11_socket="/tmp/.X11-unix/X$(echo "$DISPLAY" | cut -d: -f2 | cut -d. -f1)"
+	local x11_port="$(($(echo "$DISPLAY" | cut -d: -f2 | cut -d. -f1)+6000))"
 	echo "===> Detected sockets..."
 	echo "host_socket=$host_socket"
 	echo "container_socket=$container_socket"
 	echo "x11_socket=$x11_socket"
+	echo "x11_port=$x11_port"
 	echo
 	local my_ip="$(ip -o route get 240.0.0.0 | sed -n 's:.* src \([^ ]\+\) .*:\1:p')"
 	lxc exec "$container" -- sudo -u "$user" -i mkdir -m 700 -p "$(dirname "$container_socket")" "$home"/.gnupg /tmp/.X11-unix
@@ -182,7 +184,9 @@ build() {
 	lxc config device add "$container" ssh-agent proxy connect=unix:"$SSH_AUTH_SOCK" listen=unix:"/tmp/ssh-agent.sock" bind=container uid="$uid" gid="$gid" mode=0600
 	#lxc config device add "$container" x11 disk source="$x11_socket" path=/tmp/.X11-unix/X0
 	lxc config device add "$container" x11 proxy connect=unix:"$x11_socket" listen=unix:/tmp/.X11-unix/X0 bind=container uid="$uid" gid="$gid" mode=0600
+	lxc config device add "$container" x11-tcp proxy connect=tcp:127.0.0.1:"$x11_port" listen=tcp:127.0.0.1:6000
 	xauth extract - "$DISPLAY" | lxc exec "$container" -- sudo -u "$user" -i xauth merge -
+	lxc exec "$container" -- sudo -u "$user" -i xauth add ":0" . "$(xauth list "$DISPLAY" | awk '{print $3}')"
 	# Fixes the following error with older Ubuntu:
 	#   gpg: problem with the agent: Unknown error code
 	#   gpg: problem with the agent - disabling agent use
