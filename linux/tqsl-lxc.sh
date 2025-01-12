@@ -27,6 +27,7 @@ while [ $# -gt 0 ]; do
 			echo "  -n | --name NAME   Container name" >&2
 			echo "  -u | --upload      Upload signed package" >&2
 			echo "  -T | --tag         Upload signed tag" >&2
+			echo "  -U | --no-sign     Don't sign or upload" >&2
 			echo "  -t | --tarball     Only build tarball" >&2
 			echo "  -a | --appimage    Only build AppImage" >&2
 			echo "  -p | --package     Only build Debian package" >&2

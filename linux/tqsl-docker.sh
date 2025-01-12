@@ -2,7 +2,7 @@
 
 base="$(dirname "$(readlink -f "$0")")"
 
-args=$(getopt --name "$0" --options 'hn:uTtapN' --longoptions 'help,name:,upload,tag,tarball,appimage,package,no-clean' --shell sh -- "$@")
+args=$(getopt --name "$0" --options 'hn:uTUtapND' --longoptions 'help,name:,upload,tag,no-sign,tarball,appimage,package,no-clean,shell-debug' --shell sh -- "$@")
 if [ $? -ne 0 ]; then
 	echo >&2
 	echo "Invalid options, use -h for help." >&2
@@ -13,9 +13,11 @@ eval set -- "$args"
 container="tqsl"
 upload=
 tag_opt=
+no_sign=
 tarball=
 appimage=
 package=
+sh_debug=
 all=y
 clean=y
 while [ $# -gt 0 ]; do
@@ -26,10 +28,12 @@ while [ $# -gt 0 ]; do
 			echo "  -n | --name NAME   Container name" >&2
 			echo "  -u | --upload      Upload signed package" >&2
 			echo "  -T | --tag         Upload signed tag" >&2
+			echo "  -U | --no-sign     Don't sign or upload" >&2
 			echo "  -t | --tarball     Only build tarball" >&2
 			echo "  -a | --appimage    Only build AppImage" >&2
 			echo "  -p | --package     Only build Debian package" >&2
 			echo "  -N | --no-clean    Don't clean container" >&2
+			echo "  -D | --shell-debug Enable shell script debugging" >&2
 			echo "  tag...             Ubuntu version(s) to build for" >&2
 			exit 0
 			;;
@@ -42,6 +46,9 @@ while [ $# -gt 0 ]; do
 			;;
 		-T|--tag)
 			tag_opt=-T
+			;;
+		-U|--no-sign)
+			no_sign=-U
 			;;
 		-t|--tarball)
 			tarball=y
@@ -57,6 +64,9 @@ while [ $# -gt 0 ]; do
 			;;
 		-N|--no-clean)
 			clean=
+			;;
+		-D|--shell-debug)
+			sh_debug="bash -x"
 			;;
 		--)
 			shift
@@ -111,6 +121,10 @@ build() {
 	else
 		clean=
 	fi
+	local user="ubuntu"
+	if [[ "$release" =~ "debian" ]]; then
+		user="debian"
+	fi
 
 	#sed -i -e 's/^FROM .*/FROM '"$release"'/' Dockerfile
 
@@ -138,7 +152,7 @@ build() {
 			-v "${x11_socket}:/tmp/.X11-unix/X0" \
 			-v "${outputdir}:/output" \
 			-v "${cookies_file}":/tmp/cookies \
-			--name "${container}-${tag}" "tqsl-${tag}" ./build-tqsl-tarball.sh
+			--name "${container}-${tag}" "tqsl-${tag}" $sh_debug "./build-tqsl-tarball.sh"
 	fi
 	if [ -n "$appimage" ]; then
 		docker container run -it $clean \
@@ -148,16 +162,17 @@ build() {
 			--device /dev/fuse \
 			--cap-add SYS_ADMIN \
 			--security-opt apparmor:unconfined \
-			--name "${container}-${tag}" "tqsl-${tag}" ./build-tqsl-appimage.sh
+			--name "${container}-${tag}" "tqsl-${tag}" $sh_debug "./build-tqsl-appimage.sh"
 	fi
 	if [ -n "$package" ]; then
+		# TODO Don't forward host_socket on $no_sign
 		docker container run -it $clean \
 			-v "${SSH_AUTH_SOCK}:/tmp/ssh-agent.sock" \
 			-v "${x11_socket}:/tmp/.X11-unix/X0" \
 			-v "${host_socket}:${container_socket}" \
 			-v "${outputdir}:/output" \
 			-v "${cookies_file}":/tmp/cookies \
-			--name "${container}-${tag}" "tqsl-${tag}" ./build-tqsl-package.sh $upload $tag_opt
+			--name "${container}-${tag}" "tqsl-${tag}" $sh_debug "./build-tqsl-package.sh" $upload $tag_opt $no_sign
 			#-v "${HOME}/.gnupg:/home/ubuntu/.gnupg" \
 			#-v /tmp/.X11-unix:/tmp/.X11-unix \
 			#-e DISPLAY="$DISPLAY" \
