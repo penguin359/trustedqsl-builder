@@ -145,6 +145,9 @@ cd ~/deb
 rm -fr trustedqsl
 #git clone -b "$branch" https://github.com/penguin359/trustedqsl
 gbp clone --debian-branch "$branch" --pristine-tar https://github.com/penguin359/trustedqsl
+cd trustedqsl
+git checkout "$branch"
+cd ..
 mk-build-deps trustedqsl/debian/control
 if [ "$branch" = "backport-trusty" ]; then
 	sudo DEBIAN_FRONTEND=noninteractive dpkg -i ./trustedqsl-build-deps_*.deb || true
@@ -153,7 +156,6 @@ else
 	sudo DEBIAN_FRONTEND=noninteractive apt install -qy ./trustedqsl-build-deps_*.deb
 fi
 cd trustedqsl
-git checkout "$branch"
 #sudo apt-get build-dep -y .
 pristine=
 if [ "$branch" = "backport-trusty" -o \
