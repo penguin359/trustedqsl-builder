@@ -26,14 +26,16 @@ sudo chown -R "${user}:${group}" "$x11_socket" /output
 sudo chmod -R u=rwX,go= "$x11_socket"
 sudo chmod -R u=rwX,go=rX /output
 
-if [[ "$VERSION_ID" < "14.10" ]]; then
-	gtk_package=libwxgtk2.8-dev
-elif [[ "$VERSION_ID" < "18.10" ]]; then
-	gtk_package=libwxgtk3.0-dev
-elif [[ "$VERSION_ID" < "23.04" ]]; then
-	gtk_package=libwxgtk3.0-gtk3-dev
-else
-	gtk_package=libwxgtk3.2-dev
+if [ "$ID" = "ubuntu" ]; then
+	if [[ "$VERSION_ID" < "14.10" ]]; then
+		gtk_package=libwxgtk2.8-dev
+	elif [[ "$VERSION_ID" < "18.10" ]]; then
+		gtk_package=libwxgtk3.0-dev
+	elif [[ "$VERSION_ID" < "23.04" ]]; then
+		gtk_package=libwxgtk3.0-gtk3-dev
+	else
+		gtk_package=libwxgtk3.2-dev
+	fi
 fi
 
 # liblmdb-dev libdb5.3-dev 
