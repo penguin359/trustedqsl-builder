@@ -55,9 +55,20 @@ sudo chmod -R u=rwX,go=rX /output
 
 
 if [ "$ID" = "ubuntu" ]; then
-	if [ -f /etc/apt/sources.list ]; then
-		echo deb http://archive.ubuntu.com/ubuntu/ ${VERSION_CODENAME} main universe | sudo tee -a /etc/apt/sources.list >/dev/null
-		echo deb-src http://archive.ubuntu.com/ubuntu/ ${VERSION_CODENAME} main universe | sudo tee -a /etc/apt/sources.list >/dev/null
+	if [ -f /etc/apt/sources.list.d/ubuntu.sources ]; then
+		cat <<EOF | sudo tee /etc/apt/sources.list.d/ubuntu.sources >/dev/null
+Types: deb deb-src
+URIs: http://us.archive.ubuntu.com/ubuntu/
+Suites: ${VERSION_CODENAME} ${VERSION_CODENAME}-updates
+Components: main universe
+Signed-By: /usr/share/keyrings/ubuntu-archive-keyring.gpg
+EOF
+	elif [ -f /etc/apt/sources.list ]; then
+		sudo cp /dev/null /etc/apt/sources.list
+		echo deb http://us.archive.ubuntu.com/ubuntu/ ${VERSION_CODENAME} main universe | sudo tee -a /etc/apt/sources.list >/dev/null
+		echo deb-src http://us.archive.ubuntu.com/ubuntu/ ${VERSION_CODENAME} main universe | sudo tee -a /etc/apt/sources.list >/dev/null
+		echo deb http://us.archive.ubuntu.com/ubuntu/ ${VERSION_CODENAME}-updates main universe | sudo tee -a /etc/apt/sources.list >/dev/null
+		echo deb-src http://us.archive.ubuntu.com/ubuntu/ ${VERSION_CODENAME}-updates main universe | sudo tee -a /etc/apt/sources.list >/dev/null
 	fi
 	if [ "${VERSION_CODENAME}" = "groovy" -o \
 	     "${VERSION_CODENAME}" = "hirsute" -o \
@@ -65,8 +76,12 @@ if [ "$ID" = "ubuntu" ]; then
 	     "${VERSION_CODENAME}" = "kinetic" -o \
 	     "${VERSION_CODENAME}" = "lunar" -o \
 	     "${VERSION_CODENAME}" = "mantic" ]; then
-		sudo sed -i 's:archive.ubuntu.com:old-releases.ubuntu.com:' /etc/apt/sources.list
-		sudo sed -i 's:security.ubuntu.com:old-releases.ubuntu.com:' /etc/apt/sources.list
+		sudo sed -i 's:us.archive.ubuntu.com:old-releases.ubuntu.com:' /etc/apt/sources.list
+		#sudo sed -i 's:security.ubuntu.com:old-releases.ubuntu.com:' /etc/apt/sources.list
+		if [ -f /etc/apt/sources.list.d/ubuntu.sources ]; then
+			sudo sed -i 's:us.archive.ubuntu.com:old-releases.ubuntu.com:' /etc/apt/sources.list.d/ubuntu.sources
+			#sudo sed -i 's:security.ubuntu.com:old-releases.ubuntu.com:' /etc/apt/sources.list.d/ubuntu.sources
+		fi
 	else
 		proxy=10.146.39.1
 		#ping -n1 "$proxy"
@@ -168,7 +183,7 @@ if [ -z "$pristine" ]; then
 	version="${version%-*}"
 	(
 		cd ..
-		wget "http://archive.ubuntu.com/ubuntu/pool/universe/t/trustedqsl/trustedqsl_${version}.orig.tar.gz" || \
+		wget "http://us.archive.ubuntu.com/ubuntu/pool/universe/t/trustedqsl/trustedqsl_${version}.orig.tar.gz" || \
 		wget "https://deb.debian.org/debian/pool/main/t/trustedqsl/trustedqsl_${version}.orig.tar.gz" || \
 		wget "https://www.arrl.org/tqsl/tqsl-${version}.tar.gz" -O "trustedqsl_${version}.orig.tar.gz"
 	)
