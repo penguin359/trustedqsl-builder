@@ -125,6 +125,9 @@ build() {
 	if [[ "$release" =~ "debian" ]]; then
 		user="debian"
 	fi
+	if [ -z "$no_sign" -a -n "$package" ]; then
+		echo | gpg -s >/dev/null
+	fi
 
 	#sed -i -e 's/^FROM .*/FROM '"$release"'/' Dockerfile
 

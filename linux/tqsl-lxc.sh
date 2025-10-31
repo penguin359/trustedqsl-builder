@@ -2,7 +2,7 @@
 
 base="$(dirname "$(readlink -f "$0")")"
 
-args=$(getopt --name "$0" --options 'hn:uTUtapD' --longoptions 'help,name:,upload,tag,no-sign,tarball,appimage,package,shell-debug' --shell sh -- "$@")
+args=$(getopt --name "$0" --options 'hn:uTUtapND' --longoptions 'help,name:,upload,tag,no-sign,tarball,appimage,package,no-clean,shell-debug' --shell sh -- "$@")
 if [ $? -ne 0 ]; then
 	echo >&2
 	echo "Invalid options, use -h for help." >&2
@@ -19,6 +19,7 @@ appimage=
 package=
 sh_debug=
 all=y
+clean=y
 while [ $# -gt 0 ]; do
 	case "$1" in
 		-h|--help)
@@ -31,6 +32,7 @@ while [ $# -gt 0 ]; do
 			echo "  -t | --tarball     Only build tarball" >&2
 			echo "  -a | --appimage    Only build AppImage" >&2
 			echo "  -p | --package     Only build Debian package" >&2
+			echo "  -N | --no-clean    Don't clean container" >&2
 			echo "  -D | --shell-debug Enable shell script debugging" >&2
 			echo "  tag...             Ubuntu version(s) to build for" >&2
 			exit 0
@@ -59,6 +61,9 @@ while [ $# -gt 0 ]; do
 		-p|--package)
 			package=y
 			all=
+			;;
+		-N|--no-clean)
+			clean=
 			;;
 		-D|--shell-debug)
 			sh_debug="bash -x"
@@ -110,6 +115,9 @@ build() {
 	local user="ubuntu"
 	if [[ "$release" =~ "debian" ]]; then
 		user="debian"
+	fi
+	if [ -z "$no_sign" -a -n "$package" ]; then
+		echo | gpg -s >/dev/null
 	fi
 
 	if [ -z "$DISPLAY" ]; then
@@ -221,8 +229,10 @@ build() {
 	lxc file pull -r "$container/output/" "$outputdir"/
 	mv "$outputdir"/output/* "$outputdir"/
 	rmdir "$outputdir"/output/
-	lxc stop "$container"
-	lxc delete "$container"
+	if [ -n "$clean" ]; then
+		lxc stop "$container"
+		lxc delete "$container"
+	fi
 
 	echo "===> Done."
 }
