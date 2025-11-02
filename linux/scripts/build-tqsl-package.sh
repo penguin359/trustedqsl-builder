@@ -75,7 +75,8 @@ EOF
 	     "${VERSION_CODENAME}" = "impish" -o \
 	     "${VERSION_CODENAME}" = "kinetic" -o \
 	     "${VERSION_CODENAME}" = "lunar" -o \
-	     "${VERSION_CODENAME}" = "mantic" ]; then
+	     "${VERSION_CODENAME}" = "mantic" -o \
+	     "${VERSION_CODENAME}" = "oracular" ]; then
 		sudo sed -i 's:us.archive.ubuntu.com:old-releases.ubuntu.com:' /etc/apt/sources.list
 		#sudo sed -i 's:security.ubuntu.com:old-releases.ubuntu.com:' /etc/apt/sources.list
 		if [ -f /etc/apt/sources.list.d/ubuntu.sources ]; then
