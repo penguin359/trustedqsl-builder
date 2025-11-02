@@ -125,6 +125,10 @@ build() {
 	if [[ "$release" =~ "debian" ]]; then
 		user="debian"
 	fi
+	if [[ "${tag}" != [123]* ]]; then
+		echo "Tag should be the numerical Ubuntu release" >&2
+		exit 1
+	fi
 	if [ -z "$no_sign" -a -n "$package" ]; then
 		echo | gpg -s >/dev/null
 	fi
@@ -134,8 +138,19 @@ build() {
 	rm -fr "$outputdir"/
 	mkdir -p "$outputdir"/
 
+	dockerfile="${base}/Dockerfile"
+	if [ "${tag}" = "20.10" -o \
+	     "${tag}" = "21.04" -o \
+	     "${tag}" = "21.10" -o \
+	     "${tag}" = "22.10" -o \
+	     "${tag}" = "23.04" -o \
+	     "${tag}" = "23.10" -o \
+	     "${tag}" = "24.10" ]; then
+		dockerfile="${base}/Dockerfile-old"
+	fi
+
 	#if ! docker image inspect "tqsl-${tag}" &>/dev/null; then
-		docker build --build-arg tag="${tag}" --tag "tqsl-${tag}" .
+		docker build -f "$dockerfile" --build-arg tag="${tag}" --tag "tqsl-${tag}" .
 	#fi
 	docker container rm "${container}-${tag}" 2>/dev/null || true
 
