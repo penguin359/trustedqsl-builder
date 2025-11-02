@@ -1,0 +1,155 @@
+# To support a new release r, do the following:
+
+# Update make-release.sh with the new release
+
+git switch -c backport-r backport-questing
+git branch -f old-r
+git reset --hard HEAD~1
+git rebase debian/master
+../../tqsl-builder/linux/make-release.sh
+git please
+
+# Then change the rebase command for the last release to:
+
+git rebase --onto backport-r~1 old-r
+
+
+
+# The current releases follow:
+
+git switch backport-questing
+git branch -f old-questing
+git reset --hard HEAD~1
+git rebase debian/master
+../../tqsl-builder/linux/make-release.sh
+git please
+
+git switch backport-plucky
+git branch -f old-plucky
+git reset --hard HEAD~1
+git rebase --onto backport-questing~1 old-questing
+../../tqsl-builder/linux/make-release.sh
+git please
+
+git switch backport-oracular
+git branch -f old-oracular
+git reset --hard HEAD~1
+git rebase --onto backport-plucky~1 old-plucky
+../../tqsl-builder/linux/make-release.sh
+git please
+
+git switch backport-noble
+git branch -f old-noble
+git reset --hard HEAD~1
+git rebase --onto backport-oracular~1 old-oracular
+../../tqsl-builder/linux/make-release.sh
+git please
+
+git switch backport-mantic
+git branch -f old-mantic
+git reset --hard HEAD~1
+git rebase --onto backport-noble~1 old-noble
+../../tqsl-builder/linux/make-release.sh
+git please
+
+git switch backport-lunar
+git branch -f old-lunar
+git reset --hard HEAD~1
+git rebase --onto backport-mantic~1 old-mantic
+../../tqsl-builder/linux/make-release.sh
+git please
+
+git switch backport-kinetic
+git branch -f old-kinetic
+git reset --hard HEAD~1
+git rebase --onto backport-lunar~1 old-lunar
+../../tqsl-builder/linux/make-release.sh
+git please
+
+git switch backport-jammy
+git branch -f old-jammy
+git reset --hard HEAD~1
+git rebase --onto backport-kinetic~1 old-kinetic
+../../tqsl-builder/linux/make-release.sh
+git please
+
+git switch backport-impish
+git branch -f old-impish
+git reset --hard HEAD~1
+git rebase --onto backport-jammy~1 old-jammy
+../../tqsl-builder/linux/make-release.sh
+git please
+
+git switch backport-hirsute
+git branch -f old-hirsute
+git reset --hard HEAD~1
+git rebase --onto backport-impish~1 old-impish
+../../tqsl-builder/linux/make-release.sh
+git please
+
+git switch backport-groovy
+git branch -f old-groovy
+git reset --hard HEAD~1
+git rebase --onto backport-hirsute~1 old-hirsute
+../../tqsl-builder/linux/make-release.sh
+git please
+
+git switch backport-focal
+git branch -f old-focal
+git reset --hard HEAD~1
+git rebase --onto backport-groovy~1 old-groovy
+../../tqsl-builder/linux/make-release.sh
+git please
+
+git switch backport-bionic
+git branch -f old-bionic
+git reset --hard HEAD~1
+git rebase --onto backport-focal~1 old-focal
+dpkg-source --before-build . && dpkg-source --after-build .
+../../tqsl-builder/linux/make-release.sh
+git please
+
+git switch backport-xenial
+git branch -f old-xenial
+git reset --hard HEAD~1
+git rebase --onto backport-bionic~1 old-bionic
+dpkg-source --before-build . && dpkg-source --after-build .
+../../tqsl-builder/linux/make-release.sh
+git please
+
+git switch backport-trusty
+git branch -f old-trusty
+git reset --hard HEAD~1
+git rebase --onto backport-xenial~1 old-xenial
+dpkg-source --before-build . && dpkg-source --after-build .
+../../tqsl-builder/linux/make-release.sh
+git please
+
+./linux/tqsl-docker.sh -u -p 25.10  # questing
+./linux/tqsl-docker.sh -u -p 25.04  # plucky
+./linux/tqsl-docker.sh -u -p 24.10  # oracular
+./linux/tqsl-docker.sh -u -p 24.04  # noble
+./linux/tqsl-lxc.sh    -u -p 23.10  # mantic
+./linux/tqsl-lxc.sh    -u -p 23.04  # lunar
+./linux/tqsl-lxc.sh    -u -p 22.10  # kinetic
+./linux/tqsl-docker.sh -u -p 22.04  # jammy
+./linux/tqsl-lxc.sh    -u -p 21.10  # impish
+./linux/tqsl-lxc.sh    -u -p 21.04  # hirsute
+./linux/tqsl-lxc.sh    -u -p 20.10  # groovy
+./linux/tqsl-docker.sh -u -p 20.04  # focal
+./linux/tqsl-docker.sh -u -p 18.04  # bionic
+./linux/tqsl-docker.sh -u -p 16.04  # xenial
+./linux/tqsl-lxc.sh    -u -p 14.04  # trusty
+
+Up to impish pushed
+Rebase impish onto jammy
+Rebase hirsute onto impish
+Rebase groovy onto hirsute
+
+
+Base for xenial split 06d1e2d6c4e768937a6523be65fe40a2f357ddde
+Base for trusty split ded1297991a84b426ad764082d06bfb0149db710
+
+Enable autopkgtest
+piuparts
+gbp.conf
