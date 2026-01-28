@@ -52,3 +52,6 @@ elf error on build-id for jammy
 trustedqsl-dbgsym: elf-error In program headers: Unable to find program
 interpreter name
 [usr/lib/debug/.build-id/15/5b46049286a8300c200e557ed023d1555a5b97.debug]
+sudo cowbuilder create --mirror http://us.archive.ubuntu.com/ubuntu/ --distribution trusty --basepath /var/cache/pbuilder/base-trusty.cow
+
+time (pristine-tar checkout ../trustedqsl_2.8.2.orig.tar.gz && GIT_PBUILDER_PDEBUILDOPTIONS=--auto-debsign gbp buildpackage --git-pbuilder --git-debian-branch=backport-trusty --git-dist=trusty --git-pristine-tar --git-no-create-orig --git-tag --git-retag --git-sign-tags --git-keyid="7896E0999FC79F6CE0EDE103222DF356A57A98FA" --git-debian-tag='released/%(version)s' '--git-debian-tag-msg=%(pkg)s Ubuntu PPA release %(version)s')
