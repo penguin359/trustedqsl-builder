@@ -16,10 +16,16 @@ git please
 
 # The current releases follow:
 
+git switch master
+git branch -f old-master
+git rebase debian/master
+git please
+
 git switch backport-questing
 git branch -f old-questing
 git reset --hard HEAD~1
-git rebase debian/master
+#git rebase debian/master
+git rebase --onto master old-master
 ../../tqsl-builder/linux/make-release.sh
 git please
 
