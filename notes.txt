@@ -2,7 +2,7 @@
 
 # Update make-release.sh with the new release
 
-git switch -c backport-q backport-plucky
+git switch -c backport-q backport-questing
 git branch -f old-q
 git reset --hard HEAD~1
 git rebase debian/master
@@ -129,7 +129,7 @@ git please
 
 ../../tqsl-builder/linux/tqsl-docker.sh -u -p 25.10  # questing
 ../../tqsl-builder/linux/tqsl-docker.sh -u -p 25.04  # plucky
-../../tqsl-builder/linux/tqsl-docker.sh -u -p 24.10  # oracular
+../../tqsl-builder/linux/tqsl-lxc.sh    -u -p 24.10  # oracular
 ../../tqsl-builder/linux/tqsl-docker.sh -u -p 24.04  # noble
 ../../tqsl-builder/linux/tqsl-lxc.sh    -u -p 23.10  # mantic
 ../../tqsl-builder/linux/tqsl-lxc.sh    -u -p 23.04  # lunar
@@ -154,4 +154,5 @@ Base for trusty split ded1297991a84b426ad764082d06bfb0149db710
 
 Enable autopkgtest
 piuparts
+eatmydata
 gbp.conf
